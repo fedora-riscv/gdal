@@ -1,0 +1,386 @@
+diff -Nru gdal-1.4.0-fedora/configure gdal-1.4.0-fedora.work/configure
+--- gdal-1.4.0-fedora/configure	2006-12-29 20:17:00.000000000 +0100
++++ gdal-1.4.0-fedora.work/configure	2007-02-27 23:12:00.000000000 +0100
+@@ -23371,6 +23371,12 @@
+ 
+   echo "using internal GeoTIFF code."
+ 
++elif test "$with_geotiff" = "disabled" ; then
++
++  GEOTIFF_SETTING=disabled
++
++  echo "disabled GeoTIFF code."
++
+ else
+ 
+   GEOTIFF_SETTING=external
+diff -Nru gdal-1.4.0-fedora/configure.in gdal-1.4.0-fedora.work/configure.in
+--- gdal-1.4.0-fedora/configure.in	2006-12-29 20:17:00.000000000 +0100
++++ gdal-1.4.0-fedora.work/configure.in	2007-02-27 23:12:00.000000000 +0100
+@@ -612,6 +612,12 @@
+ 
+   echo "using internal GeoTIFF code."
+ 
++elif test "$with_geotiff" = "disabled" ; then
++
++  GEOTIFF_SETTING=disabled
++
++  echo "disabled GeoTIFF code."
++
+ else
+ 
+   GEOTIFF_SETTING=external
+diff -Nru gdal-1.4.0-fedora/frmts/formats_list.html gdal-1.4.0-fedora.work/frmts/formats_list.html
+--- gdal-1.4.0-fedora/frmts/formats_list.html	2006-11-02 03:40:47.000000000 +0100
++++ gdal-1.4.0-fedora.work/frmts/formats_list.html	2007-02-27 23:20:18.000000000 +0100
+@@ -157,13 +157,6 @@
+ </td><td> --
+ </td></tr>
+ 
+-<tr><td> <a href="frmt_gtiff.html">TIFF / GeoTIFF (.tif)</a>
+-</td><td> GTiff
+-</td><td> Yes
+-</td><td> Yes
+-</td><td> 4GiB
+-</td></tr>
+-
+ <tr><td> <a href="frmt_hdf4.html">Hierarchical Data Format Release 4 (HDF4)</a>
+ </td><td> HDF4
+ </td><td> Yes
+@@ -178,13 +171,6 @@
+ </td><td> 2GiB
+ </td></tr>
+ 
+-<tr><td> <a href="frmt_hfa.html">Erdas Imagine (.img)</a>
+-</td><td> HFA
+-</td><td> Yes
+-</td><td> Yes
+-</td><td> No limits<sup><a href="#footnote2">2</a></sup>
+-</td></tr>
+-
+ <tr><td> <a href="frmt_mff2.html">Vexcel MFF2</a>
+ </td><td> HKV
+ </td><td> Yes
+@@ -440,12 +426,6 @@
+ </p>
+ 
+ <p>
+-<a name="#footnote2"><sup>2</sup>ERDAS Imagine has different file format for
+-	large files, where 32-bit pointers cannot be used. Look for details
+-	<a href="frmt_hfa.html">here</a>.
+-</p>
+-
+-<p>
+ $Id: formats_list.html,v 1.36 2006/11/02 02:40:47 fwarmerdam Exp $
+ </p>
+ 
+diff -Nru gdal-1.4.0-fedora/frmts/gdalallregister.cpp gdal-1.4.0-fedora.work/frmts/gdalallregister.cpp
+--- gdal-1.4.0-fedora/frmts/gdalallregister.cpp	2006-11-13 19:39:46.000000000 +0100
++++ gdal-1.4.0-fedora.work/frmts/gdalallregister.cpp	2007-02-27 23:19:51.000000000 +0100
+@@ -177,10 +177,6 @@
+     GDALRegister_NITF();
+ #endif
+ 
+-#ifdef FRMT_hfa
+-    GDALRegister_HFA();
+-#endif
+-    
+ #ifdef FRMT_ceos2
+     GDALRegister_SAR_CEOS();
+ #endif
+diff -Nru gdal-1.4.0-fedora/frmts/makefile.vc gdal-1.4.0-fedora.work/frmts/makefile.vc
+--- gdal-1.4.0-fedora/frmts/makefile.vc	2006-11-02 04:12:45.000000000 +0100
++++ gdal-1.4.0-fedora.work/frmts/makefile.vc	2007-02-27 23:19:46.000000000 +0100
+@@ -1,7 +1,7 @@
+ 
+ GDAL_ROOT = ..
+ 
+-EXTRAFLAGS =	-DFRMT_ceos -DFRMT_aigrid -DFRMT_elas -DFRMT_hfa -DFRMT_gtiff\
++EXTRAFLAGS =	-DFRMT_ceos -DFRMT_aigrid -DFRMT_elas \
+ 		-DFRMT_sdts -DFRMT_raw -DFRMT_gxf -DFRMT_ceos2 -DFRMT_png \
+ 		-DFRMT_dted -DFRMT_mem -DFRMT_jdem -DFRMT_gif \
+ 		-DFRMT_envisat -DFRMT_aaigrid -DFRMT_usgsdem -DFRMT_l1b \
+diff -Nru gdal-1.4.0-fedora/frmts/mrsid/makefile.vc gdal-1.4.0-fedora.work/frmts/mrsid/makefile.vc
+--- gdal-1.4.0-fedora/frmts/mrsid/makefile.vc	2006-09-19 20:30:38.000000000 +0200
++++ gdal-1.4.0-fedora.work/frmts/mrsid/makefile.vc	2007-02-27 23:12:00.000000000 +0100
+@@ -1,7 +1,7 @@
+ 
+ OBJ	=	mrsiddataset.obj
+ 
+-EXTRAFLAGS = 	$(MRSID_INCLUDE) -I..\gtiff\libgeotiff $(MRSID_FLAGS)
++EXTRAFLAGS = 	$(MRSID_INCLUDE)  $(MRSID_FLAGS)
+ 
+ GDAL_ROOT	=	..\..
+ 
+diff -Nru gdal-1.4.0-fedora/gcore/gdaldefaultoverviews.cpp gdal-1.4.0-fedora.work/gcore/gdaldefaultoverviews.cpp
+--- gdal-1.4.0-fedora/gcore/gdaldefaultoverviews.cpp	2006-11-28 13:57:51.000000000 +0100
++++ gdal-1.4.0-fedora.work/gcore/gdaldefaultoverviews.cpp	2007-02-27 23:56:09.000000000 +0100
+@@ -388,31 +388,6 @@
+ /*      produce the imagery.                                            */
+ /* -------------------------------------------------------------------- */
+ 
+-#ifndef WIN32CE
+-
+-    if( bOvrIsAux )
+-    {
+-        eErr = HFAAuxBuildOverviews( osOvrFilename, poDS, &poODS,
+-                                     nBands, panBandList,
+-                                     nNewOverviews, panNewOverviewList, 
+-                                     pszResampling, 
+-                                     pfnProgress, pProgressData );
+-
+-        int j;
+-        
+-        for( j = 0; j < nOverviews; j++ )
+-        {
+-            if( panOverviewList[j] > 0 )
+-                panOverviewList[j] *= -1;
+-        }
+-    }
+-
+-/* -------------------------------------------------------------------- */
+-/*      Build new overviews - TIFF.  Close TIFF files while we          */
+-/*      operate on it.                                                  */
+-/* -------------------------------------------------------------------- */
+-    else
+-#endif /* WIN32CE */
+     {
+         if( poODS != NULL )
+         {
+@@ -420,10 +395,6 @@
+             poODS = NULL;
+         }
+ 
+-        eErr = GTIFFBuildOverviews( osOvrFilename, nBands, pahBands, 
+-                                    nNewOverviews, panNewOverviewList, 
+-                                    pszResampling, pfnProgress, pProgressData );
+-
+         if( eErr == CE_None )
+         {
+             poODS = (GDALDataset *) GDALOpen( osOvrFilename, GA_Update );
+diff -Nru gdal-1.4.0-fedora/gcore/gdal_frmts.h gdal-1.4.0-fedora.work/gcore/gdal_frmts.h
+--- gdal-1.4.0-fedora/gcore/gdal_frmts.h	2006-11-12 20:59:30.000000000 +0100
++++ gdal-1.4.0-fedora.work/gcore/gdal_frmts.h	2007-02-27 23:23:45.000000000 +0100
+@@ -108,10 +108,8 @@
+ 
+ CPL_C_START
+ void CPL_DLL GDALRegister_GDB(void);
+-void CPL_DLL GDALRegister_GTiff(void);
+ void CPL_DLL GDALRegister_GXF(void);
+ void CPL_DLL GDALRegister_OGDI(void);
+-void CPL_DLL GDALRegister_HFA(void);
+ void CPL_DLL GDALRegister_AAIGrid(void);
+ void CPL_DLL GDALRegister_AIGrid(void);
+ void CPL_DLL GDALRegister_AIGrid2(void);
+diff -Nru gdal-1.4.0-fedora/gcore/gdaljp2metadata.cpp gdal-1.4.0-fedora.work/gcore/gdaljp2metadata.cpp
+--- gdal-1.4.0-fedora/gcore/gdaljp2metadata.cpp	2006-07-21 17:23:01.000000000 +0200
++++ gdal-1.4.0-fedora.work/gcore/gdaljp2metadata.cpp	2007-02-27 23:12:00.000000000 +0100
+@@ -85,13 +85,13 @@
+   0xA7,0xAE,0xD6,0x8E,0x34,0x45,0x18,0x09 };
+ 
+ CPL_C_START
+-CPLErr CPL_DLL GTIFMemBufFromWkt( const char *pszWKT, 
++/*CPLErr CPL_DLL GTIFMemBufFromWkt( const char *pszWKT, 
+                                   const double *padfGeoTransform,
+                                   int nGCPCount, const GDAL_GCP *pasGCPList,
+                                   int *pnSize, unsigned char **ppabyBuffer );
+ CPLErr CPL_DLL GTIFWktFromMemBuf( int nSize, unsigned char *pabyBuffer, 
+                           char **ppszWKT, double *padfGeoTransform,
+-                          int *pnGCPCount, GDAL_GCP **ppasGCPList );
++                          int *pnGCPCount, GDAL_GCP **ppasGCPList );*/
+ CPL_C_END
+ 
+ /************************************************************************/
+@@ -336,13 +336,13 @@
+ /* -------------------------------------------------------------------- */
+     int bSuccess = TRUE;
+ 
+-    if( GTIFWktFromMemBuf( nGeoTIFFSize, pabyGeoTIFFData,
++/*    if( GTIFWktFromMemBuf( nGeoTIFFSize, pabyGeoTIFFData,
+                            &pszProjection, adfGeoTransform,
+                            &nGCPCount, &pasGCPList ) != CE_None )
+     {
+         bSuccess = FALSE;
+     }
+-
++*/
+     if( pszProjection == NULL || strlen(pszProjection) == 0 )
+         bSuccess = FALSE;
+ 
+@@ -764,9 +764,10 @@
+     int         nGTBufSize = 0;
+     unsigned char *pabyGTBuf = NULL;
+ 
+-    if( GTIFMemBufFromWkt( pszProjection, adfGeoTransform, 
++/*    if( GTIFMemBufFromWkt( pszProjection, adfGeoTransform, 
+                            nGCPCount, pasGCPList,
+                            &nGTBufSize, &pabyGTBuf ) != CE_None )
++*/
+         return NULL;
+ 
+     if( nGTBufSize == 0 )
+diff -Nru gdal-1.4.0-fedora/gcore/gdal_priv.h gdal-1.4.0-fedora.work/gcore/gdal_priv.h
+--- gdal-1.4.0-fedora/gcore/gdal_priv.h	2006-11-28 13:56:53.000000000 +0100
++++ gdal-1.4.0-fedora.work/gcore/gdal_priv.h	2007-02-27 23:55:04.000000000 +0100
+@@ -700,26 +700,6 @@
+ 
+ CPL_C_START
+ 
+-#ifndef WIN32CE
+-
+-CPLErr CPL_DLL
+-HFAAuxBuildOverviews( const char *pszOvrFilename, GDALDataset *poParentDS,
+-                      GDALDataset **ppoDS,
+-                      int nBands, int *panBandList,
+-                      int nNewOverviews, int *panNewOverviewList, 
+-                      const char *pszResampling, 
+-                      GDALProgressFunc pfnProgress, 
+-                      void *pProgressData );
+-
+-#endif /* WIN32CE */
+-
+-CPLErr CPL_DLL 
+-GTIFFBuildOverviews( const char * pszFilename,
+-                     int nBands, GDALRasterBand **papoBandList, 
+-                     int nOverviews, int * panOverviewList,
+-                     const char * pszResampling, 
+-                     GDALProgressFunc pfnProgress, void * pProgressData );
+-
+ CPLErr CPL_DLL
+ GDALDefaultBuildOverviews( GDALDataset *hSrcDS, const char * pszBasename,
+                            const char * pszResampling, 
+diff -Nru gdal-1.4.0-fedora/GDALmake.opt.in gdal-1.4.0-fedora.work/GDALmake.opt.in
+--- gdal-1.4.0-fedora/GDALmake.opt.in	2006-12-05 03:18:11.000000000 +0100
++++ gdal-1.4.0-fedora.work/GDALmake.opt.in	2007-02-27 23:19:12.000000000 +0100
+@@ -311,7 +311,7 @@
+ #	and their uppercase form should be the format portion of the
+ #	format registration entry point.  eg. gdb -> GDALRegister_GDB().
+ #
+-GDAL_FORMATS = 	gxf gtiff hfa aigrid aaigrid ceos ceos2 iso8211 xpm \
++GDAL_FORMATS = 	gxf aigrid aaigrid ceos ceos2 iso8211 xpm \
+ 		sdts raw dted mem jdem envisat elas fit vrt usgsdem l1b \
+ 		nitf bmp pcidsk airsar rs2 ilwis rmf rik leveller sgi \
+ 		idrisi \
+diff -Nru gdal-1.4.0-fedora/ogr/Makefile gdal-1.4.0-fedora.work/ogr/Makefile
+--- gdal-1.4.0-fedora/ogr/Makefile	2006-11-18 21:37:43.000000000 +0100
++++ gdal-1.4.0-fedora.work/ogr/Makefile	2007-02-27 23:12:00.000000000 +0100
+@@ -2,7 +2,7 @@
+ LINKFLAGS =	/Zi /MTd
+ EXTRAFLAGS =	-I$(MSDASDK)\inc \
+ 		-I"$(VCDIR)\ATL\Include" -DWIN32 \
+-		-I. -Iogrsf_frmts -I..\frmts\gtiff\libgeotiff \
++		-I. -Iogrsf_frmts \
+ 		$(PROJ_FLAGS) $(PROJ_INCLUDE) $(GEOS_CFLAGS)
+ 
+ GDAL_ROOT = 	..
+diff -Nru gdal-1.4.0-fedora/ogr/ogrsf_frmts/generic/ogrregisterall.cpp gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/generic/ogrregisterall.cpp
+--- gdal-1.4.0-fedora/ogr/ogrsf_frmts/generic/ogrregisterall.cpp	2006-11-28 16:34:41.000000000 +0100
++++ gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/generic/ogrregisterall.cpp	2007-02-27 23:54:17.000000000 +0100
+@@ -160,9 +160,6 @@
+ #ifdef S57_ENABLED
+     RegisterOGRS57();
+ #endif
+-#ifdef DGN_ENABLED
+-    RegisterOGRDGN();
+-#endif
+ #ifdef VRT_ENABLED
+     RegisterOGRVRT();
+ #endif
+@@ -184,10 +181,6 @@
+ #ifdef KML_ENABLED
+     RegisterOGRKML();
+ #endif
+-#ifdef ILI_ENABLED
+-    RegisterOGRILI1();
+-    RegisterOGRILI2();
+-#endif
+ #ifdef SQLITE_ENABLED
+     RegisterOGRSQLite();
+ #endif
+diff -Nru gdal-1.4.0-fedora/ogr/ogrsf_frmts/GNUmakefile gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/GNUmakefile
+--- gdal-1.4.0-fedora/ogr/ogrsf_frmts/GNUmakefile	2006-11-28 16:34:41.000000000 +0100
++++ gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/GNUmakefile	2007-02-27 23:46:34.000000000 +0100
+@@ -1,7 +1,7 @@
+ 
+ include ../../GDALmake.opt
+ 
+-SUBDIRS-yes	:= generic shape ntf sdts tiger s57 mitab dgn \
++SUBDIRS-yes	:= generic shape ntf sdts tiger s57 mitab \
+ 				gml kml avc rec mem vrt csv
+ SUBDIRS-$(HAVE_OGDI)	+= ogdi
+ SUBDIRS-$(HAVE_OCI)	+= oci
+@@ -12,7 +12,6 @@
+ SUBDIRS-$(ODBC_SETTING)	+= odbc pgeo
+ SUBDIRS-$(HAVE_SQLITE)	+= sqlite
+ SUBDIRS-$(HAVE_GRASS)	+= grass
+-SUBDIRS-$(HAVE_XERCES)	+= ili
+ SUBDIRS-$(HAVE_DWGDIRECT) += dxfdwg
+ SUBDIRS-$(HAVE_SDE)     += sde
+ SUBDIRS-$(HAVE_IDB)	+= idb
+diff -Nru gdal-1.4.0-fedora/ogr/ogrsf_frmts/Makefile gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/Makefile
+--- gdal-1.4.0-fedora/ogr/ogrsf_frmts/Makefile	2006-11-28 17:19:47.000000000 +0100
++++ gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/Makefile	2007-02-27 23:46:48.000000000 +0100
+@@ -1,6 +1,6 @@
+ GDAL_ROOT	=	..\..
+ 
+-DIRLIST		=	generic shape ntf sdts tiger s57 dgn mitab gml kml avc \
++DIRLIST		=	generic shape ntf sdts tiger s57 mitab gml kml avc \
+ 			rec mem vrt csv \
+ 			$(OGDIDIR) $(FMEDIR) $(OCIDIR) $(PG_DIR) $(DWGDIR) \
+ 			$(ODBCDIR) $(SQLITE_DIR) $(MYSQL_DIR) $(ILI_DIR) \
+@@ -53,11 +53,6 @@
+ MYSQL_OBJ = mysql\*.obj
+ !ENDIF
+ 
+-!IFDEF ILI_ENABLED
+-ILI_DIR = ili
+-ILI_OBJ = ili\*.obj ili\iom\*.obj
+-!ENDIF
+-
+ !IFDEF INFORMIXDIR
+ IDB_DIR = idb
+ IDB_OBJ = idb\*.obj
+@@ -71,7 +66,7 @@
+ 
+ 	lib /out:ogrsf_frmts.lib generic\*.obj shape\*.obj ntf\*.obj \
+ 				 sdts\*.obj s57\*.obj tiger\*.obj gml\*.obj \
+-				 mitab\*.obj dgn\*.obj avc\*.obj mem\*.obj \
++				 mitab\*.obj avc\*.obj mem\*.obj \
+ 				 vrt\*.obj csv\*.obj rec\*.obj kml\*.obj \
+ 				$(OGDIOBJ) $(ODBCOBJ) $(SQLITE_OBJ) \
+ 				$(FMEOBJ) $(OCIOBJ) $(PG_OBJ) $(MYSQL_OBJ) \
+diff -Nru gdal-1.4.0-fedora/ogr/ogrsf_frmts/ogr_formats.html gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/ogr_formats.html
+--- gdal-1.4.0-fedora/ogr/ogrsf_frmts/ogr_formats.html	2006-12-19 04:40:52.000000000 +0100
++++ gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/ogr_formats.html	2007-02-27 23:37:55.000000000 +0100
+@@ -85,11 +85,6 @@
+ </td><td> Yes
+ </td></tr>
+ 
+-<tr><td> <a href="drv_dgn.html">Microstation DGN</a>
+-</td><td> Yes
+-</td><td> No
+-</td></tr>
+-
+ <tr><td> <a href="drv_mysql.html">MySQL</a>
+ </td><td> No
+ </td><td> No
+diff -Nru gdal-1.4.0-fedora/ogr/ogrsf_frmts/ogrsf_frmts.h gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/ogrsf_frmts.h
+--- gdal-1.4.0-fedora/ogr/ogrsf_frmts/ogrsf_frmts.h	2006-12-13 19:24:45.000000000 +0100
++++ gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/ogrsf_frmts.h	2007-02-27 23:54:11.000000000 +0100
+@@ -374,7 +374,6 @@
+ void CPL_DLL RegisterOGRPG();
+ void CPL_DLL RegisterOGRMySQL();
+ void CPL_DLL RegisterOGROCI();
+-void CPL_DLL RegisterOGRDGN();
+ void CPL_DLL RegisterOGRGML();
+ void CPL_DLL RegisterOGRKML();
+ void CPL_DLL RegisterOGRAVCBin();
+@@ -385,8 +384,6 @@
+ void CPL_DLL RegisterOGRDODS();
+ void CPL_DLL RegisterOGRSQLite();
+ void CPL_DLL RegisterOGRCSV();
+-void CPL_DLL RegisterOGRILI1();
+-void CPL_DLL RegisterOGRILI2();
+ void CPL_DLL RegisterOGRGRASS();
+ void CPL_DLL RegisterOGRPGeo();
+ void CPL_DLL RegisterOGRDXFDWG();
