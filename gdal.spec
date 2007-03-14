@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.0
-Release:   10%{?dist}
+Release:   11%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -14,7 +14,14 @@ BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
 BuildRequires: unixODBC-devel mysql-devel sqlite-devel postgresql-devel zlib-devel
 BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel
 BuildRequires: jasper-devel cfitsio-devel hdf-devel libdap-devel librx-devel
-BuildRequires: python-devel >= 2.4 perl-devel >= 5.8 xerces-c-devel
+BuildRequires: python-devel >= 2.4 xerces-c-devel
+
+%if "%{?dist}" == "fc7"
+BuildRequires: perl-devel >= 5.8 
+%elsif
+BuildRequires: perl
+%endif
+
 
 %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")
 
@@ -256,6 +263,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Wed Mar 14 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-11
+* fix fc6 fc5 builds
+
 * Thu Mar 1 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-10
 - fix mock build
 - require perl-devel
