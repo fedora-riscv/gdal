@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.0
-Release:   12%{?dist}
+Release:   13%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -18,7 +18,7 @@ BuildRequires: python-devel >= 2.4 xerces-c-devel
 
 %if "%{?dist}" == ".fc7"
 BuildRequires: perl-devel >= 5.8 
-%elsif
+%elseif
 BuildRequires: perl
 %endif
 
@@ -262,6 +262,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Wed Mar 14 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-13
+- fix typo in specfile
+
 * Wed Mar 14 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-12
 - add missing dot from dist string in specfile
 
