@@ -1,15 +1,14 @@
 Name:      gdal
 Version:   1.4.0
-Release:   14%{?dist}
+Release:   15%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
 URL:       http://gdal.maptools.org
-Source0:   %{name}-%{version}-fedora.tar.gz
-Source1:   %{name}.pc
+Source:    %{name}-%{version}-fedora.tar.gz
 Patch0:    %{name}-buildfix.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: libtool swig
+BuildRequires: libtool swig pkgconfig
 BuildRequires: doxygen tetex-latex ghostscript
 BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
 BuildRequires: unixODBC-devel mysql-devel sqlite-devel postgresql-devel zlib-devel
@@ -26,6 +25,7 @@ The GDAL library provides support to handle multiple GIS file formats.
 %package devel
 Summary: Development Libraries for the GDAL file format library
 Group: Development/Libraries
+Requires: pkgconfig
 Requires: %{name} = %{version}-%{release}
 
 %description devel
@@ -181,8 +181,21 @@ mv %{buildroot}%{perl_sitearch}/auto/Geo/* %{buildroot}%{perl_vendorarch}/Geo/
 rm -rf %{buildroot}%{_libdir}/perl5/site_perl %{buildroot}/auto %{buildroot}%{perl_sitelib}
 
 # install pkgconfig file
+cat > %{name}.pc <<EOF
+prefix=%{_prefix}
+exec_prefix=%{_prefix}
+libdir=%{_libdir}
+includedir=%{_includedir}
+
+Name: GDAL
+Description: GIS file format library
+Version: %{version}
+Libs: -L\${libdir}
+Cflags: -I\${includedir}/%{name}
+EOF
+
 mkdir -p %{buildroot}%{_libdir}/pkgconfig/
-install -p -m 644 %{SOURCE1} %{buildroot}%{_libdir}/pkgconfig/
+install -p -m 644 %{name}.pc %{buildroot}%{_libdir}/pkgconfig/
 
 # fix some exec bits
 find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
@@ -263,6 +276,10 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Thu Mar 15 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-15
+- require pkgconfig
+- generate pkgconfig from spec instead
+
 * Thu Mar 15 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-14
 - require perl(ExtUtils::MakeMaker) instead ?dist checking
 - add pkgconfig file 
