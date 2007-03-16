@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.0
-Release:   15%{?dist}
+Release:   16%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -190,7 +190,7 @@ includedir=%{_includedir}
 Name: GDAL
 Description: GIS file format library
 Version: %{version}
-Libs: -L\${libdir}
+Libs: -L\${libdir} -lgdal
 Cflags: -I\${includedir}/%{name}
 EOF
 
@@ -276,6 +276,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Fri Mar 16 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-16
+- fix gdal flag from pkgconfig file
+
 * Thu Mar 15 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-15
 - require pkgconfig
 - generate pkgconfig from spec instead
