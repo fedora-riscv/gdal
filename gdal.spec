@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.0
-Release:   16%{?dist}
+Release:   17%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -11,9 +11,9 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool swig pkgconfig
 BuildRequires: doxygen tetex-latex ghostscript
 BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
-BuildRequires: unixODBC-devel mysql-devel sqlite-devel postgresql-devel zlib-devel
-BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel
 BuildRequires: jasper-devel cfitsio-devel hdf-devel libdap-devel librx-devel
+BuildRequires: unixODBC-devel mysql-devel sqlite-devel postgresql-devel zlib-devel
+BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel grass-devel
 BuildRequires: python-devel >= 2.4 xerces-c-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
@@ -82,12 +82,18 @@ chmod -x ogr/ogrsf_frmts/ogdi/ogrogdidriver.cpp
 %build
 
 # fix hardcoded issues with cfitso and ogdi
+sed -i 's|-L\$with_cfitsio -L\$with_cfitsio\/lib -lcfitsio|-lcfitsio|g' configure
 sed -i 's|-I\$with_cfitsio|-I\$with_cfitsio\/include\/cfitsio|g' configure
+sed -i 's|-L\$with_netcdf -L\with_netcdf\/lib -lnetcdf|-lnetcdf|g' configure
+sed -i 's|-L\$with_ogdi -L\$with_ogdi\/lib -logdi|-logdi|g' configure
+sed -i 's|-L\$with_jpeg -L\$with_jpeg\/lib -ljpeg|-ljpeg|g' configure
+sed -i 's|-L\$with_libtiff\/lib -ltiff|-ltiff|g' configure
+sed -i 's|-L\$with_grass\/lib||g' configure
 sed -i 's|-logdi31|-logdi|g' configure
 
 # append some path for few libs
 export CPPFLAGS="`pkg-config ogdi --cflags`"
-export CPPFLAGS=$CPPFLAGS' -I%{_includedir}/netcdf-3'
+export CPPFLAGS="$CPPFLAGS -I%{_includedir}/netcdf-3"
 export CPPFLAGS="$CPPFLAGS -I%{_includedir}/hdf"
 export CPPFLAGS="$CPPFLAGS `dap-config --cflags`"
 export CFLAGS="$RPM_OPT_FLAGS" 
@@ -98,6 +104,8 @@ export LDFLAGS='-L%{_libdir}/netcdf-3 -L%{_libdir}/hdf'
         --prefix=%{_prefix} \
         --includedir=%{_includedir}/%{name}/ \
         --with-threads      \
+        --with-grass=%{_prefix}     \
+        --with-libgrass             \
         --with-dods-root=%{_libdir} \
         --with-ogdi=`ogdi-config --libdir` \
         --with-cfitsio=%{_prefix} \
@@ -120,11 +128,9 @@ export LDFLAGS='-L%{_libdir}/netcdf-3 -L%{_libdir}/hdf'
         --with-python             \
         --with-perl               \
         --with-xerces             \
-        --with-xerces-lib='-lxerces-c -L%{_libdir} -L%{_libdir}/hdf -L%{_libdir}/netcdf-3' \
+        --with-xerces-lib='-lxerces-c -L%{_libdir}/hdf -L%{_libdir}/netcdf-3' \
         --with-xerces-inc=%{_includedir} \
         --without-pcraster        \
-        --without-grass           \
-        --without-libgrass        \
         --enable-shared           \
         --disable-static
 
@@ -134,14 +140,11 @@ sed -e "s/^CFLAGS.*$/CFLAGS=$CFLAGS/" \
 -e "s/^CXXFLAGS.*$/CXXFLAGS=$CXXFLAGS/" \
 -e "s/^FFLAGS.*$/FFLAGS=$FFLAGS/" \
 -e "s/ cfitsio / /" \
--e "s/-ldap++/-ldap -ldapclient -ldapserver \
--L\/usr\/lib\/netcdf-3 -L\/usr\/lib\/hdf \
--L\/usr\/lib64\/netcdf-3 -L\/usr\/lib64\/hdf/" \
+-e "s/-ldap++/-ldap -ldapclient -ldapserver/" \
 GDALmake.opt.orig > GDALmake.opt
 rm GDALmake.opt.orig
 
 # fixup non-existent lookup dir
-mkdir -p external/lib
 mkdir -p external/include
 
 # WARNING !!!
@@ -276,6 +279,10 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Tue Mar 20 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-17
+- enable build against grass
+- fix incorrect use of 32/64 library paths lookups
+
 * Fri Mar 16 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-16
 - fix gdal flag from pkgconfig file
 
