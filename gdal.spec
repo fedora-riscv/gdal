@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.0
-Release:   17%{?dist}
+Release:   18%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -141,6 +141,7 @@ sed -e "s/^CFLAGS.*$/CFLAGS=$CFLAGS/" \
 -e "s/^FFLAGS.*$/FFLAGS=$FFLAGS/" \
 -e "s/ cfitsio / /" \
 -e "s/-ldap++/-ldap -ldapclient -ldapserver/" \
+-e "s/-L\$(INST_LIB) -lgdal/-lgdal/" \
 GDALmake.opt.orig > GDALmake.opt
 rm GDALmake.opt.orig
 
@@ -279,6 +280,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Wed Mar 21 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-18
+- remove system lib path from gdal-config --libs, its implicit
+
 * Tue Mar 20 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-17
 - enable build against grass
 - fix incorrect use of 32/64 library paths lookups
