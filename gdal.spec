@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.0
-Release:   18%{?dist}
+Release:   19%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -84,7 +84,8 @@ chmod -x ogr/ogrsf_frmts/ogdi/ogrogdidriver.cpp
 # fix hardcoded issues with cfitso and ogdi
 sed -i 's|-L\$with_cfitsio -L\$with_cfitsio\/lib -lcfitsio|-lcfitsio|g' configure
 sed -i 's|-I\$with_cfitsio|-I\$with_cfitsio\/include\/cfitsio|g' configure
-sed -i 's|-L\$with_netcdf -L\with_netcdf\/lib -lnetcdf|-lnetcdf|g' configure
+sed -i 's|-L\$with_netcdf -L\$with_netcdf\/lib -lnetcdf|-lnetcdf|g' configure
+sed -i 's|-L\$DODS_LIB -ldap++|-ldap++|g' configure
 sed -i 's|-L\$with_ogdi -L\$with_ogdi\/lib -logdi|-logdi|g' configure
 sed -i 's|-L\$with_jpeg -L\$with_jpeg\/lib -ljpeg|-ljpeg|g' configure
 sed -i 's|-L\$with_libtiff\/lib -ltiff|-ltiff|g' configure
@@ -258,6 +259,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc ogr/wcts/html ogr/ogrsf_frmts/html 
 %doc ogr/ogrsf_frmts/latex/refman.pdf
 %{_bindir}/%{name}-config
+%dir %{_includedir}/%{name}
 %{_includedir}/%{name}/*.h
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/%{name}.pc
@@ -280,6 +282,10 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Mon Apr 02 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-19
+- own gdal includedir
+- fix one more spurious lib path
+
 * Wed Mar 21 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-18
 - remove system lib path from gdal-config --libs, its implicit
 
