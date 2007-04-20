@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.0
-Release:   21%{?dist}
+Release:   22%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -233,7 +233,8 @@ rm -rf $RPM_BUILD_ROOT
 %files 
 %defattr(-,root,root,-)
 %doc NEWS PROVENANCE.TXT-mainstream PROVENANCE.TXT-fedora COMMITERS
-%doc doc/frmts doc/ogrsf_frmts doc/html
+%doc doc/frmts  
+#%doc doc/ogrsf_frmts doc/html
 %{_bindir}/gdal_contour
 %{_bindir}/gdal_rasterize
 %{_bindir}/gdal_translate
@@ -258,8 +259,9 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(-,root,root,-)
 %doc html ogr/html rfc/html rfc/latex/refman.pdf 
-%doc ogr/wcts/html ogr/ogrsf_frmts/html 
-%doc ogr/ogrsf_frmts/latex/refman.pdf
+%doc ogr/wcts/html 
+#%doc ogr/ogrsf_frmts/html 
+#%doc ogr/ogrsf_frmts/latex/refman.pdf
 %{_bindir}/%{name}-config
 %dir %{_includedir}/%{name}
 %{_includedir}/%{name}/*.h
@@ -284,6 +286,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Fri Apr 20 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-22
+- and olso dont attempt pack missing docs.
+
 * Fri Apr 20 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-21
 - exclude some docs, doxygen segfault with those now upstream.
 
