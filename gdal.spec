@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.0
-Release:   20%{?dist}
+Release:   21%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -209,11 +209,13 @@ chmod -x pymod/samples/*
 # build and include more docs
 mkdir -p doc/frmts; find frmts -name "*.html" -exec install -m 644 '{}' doc/frmts/ \;
 mkdir -p doc/ogrsf_frmts; find ogr/ogrsf_frmts -name "*.html" -exec install -m 644 '{}' doc/ogrsf_frmts \;
-pushd doc; doxygen index.dox; popd
+
+# some commented out are broken for now
+#pushd doc; doxygen index.dox; popd
 pushd rfc; doxygen *.dox; popd
 pushd rfc/latex; make refman.pdf; popd
-pushd ogr/ogrsf_frmts; doxygen *.dox; popd
-pushd ogr/ogrsf_frmts/latex; make refman.pdf; popd
+#pushd ogr/ogrsf_frmts; doxygen *.dox; popd
+#pushd ogr/ogrsf_frmts/latex; make refman.pdf; popd
 pushd swig/perl; doxygen; popd
 pushd swig/perl/latex; make refman.pdf; popd
 
@@ -282,6 +284,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Fri Apr 20 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-21
+- exclude some docs, doxygen segfault with those now upstream.
+
 * Fri Apr 20 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-20
 - rebuild against latest fedora upstream tree.
 
