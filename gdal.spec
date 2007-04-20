@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.0
-Release:   19%{?dist}
+Release:   20%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -282,6 +282,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Fri Apr 20 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-20
+- rebuild against latest fedora upstream tree.
+
 * Mon Apr 02 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-19
 - own gdal includedir
 - fix one more spurious lib path
