@@ -1,6 +1,6 @@
-diff -Nru gdal-1.4.0-fedora/configure gdal-1.4.0-fedora.work/configure
---- gdal-1.4.0-fedora/configure	2006-12-29 20:17:00.000000000 +0100
-+++ gdal-1.4.0-fedora.work/configure	2007-02-27 23:12:00.000000000 +0100
+diff -Nru gdal-1.4.1-fedora/configure gdal-1.4.1-fedora-patched/configure
+--- gdal-1.4.1-fedora/configure	2007-04-10 17:16:54.000000000 +0200
++++ gdal-1.4.1-fedora-patched/configure	2007-05-09 19:37:21.000000000 +0200
 @@ -23371,6 +23371,12 @@
  
    echo "using internal GeoTIFF code."
@@ -14,9 +14,9 @@ diff -Nru gdal-1.4.0-fedora/configure gdal-1.4.0-fedora.work/configure
  else
  
    GEOTIFF_SETTING=external
-diff -Nru gdal-1.4.0-fedora/configure.in gdal-1.4.0-fedora.work/configure.in
---- gdal-1.4.0-fedora/configure.in	2006-12-29 20:17:00.000000000 +0100
-+++ gdal-1.4.0-fedora.work/configure.in	2007-02-27 23:12:00.000000000 +0100
+diff -Nru gdal-1.4.1-fedora/configure.in gdal-1.4.1-fedora-patched/configure.in
+--- gdal-1.4.1-fedora/configure.in	2007-04-10 17:16:55.000000000 +0200
++++ gdal-1.4.1-fedora-patched/configure.in	2007-05-09 19:37:21.000000000 +0200
 @@ -612,6 +612,12 @@
  
    echo "using internal GeoTIFF code."
@@ -30,24 +30,10 @@ diff -Nru gdal-1.4.0-fedora/configure.in gdal-1.4.0-fedora.work/configure.in
  else
  
    GEOTIFF_SETTING=external
-diff -Nru gdal-1.4.0-fedora/frmts/formats_list.html gdal-1.4.0-fedora.work/frmts/formats_list.html
---- gdal-1.4.0-fedora/frmts/formats_list.html	2006-11-02 03:40:47.000000000 +0100
-+++ gdal-1.4.0-fedora.work/frmts/formats_list.html	2007-02-27 23:20:18.000000000 +0100
-@@ -157,13 +157,6 @@
- </td><td> --
- </td></tr>
- 
--<tr><td> <a href="frmt_gtiff.html">TIFF / GeoTIFF (.tif)</a>
--</td><td> GTiff
--</td><td> Yes
--</td><td> Yes
--</td><td> 4GiB
--</td></tr>
--
- <tr><td> <a href="frmt_hdf4.html">Hierarchical Data Format Release 4 (HDF4)</a>
- </td><td> HDF4
- </td><td> Yes
-@@ -178,13 +171,6 @@
+diff -Nru gdal-1.4.1-fedora/frmts/formats_list.html gdal-1.4.1-fedora-patched/frmts/formats_list.html
+--- gdal-1.4.1-fedora/frmts/formats_list.html	2007-04-10 17:16:26.000000000 +0200
++++ gdal-1.4.1-fedora-patched/frmts/formats_list.html	2007-05-09 19:38:52.000000000 +0200
+@@ -178,13 +178,6 @@
  </td><td> 2GiB
  </td></tr>
  
@@ -61,6 +47,20 @@ diff -Nru gdal-1.4.0-fedora/frmts/formats_list.html gdal-1.4.0-fedora.work/frmts
  <tr><td> <a href="frmt_mff2.html">Vexcel MFF2</a>
  </td><td> HKV
  </td><td> Yes
+@@ -262,13 +255,6 @@
+ </td><td> --
+ </td></tr>
+ 
+-<tr><td> <a href="frmt_various.html#LAN">Erdas 7.x .LAN and .GIS</a>
+-</td><td> LAN
+-</td><td> No
+-</td><td> Yes
+-</td><td> 2GB
+-</td></tr>
+-
+ <tr><td> <a href="frmt_leveller.html">Daylon Leveller Heightfield</a>
+ </td><td> Leveller
+ </td><td> Yes
 @@ -440,12 +426,6 @@
  </p>
  
@@ -71,13 +71,13 @@ diff -Nru gdal-1.4.0-fedora/frmts/formats_list.html gdal-1.4.0-fedora.work/frmts
 -</p>
 -
 -<p>
- $Id: gdal-buildfix.patch,v 1.1 2007/03/13 09:15:39 cbalint Exp $
+ $Id: gdal-buildfix.patch,v 1.2 2007/05/09 17:58:46 cbalint Exp $
  </p>
  
-diff -Nru gdal-1.4.0-fedora/frmts/gdalallregister.cpp gdal-1.4.0-fedora.work/frmts/gdalallregister.cpp
---- gdal-1.4.0-fedora/frmts/gdalallregister.cpp	2006-11-13 19:39:46.000000000 +0100
-+++ gdal-1.4.0-fedora.work/frmts/gdalallregister.cpp	2007-02-27 23:19:51.000000000 +0100
-@@ -177,10 +177,6 @@
+diff -Nru gdal-1.4.1-fedora/frmts/gdalallregister.cpp gdal-1.4.1-fedora-patched/frmts/gdalallregister.cpp
+--- gdal-1.4.1-fedora/frmts/gdalallregister.cpp	2007-04-10 17:16:26.000000000 +0200
++++ gdal-1.4.1-fedora-patched/frmts/gdalallregister.cpp	2007-05-09 19:37:21.000000000 +0200
+@@ -88,10 +88,6 @@
      GDALRegister_NITF();
  #endif
  
@@ -88,9 +88,9 @@ diff -Nru gdal-1.4.0-fedora/frmts/gdalallregister.cpp gdal-1.4.0-fedora.work/frm
  #ifdef FRMT_ceos2
      GDALRegister_SAR_CEOS();
  #endif
-diff -Nru gdal-1.4.0-fedora/frmts/makefile.vc gdal-1.4.0-fedora.work/frmts/makefile.vc
---- gdal-1.4.0-fedora/frmts/makefile.vc	2006-11-02 04:12:45.000000000 +0100
-+++ gdal-1.4.0-fedora.work/frmts/makefile.vc	2007-02-27 23:19:46.000000000 +0100
+diff -Nru gdal-1.4.1-fedora/frmts/makefile.vc gdal-1.4.1-fedora-patched/frmts/makefile.vc
+--- gdal-1.4.1-fedora/frmts/makefile.vc	2007-04-10 17:16:26.000000000 +0200
++++ gdal-1.4.1-fedora-patched/frmts/makefile.vc	2007-05-09 19:37:21.000000000 +0200
 @@ -1,7 +1,7 @@
  
  GDAL_ROOT = ..
@@ -100,9 +100,9 @@ diff -Nru gdal-1.4.0-fedora/frmts/makefile.vc gdal-1.4.0-fedora.work/frmts/makef
  		-DFRMT_sdts -DFRMT_raw -DFRMT_gxf -DFRMT_ceos2 -DFRMT_png \
  		-DFRMT_dted -DFRMT_mem -DFRMT_jdem -DFRMT_gif \
  		-DFRMT_envisat -DFRMT_aaigrid -DFRMT_usgsdem -DFRMT_l1b \
-diff -Nru gdal-1.4.0-fedora/frmts/mrsid/makefile.vc gdal-1.4.0-fedora.work/frmts/mrsid/makefile.vc
---- gdal-1.4.0-fedora/frmts/mrsid/makefile.vc	2006-09-19 20:30:38.000000000 +0200
-+++ gdal-1.4.0-fedora.work/frmts/mrsid/makefile.vc	2007-02-27 23:12:00.000000000 +0100
+diff -Nru gdal-1.4.1-fedora/frmts/mrsid/makefile.vc gdal-1.4.1-fedora-patched/frmts/mrsid/makefile.vc
+--- gdal-1.4.1-fedora/frmts/mrsid/makefile.vc	2007-04-10 17:16:25.000000000 +0200
++++ gdal-1.4.1-fedora-patched/frmts/mrsid/makefile.vc	2007-05-09 19:37:21.000000000 +0200
 @@ -1,7 +1,7 @@
  
  OBJ	=	mrsiddataset.obj
@@ -112,10 +112,10 @@ diff -Nru gdal-1.4.0-fedora/frmts/mrsid/makefile.vc gdal-1.4.0-fedora.work/frmts
  
  GDAL_ROOT	=	..\..
  
-diff -Nru gdal-1.4.0-fedora/gcore/gdaldefaultoverviews.cpp gdal-1.4.0-fedora.work/gcore/gdaldefaultoverviews.cpp
---- gdal-1.4.0-fedora/gcore/gdaldefaultoverviews.cpp	2006-11-28 13:57:51.000000000 +0100
-+++ gdal-1.4.0-fedora.work/gcore/gdaldefaultoverviews.cpp	2007-02-27 23:56:09.000000000 +0100
-@@ -388,31 +388,6 @@
+diff -Nru gdal-1.4.1-fedora/gcore/gdaldefaultoverviews.cpp gdal-1.4.1-fedora-patched/gcore/gdaldefaultoverviews.cpp
+--- gdal-1.4.1-fedora/gcore/gdaldefaultoverviews.cpp	2007-04-10 17:16:29.000000000 +0200
++++ gdal-1.4.1-fedora-patched/gcore/gdaldefaultoverviews.cpp	2007-05-09 19:37:21.000000000 +0200
+@@ -327,31 +327,6 @@
  /*      produce the imagery.                                            */
  /* -------------------------------------------------------------------- */
  
@@ -147,7 +147,7 @@ diff -Nru gdal-1.4.0-fedora/gcore/gdaldefaultoverviews.cpp gdal-1.4.0-fedora.wor
      {
          if( poODS != NULL )
          {
-@@ -420,10 +395,6 @@
+@@ -359,10 +334,6 @@
              poODS = NULL;
          }
  
@@ -158,10 +158,10 @@ diff -Nru gdal-1.4.0-fedora/gcore/gdaldefaultoverviews.cpp gdal-1.4.0-fedora.wor
          if( eErr == CE_None )
          {
              poODS = (GDALDataset *) GDALOpen( osOvrFilename, GA_Update );
-diff -Nru gdal-1.4.0-fedora/gcore/gdal_frmts.h gdal-1.4.0-fedora.work/gcore/gdal_frmts.h
---- gdal-1.4.0-fedora/gcore/gdal_frmts.h	2006-11-12 20:59:30.000000000 +0100
-+++ gdal-1.4.0-fedora.work/gcore/gdal_frmts.h	2007-02-27 23:23:45.000000000 +0100
-@@ -108,10 +108,8 @@
+diff -Nru gdal-1.4.1-fedora/gcore/gdal_frmts.h gdal-1.4.1-fedora-patched/gcore/gdal_frmts.h
+--- gdal-1.4.1-fedora/gcore/gdal_frmts.h	2007-04-10 17:16:29.000000000 +0200
++++ gdal-1.4.1-fedora-patched/gcore/gdal_frmts.h	2007-05-09 19:37:21.000000000 +0200
+@@ -34,10 +34,8 @@
  
  CPL_C_START
  void CPL_DLL GDALRegister_GDB(void);
@@ -172,10 +172,10 @@ diff -Nru gdal-1.4.0-fedora/gcore/gdal_frmts.h gdal-1.4.0-fedora.work/gcore/gdal
  void CPL_DLL GDALRegister_AAIGrid(void);
  void CPL_DLL GDALRegister_AIGrid(void);
  void CPL_DLL GDALRegister_AIGrid2(void);
-diff -Nru gdal-1.4.0-fedora/gcore/gdaljp2metadata.cpp gdal-1.4.0-fedora.work/gcore/gdaljp2metadata.cpp
---- gdal-1.4.0-fedora/gcore/gdaljp2metadata.cpp	2006-07-21 17:23:01.000000000 +0200
-+++ gdal-1.4.0-fedora.work/gcore/gdaljp2metadata.cpp	2007-02-27 23:12:00.000000000 +0100
-@@ -85,13 +85,13 @@
+diff -Nru gdal-1.4.1-fedora/gcore/gdaljp2metadata.cpp gdal-1.4.1-fedora-patched/gcore/gdaljp2metadata.cpp
+--- gdal-1.4.1-fedora/gcore/gdaljp2metadata.cpp	2007-04-10 17:16:29.000000000 +0200
++++ gdal-1.4.1-fedora-patched/gcore/gdaljp2metadata.cpp	2007-05-09 19:37:21.000000000 +0200
+@@ -45,13 +45,13 @@
    0xA7,0xAE,0xD6,0x8E,0x34,0x45,0x18,0x09 };
  
  CPL_C_START
@@ -191,7 +191,7 @@ diff -Nru gdal-1.4.0-fedora/gcore/gdaljp2metadata.cpp gdal-1.4.0-fedora.work/gco
  CPL_C_END
  
  /************************************************************************/
-@@ -336,13 +336,13 @@
+@@ -296,13 +296,13 @@
  /* -------------------------------------------------------------------- */
      int bSuccess = TRUE;
  
@@ -207,7 +207,7 @@ diff -Nru gdal-1.4.0-fedora/gcore/gdaljp2metadata.cpp gdal-1.4.0-fedora.work/gco
      if( pszProjection == NULL || strlen(pszProjection) == 0 )
          bSuccess = FALSE;
  
-@@ -764,9 +764,10 @@
+@@ -724,9 +724,10 @@
      int         nGTBufSize = 0;
      unsigned char *pabyGTBuf = NULL;
  
@@ -219,10 +219,10 @@ diff -Nru gdal-1.4.0-fedora/gcore/gdaljp2metadata.cpp gdal-1.4.0-fedora.work/gco
          return NULL;
  
      if( nGTBufSize == 0 )
-diff -Nru gdal-1.4.0-fedora/gcore/gdal_priv.h gdal-1.4.0-fedora.work/gcore/gdal_priv.h
---- gdal-1.4.0-fedora/gcore/gdal_priv.h	2006-11-28 13:56:53.000000000 +0100
-+++ gdal-1.4.0-fedora.work/gcore/gdal_priv.h	2007-02-27 23:55:04.000000000 +0100
-@@ -700,26 +700,6 @@
+diff -Nru gdal-1.4.1-fedora/gcore/gdal_priv.h gdal-1.4.1-fedora-patched/gcore/gdal_priv.h
+--- gdal-1.4.1-fedora/gcore/gdal_priv.h	2007-04-10 17:16:29.000000000 +0200
++++ gdal-1.4.1-fedora-patched/gcore/gdal_priv.h	2007-05-09 19:37:21.000000000 +0200
+@@ -612,26 +612,6 @@
  
  CPL_C_START
  
@@ -249,9 +249,9 @@ diff -Nru gdal-1.4.0-fedora/gcore/gdal_priv.h gdal-1.4.0-fedora.work/gcore/gdal_
  CPLErr CPL_DLL
  GDALDefaultBuildOverviews( GDALDataset *hSrcDS, const char * pszBasename,
                             const char * pszResampling, 
-diff -Nru gdal-1.4.0-fedora/GDALmake.opt.in gdal-1.4.0-fedora.work/GDALmake.opt.in
---- gdal-1.4.0-fedora/GDALmake.opt.in	2006-12-05 03:18:11.000000000 +0100
-+++ gdal-1.4.0-fedora.work/GDALmake.opt.in	2007-02-27 23:19:12.000000000 +0100
+diff -Nru gdal-1.4.1-fedora/GDALmake.opt.in gdal-1.4.1-fedora-patched/GDALmake.opt.in
+--- gdal-1.4.1-fedora/GDALmake.opt.in	2007-04-10 17:16:55.000000000 +0200
++++ gdal-1.4.1-fedora-patched/GDALmake.opt.in	2007-05-09 19:37:21.000000000 +0200
 @@ -311,7 +311,7 @@
  #	and their uppercase form should be the format portion of the
  #	format registration entry point.  eg. gdb -> GDALRegister_GDB().
@@ -261,9 +261,9 @@ diff -Nru gdal-1.4.0-fedora/GDALmake.opt.in gdal-1.4.0-fedora.work/GDALmake.opt.
  		sdts raw dted mem jdem envisat elas fit vrt usgsdem l1b \
  		nitf bmp pcidsk airsar rs2 ilwis rmf rik leveller sgi \
  		idrisi \
-diff -Nru gdal-1.4.0-fedora/ogr/Makefile gdal-1.4.0-fedora.work/ogr/Makefile
---- gdal-1.4.0-fedora/ogr/Makefile	2006-11-18 21:37:43.000000000 +0100
-+++ gdal-1.4.0-fedora.work/ogr/Makefile	2007-02-27 23:12:00.000000000 +0100
+diff -Nru gdal-1.4.1-fedora/ogr/Makefile gdal-1.4.1-fedora-patched/ogr/Makefile
+--- gdal-1.4.1-fedora/ogr/Makefile	2007-04-10 17:15:09.000000000 +0200
++++ gdal-1.4.1-fedora-patched/ogr/Makefile	2007-05-09 19:37:21.000000000 +0200
 @@ -2,7 +2,7 @@
  LINKFLAGS =	/Zi /MTd
  EXTRAFLAGS =	-I$(MSDASDK)\inc \
@@ -273,10 +273,10 @@ diff -Nru gdal-1.4.0-fedora/ogr/Makefile gdal-1.4.0-fedora.work/ogr/Makefile
  		$(PROJ_FLAGS) $(PROJ_INCLUDE) $(GEOS_CFLAGS)
  
  GDAL_ROOT = 	..
-diff -Nru gdal-1.4.0-fedora/ogr/ogrsf_frmts/generic/ogrregisterall.cpp gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/generic/ogrregisterall.cpp
---- gdal-1.4.0-fedora/ogr/ogrsf_frmts/generic/ogrregisterall.cpp	2006-11-28 16:34:41.000000000 +0100
-+++ gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/generic/ogrregisterall.cpp	2007-02-27 23:54:17.000000000 +0100
-@@ -160,9 +160,6 @@
+diff -Nru gdal-1.4.1-fedora/ogr/ogrsf_frmts/generic/ogrregisterall.cpp gdal-1.4.1-fedora-patched/ogr/ogrsf_frmts/generic/ogrregisterall.cpp
+--- gdal-1.4.1-fedora/ogr/ogrsf_frmts/generic/ogrregisterall.cpp	2007-04-10 17:14:53.000000000 +0200
++++ gdal-1.4.1-fedora-patched/ogr/ogrsf_frmts/generic/ogrregisterall.cpp	2007-05-09 19:37:21.000000000 +0200
+@@ -57,9 +57,6 @@
  #ifdef S57_ENABLED
      RegisterOGRS57();
  #endif
@@ -286,7 +286,7 @@ diff -Nru gdal-1.4.0-fedora/ogr/ogrsf_frmts/generic/ogrregisterall.cpp gdal-1.4.
  #ifdef VRT_ENABLED
      RegisterOGRVRT();
  #endif
-@@ -184,10 +181,6 @@
+@@ -81,10 +78,6 @@
  #ifdef KML_ENABLED
      RegisterOGRKML();
  #endif
@@ -297,9 +297,9 @@ diff -Nru gdal-1.4.0-fedora/ogr/ogrsf_frmts/generic/ogrregisterall.cpp gdal-1.4.
  #ifdef SQLITE_ENABLED
      RegisterOGRSQLite();
  #endif
-diff -Nru gdal-1.4.0-fedora/ogr/ogrsf_frmts/GNUmakefile gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/GNUmakefile
---- gdal-1.4.0-fedora/ogr/ogrsf_frmts/GNUmakefile	2006-11-28 16:34:41.000000000 +0100
-+++ gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/GNUmakefile	2007-02-27 23:46:34.000000000 +0100
+diff -Nru gdal-1.4.1-fedora/ogr/ogrsf_frmts/GNUmakefile gdal-1.4.1-fedora-patched/ogr/ogrsf_frmts/GNUmakefile
+--- gdal-1.4.1-fedora/ogr/ogrsf_frmts/GNUmakefile	2007-04-10 17:15:02.000000000 +0200
++++ gdal-1.4.1-fedora-patched/ogr/ogrsf_frmts/GNUmakefile	2007-05-09 19:37:21.000000000 +0200
 @@ -1,7 +1,7 @@
  
  include ../../GDALmake.opt
@@ -317,9 +317,9 @@ diff -Nru gdal-1.4.0-fedora/ogr/ogrsf_frmts/GNUmakefile gdal-1.4.0-fedora.work/o
  SUBDIRS-$(HAVE_DWGDIRECT) += dxfdwg
  SUBDIRS-$(HAVE_SDE)     += sde
  SUBDIRS-$(HAVE_IDB)	+= idb
-diff -Nru gdal-1.4.0-fedora/ogr/ogrsf_frmts/Makefile gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/Makefile
---- gdal-1.4.0-fedora/ogr/ogrsf_frmts/Makefile	2006-11-28 17:19:47.000000000 +0100
-+++ gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/Makefile	2007-02-27 23:46:48.000000000 +0100
+diff -Nru gdal-1.4.1-fedora/ogr/ogrsf_frmts/Makefile gdal-1.4.1-fedora-patched/ogr/ogrsf_frmts/Makefile
+--- gdal-1.4.1-fedora/ogr/ogrsf_frmts/Makefile	2007-04-10 17:15:02.000000000 +0200
++++ gdal-1.4.1-fedora-patched/ogr/ogrsf_frmts/Makefile	2007-05-09 19:37:21.000000000 +0200
 @@ -1,6 +1,6 @@
  GDAL_ROOT	=	..\..
  
@@ -349,9 +349,9 @@ diff -Nru gdal-1.4.0-fedora/ogr/ogrsf_frmts/Makefile gdal-1.4.0-fedora.work/ogr/
  				 vrt\*.obj csv\*.obj rec\*.obj kml\*.obj \
  				$(OGDIOBJ) $(ODBCOBJ) $(SQLITE_OBJ) \
  				$(FMEOBJ) $(OCIOBJ) $(PG_OBJ) $(MYSQL_OBJ) \
-diff -Nru gdal-1.4.0-fedora/ogr/ogrsf_frmts/ogr_formats.html gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/ogr_formats.html
---- gdal-1.4.0-fedora/ogr/ogrsf_frmts/ogr_formats.html	2006-12-19 04:40:52.000000000 +0100
-+++ gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/ogr_formats.html	2007-02-27 23:37:55.000000000 +0100
+diff -Nru gdal-1.4.1-fedora/ogr/ogrsf_frmts/ogr_formats.html gdal-1.4.1-fedora-patched/ogr/ogrsf_frmts/ogr_formats.html
+--- gdal-1.4.1-fedora/ogr/ogrsf_frmts/ogr_formats.html	2007-04-10 17:15:02.000000000 +0200
++++ gdal-1.4.1-fedora-patched/ogr/ogrsf_frmts/ogr_formats.html	2007-05-09 19:37:21.000000000 +0200
 @@ -85,11 +85,6 @@
  </td><td> Yes
  </td></tr>
@@ -364,10 +364,10 @@ diff -Nru gdal-1.4.0-fedora/ogr/ogrsf_frmts/ogr_formats.html gdal-1.4.0-fedora.w
  <tr><td> <a href="drv_mysql.html">MySQL</a>
  </td><td> No
  </td><td> No
-diff -Nru gdal-1.4.0-fedora/ogr/ogrsf_frmts/ogrsf_frmts.h gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/ogrsf_frmts.h
---- gdal-1.4.0-fedora/ogr/ogrsf_frmts/ogrsf_frmts.h	2006-12-13 19:24:45.000000000 +0100
-+++ gdal-1.4.0-fedora.work/ogr/ogrsf_frmts/ogrsf_frmts.h	2007-02-27 23:54:11.000000000 +0100
-@@ -374,7 +374,6 @@
+diff -Nru gdal-1.4.1-fedora/ogr/ogrsf_frmts/ogrsf_frmts.h gdal-1.4.1-fedora-patched/ogr/ogrsf_frmts/ogrsf_frmts.h
+--- gdal-1.4.1-fedora/ogr/ogrsf_frmts/ogrsf_frmts.h	2007-04-10 17:15:02.000000000 +0200
++++ gdal-1.4.1-fedora-patched/ogr/ogrsf_frmts/ogrsf_frmts.h	2007-05-09 19:37:21.000000000 +0200
+@@ -310,7 +310,6 @@
  void CPL_DLL RegisterOGRPG();
  void CPL_DLL RegisterOGRMySQL();
  void CPL_DLL RegisterOGROCI();
@@ -375,7 +375,7 @@ diff -Nru gdal-1.4.0-fedora/ogr/ogrsf_frmts/ogrsf_frmts.h gdal-1.4.0-fedora.work
  void CPL_DLL RegisterOGRGML();
  void CPL_DLL RegisterOGRKML();
  void CPL_DLL RegisterOGRAVCBin();
-@@ -385,8 +384,6 @@
+@@ -321,8 +320,6 @@
  void CPL_DLL RegisterOGRDODS();
  void CPL_DLL RegisterOGRSQLite();
  void CPL_DLL RegisterOGRCSV();
