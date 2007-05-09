@@ -1,6 +1,6 @@
 Name:      gdal
-Version:   1.4.0
-Release:   20%{?dist}
+Version:   1.4.1
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -13,7 +13,7 @@ BuildRequires: doxygen tetex-latex ghostscript
 BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
 BuildRequires: jasper-devel cfitsio-devel hdf-devel libdap-devel librx-devel
 BuildRequires: unixODBC-devel mysql-devel sqlite-devel postgresql-devel zlib-devel
-BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel grass-devel
+BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel
 BuildRequires: python-devel >= 2.4 xerces-c-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
@@ -105,7 +105,6 @@ export LDFLAGS='-L%{_libdir}/netcdf-3 -L%{_libdir}/hdf'
         --prefix=%{_prefix} \
         --includedir=%{_includedir}/%{name}/ \
         --with-threads      \
-        --with-grass=%{_prefix}     \
         --with-libgrass             \
         --with-dods-root=%{_libdir} \
         --with-ogdi=`ogdi-config --libdir` \
@@ -134,6 +133,7 @@ export LDFLAGS='-L%{_libdir}/netcdf-3 -L%{_libdir}/hdf'
         --without-pcraster        \
         --enable-shared           \
         --disable-static
+#        --with-grass=%{_prefix}     
 
 # fixup hardcoded wrong compile flags.
 cp GDALmake.opt GDALmake.opt.orig
@@ -209,11 +209,13 @@ chmod -x pymod/samples/*
 # build and include more docs
 mkdir -p doc/frmts; find frmts -name "*.html" -exec install -m 644 '{}' doc/frmts/ \;
 mkdir -p doc/ogrsf_frmts; find ogr/ogrsf_frmts -name "*.html" -exec install -m 644 '{}' doc/ogrsf_frmts \;
-pushd doc; doxygen index.dox; popd
+
+# some commented out are broken for now
+#pushd doc; doxygen index.dox; popd
 pushd rfc; doxygen *.dox; popd
 pushd rfc/latex; make refman.pdf; popd
-pushd ogr/ogrsf_frmts; doxygen *.dox; popd
-pushd ogr/ogrsf_frmts/latex; make refman.pdf; popd
+#pushd ogr/ogrsf_frmts; doxygen *.dox; popd
+#pushd ogr/ogrsf_frmts/latex; make refman.pdf; popd
 pushd swig/perl; doxygen; popd
 pushd swig/perl/latex; make refman.pdf; popd
 
@@ -231,7 +233,8 @@ rm -rf $RPM_BUILD_ROOT
 %files 
 %defattr(-,root,root,-)
 %doc NEWS PROVENANCE.TXT-mainstream PROVENANCE.TXT-fedora COMMITERS
-%doc doc/frmts doc/ogrsf_frmts doc/html
+%doc doc/frmts  
+#%doc doc/ogrsf_frmts doc/html
 %{_bindir}/gdal_contour
 %{_bindir}/gdal_rasterize
 %{_bindir}/gdal_translate
@@ -256,8 +259,9 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(-,root,root,-)
 %doc html ogr/html rfc/html rfc/latex/refman.pdf 
-%doc ogr/wcts/html ogr/ogrsf_frmts/html 
-%doc ogr/ogrsf_frmts/latex/refman.pdf
+%doc ogr/wcts/html 
+#%doc ogr/ogrsf_frmts/html 
+#%doc ogr/ogrsf_frmts/latex/refman.pdf
 %{_bindir}/%{name}-config
 %dir %{_includedir}/%{name}
 %{_includedir}/%{name}/*.h
@@ -282,6 +286,17 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Wed May 09 2007 Balint Cristian <cbalint@redhat.com> 1.4.1-1
+- new upstream release.
+- disable temporary grass-devel requirement untill find a
+  resonable solution for gdal-grass egg-chicken dep problem.
+
+* Fri Apr 20 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-22
+- and olso dont attempt pack missing docs.
+
+* Fri Apr 20 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-21
+- exclude some docs, doxygen segfault with those now upstream.
+
 * Fri Apr 20 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-20
 - rebuild against latest fedora upstream tree.
 
