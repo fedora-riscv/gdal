@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.1
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -91,6 +91,9 @@ sed -i 's|-L\$with_jpeg -L\$with_jpeg\/lib -ljpeg|-ljpeg|g' configure
 sed -i 's|-L\$with_libtiff\/lib -ltiff|-ltiff|g' configure
 sed -i 's|-L\$with_grass\/lib||g' configure
 sed -i 's|-logdi31|-logdi|g' configure
+
+# fix python path for ppc64
+sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"\/usr\/lib64\"|g' configure
 
 # append some path for few libs
 export CPPFLAGS="`pkg-config ogdi --cflags`"
@@ -286,6 +289,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Fri May 11 2007 Balint Cristian <cbalint@redhat.com> 1.4.1-2
+- fix python lookup paths for ppc64.
+
 * Wed May 09 2007 Balint Cristian <cbalint@redhat.com> 1.4.1-1
 - new upstream release.
 - disable temporary grass-devel requirement untill find a
