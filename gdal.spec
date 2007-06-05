@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.1
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -13,7 +13,7 @@ BuildRequires: doxygen tetex-latex ghostscript
 BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
 BuildRequires: jasper-devel cfitsio-devel hdf-devel libdap-devel librx-devel
 BuildRequires: unixODBC-devel mysql-devel sqlite-devel postgresql-devel zlib-devel
-BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel grass-devel
+BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel
 BuildRequires: python-devel >= 2.4 xerces-c-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
@@ -108,8 +108,6 @@ export LDFLAGS='-L%{_libdir}/netcdf-3 -L%{_libdir}/hdf'
         --prefix=%{_prefix} \
         --includedir=%{_includedir}/%{name}/ \
         --with-threads      \
-        --with-libgrass             \
-        --with-grass=%{_prefix}     \
         --with-dods-root=%{_libdir} \
         --with-ogdi=`ogdi-config --libdir` \
         --with-cfitsio=%{_prefix} \
@@ -137,6 +135,8 @@ export LDFLAGS='-L%{_libdir}/netcdf-3 -L%{_libdir}/hdf'
         --without-pcraster        \
         --enable-shared           \
         --disable-static
+#        --with-libgrass             \
+#        --with-grass=%{_prefix}     \
 
 # fixup hardcoded wrong compile flags.
 cp GDALmake.opt GDALmake.opt.orig
@@ -289,6 +289,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Tue Jun 05 2007 Balint Cristian <cbalint@redhat.com> 1.4.1-4
+- re-build.
+
 * Sat May 12 2007 Balint Cristian <cbalint@redhat.com> 1.4.1-3
 - re-build against grass.
 
