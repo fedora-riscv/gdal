@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.2
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -257,8 +257,9 @@ export GDAL_DATA=%{buildroot}%{_datadir}/%{name}/
 
 # remove some testcases for now due to build failure
 rm -rf ogr/ogr_pg.py     # no pgsql during test (disabled)
-rm -rf ogr/ogr_dods.py   # no dots  during test (disabled)
-rm -rf gdrivers/dods.py  # no dots  during test (disabled)
+rm -rf ogr/ogr_dods.py   # no DODS  during test (disabled)
+rm -rf gdrivers/dods.py  # no DODS  during test (disabled)
+rm -rf gdrivers/hfa.py   # no HFA   during test (disabled)
 rm -rf gcore/hfa_write.py  # HFA driver absent  (disabled)
 rm -rf ogr/ogr_dgn.py      # DGW driver absent  (disabled)
 rm -rf osr/osr_esri.py     # ESRI datum absent  (disabled)
@@ -332,6 +333,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Wed Jul 24 2007 Balint Cristian <cbalint@redhat.com> 1.4.2-2
+- disable one more HFA test, HFA is unaviable due to license
+
 * Wed Jul 24 2007 Balint Cristian <cbalint@redhat.com> 1.4.2-1
 - new upstream one
 - catch some more docs
