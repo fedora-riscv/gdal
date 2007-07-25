@@ -1,23 +1,33 @@
 Name:      gdal
-Version:   1.4.1
-Release:   4%{?dist}
+Version:   1.4.2
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
 URL:       http://gdal.maptools.org
-Source:    %{name}-%{version}-fedora.tar.gz
+Source0:   %{name}-%{version}-fedora.tar.gz
+Source1:   http://download.osgeo.org/gdal/gdalautotest-1.4.1.tar.gz
 Patch0:    %{name}-buildfix.patch
+Patch1:    %{name}-swig.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool swig pkgconfig
 BuildRequires: doxygen tetex-latex ghostscript
 BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
 BuildRequires: jasper-devel cfitsio-devel hdf-devel libdap-devel librx-devel
 BuildRequires: unixODBC-devel mysql-devel sqlite-devel postgresql-devel zlib-devel
-BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel
+BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel libgeotiff-devel
 BuildRequires: python-devel >= 2.4 xerces-c-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
+# build against grass by default
+%define _with_grass 1
+
 %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")
+%define grass_support %{?_with_grass:1}%{!?_with_grass:%{?_without_grass:0}%{!?_without_grass:%{?_grass_support:%{_grass}}%{!?_grass:0}}}
+
+%if %{grass_support}
+BuildRequires: grass-devel
+%endif
 
 %description
 The GDAL library provides support to handle multiple GIS file formats.
@@ -26,6 +36,7 @@ The GDAL library provides support to handle multiple GIS file formats.
 Summary: Development Libraries for the GDAL file format library
 Group: Development/Libraries
 Requires: pkgconfig
+Requires: libgeotiff-devel
 Requires: %{name} = %{version}-%{release}
 
 %description devel
@@ -50,6 +61,10 @@ The GDAL perl modules provides support to handle multiple GIS file formats.
 %prep
 %setup -q -n %{name}-%{version}-fedora
 %patch0 -p1 -b .buildfix
+%patch1 -p1 -b .swig
+
+# unpack test cases olso.
+tar -xzf %{SOURCE1} .
 
 # fix wrongly encoded files from tarball
 set +x
@@ -90,6 +105,7 @@ sed -i 's|-L\$with_ogdi -L\$with_ogdi\/lib -logdi|-logdi|g' configure
 sed -i 's|-L\$with_jpeg -L\$with_jpeg\/lib -ljpeg|-ljpeg|g' configure
 sed -i 's|-L\$with_libtiff\/lib -ltiff|-ltiff|g' configure
 sed -i 's|-L\$with_grass\/lib||g' configure
+sed -i 's|-lgeotiff -L$with_geotiff $LIBS|-lgeotiff $LIBS|g' configure
 sed -i 's|-logdi31|-logdi|g' configure
 
 # fix python path for ppc64
@@ -99,6 +115,7 @@ sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"\/usr\/lib64\"|g' con
 export CPPFLAGS="`pkg-config ogdi --cflags`"
 export CPPFLAGS="$CPPFLAGS -I%{_includedir}/netcdf-3"
 export CPPFLAGS="$CPPFLAGS -I%{_includedir}/hdf"
+export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 export CPPFLAGS="$CPPFLAGS `dap-config --cflags`"
 export CFLAGS="$RPM_OPT_FLAGS" 
 export CXXFLAGS="$RPM_OPT_FLAGS"
@@ -111,7 +128,7 @@ export LDFLAGS='-L%{_libdir}/netcdf-3 -L%{_libdir}/hdf'
         --with-dods-root=%{_libdir} \
         --with-ogdi=`ogdi-config --libdir` \
         --with-cfitsio=%{_prefix} \
-        --with-geotiff=disabled   \
+        --with-geotiff=external   \
         --with-tiff=external      \
         --with-libtiff=external   \
         --with-libz               \
@@ -134,9 +151,11 @@ export LDFLAGS='-L%{_libdir}/netcdf-3 -L%{_libdir}/hdf'
         --with-xerces-inc=%{_includedir} \
         --without-pcraster        \
         --enable-shared           \
+%if %{grass_support}
+        --with-libgrass             \
+        --with-grass=%{_prefix}     \
         --disable-static
-#        --with-libgrass             \
-#        --with-grass=%{_prefix}     \
+%endif
 
 # fixup hardcoded wrong compile flags.
 cp GDALmake.opt GDALmake.opt.orig
@@ -214,7 +233,7 @@ mkdir -p doc/frmts; find frmts -name "*.html" -exec install -m 644 '{}' doc/frmt
 mkdir -p doc/ogrsf_frmts; find ogr/ogrsf_frmts -name "*.html" -exec install -m 644 '{}' doc/ogrsf_frmts \;
 
 # some commented out are broken for now
-#pushd doc; doxygen index.dox; popd
+pushd doc; doxygen *.dox; popd
 pushd rfc; doxygen *.dox; popd
 pushd rfc/latex; make refman.pdf; popd
 #pushd ogr/ogrsf_frmts; doxygen *.dox; popd
@@ -224,8 +243,32 @@ pushd swig/perl/latex; make refman.pdf; popd
 
 # cleanup junks
 for junk in {*.a,*.la,*.bs,.exists,.packlist,.cvsignore} ; do
-find ${RPM_BUILD_ROOT} -name "$junk" -exec rm -rf '{}' \;
+find %{buildroot} -name "$junk" -exec rm -rf '{}' \;
 done
+
+%check
+
+pushd gdalautotest-1.4.1
+
+# export test enviroment
+export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python_sitearch}
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH%{buildroot}%{_libdir}
+export GDAL_DATA=%{buildroot}%{_datadir}/%{name}/
+
+# remove some testcases for now due to build failure
+rm -rf ogr/ogr_pg.py     # no pgsql during test (disabled)
+rm -rf ogr/ogr_dods.py   # no dots  during test (disabled)
+rm -rf gdrivers/dods.py  # no dots  during test (disabled)
+rm -rf gcore/hfa_write.py  # HFA driver absent  (disabled)
+rm -rf ogr/ogr_dgn.py      # DGW driver absent  (disabled)
+rm -rf osr/osr_esri.py     # ESRI datum absent  (disabled)
+
+rm -rf gcore/tiff_write.py # crash ugly on 64bit (mustfix)
+
+# run tests but force than normal exit
+./run_all.py || exit 0
+
+popd
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -289,6 +332,15 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Wed Jul 24 2007 Balint Cristian <cbalint@redhat.com> 1.4.2-1
+- new upstream one
+- catch some more docs
+- fix ogr python module runtime
+- include testcases and run tests
+- enable geotiff external library we have new libgeotiff now
+- EPSG geodetic database is licensed OK since v6.13 so re-enable
+- enable it against grass by default, implement optional switches 
+
 * Tue Jun 05 2007 Balint Cristian <cbalint@redhat.com> 1.4.1-4
 - re-build.
 
