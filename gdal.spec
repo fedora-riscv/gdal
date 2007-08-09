@@ -20,7 +20,7 @@ BuildRequires: python-devel >= 2.4 xerces-c-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
 # build against grass by default
-%define _with_grass 0
+%define _without_grass 1
 
 %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")
 %define grass_support %{?_with_grass:1}%{!?_with_grass:%{?_without_grass:0}%{!?_without_grass:%{?_grass_support:%{_grass}}%{!?_grass:0}}}
