@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.2
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -20,7 +20,7 @@ BuildRequires: python-devel >= 2.4 xerces-c-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
 # build against grass by default
-%define _with_grass 1
+%define _with_grass 0
 
 %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")
 %define grass_support %{?_with_grass:1}%{!?_with_grass:%{?_without_grass:0}%{!?_without_grass:%{?_grass_support:%{_grass}}%{!?_grass:0}}}
@@ -333,6 +333,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Thu Aug 09 2007 Balint Cristian <cbalint@redhat.com> 1.4.2-3
+- bootstrap for EPEL without grass
+
 * Wed Jul 24 2007 Balint Cristian <cbalint@redhat.com> 1.4.2-2
 - disable one more HFA test, HFA is unaviable due to license
 
