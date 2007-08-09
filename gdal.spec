@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.2
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -333,6 +333,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Thu Aug 09 2007 Balint Cristian <cbalint@redhat.com> 1.4.2-4
+- realy disable gdall for now.
+
 * Thu Aug 09 2007 Balint Cristian <cbalint@redhat.com> 1.4.2-3
 - bootstrap for EPEL without grass
 
