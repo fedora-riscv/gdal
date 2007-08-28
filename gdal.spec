@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.2
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -333,6 +333,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Tue Aug 28 2007 Fedora Release Engineering <rel-eng at fedoraproject dot org> - 1.4.2-3
+- Rebuild for selinux ppc32 issue.
+
 * Wed Jul 24 2007 Balint Cristian <cbalint@redhat.com> 1.4.2-2
 - disable one more HFA test, HFA is unaviable due to license
 
