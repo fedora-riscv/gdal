@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.2
-Release:   4%{?dist}
+Release:   5%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -23,7 +23,8 @@ BuildRequires: perl(ExtUtils::MakeMaker)
 %define _with_grass 0
 
 %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")
-%define grass_support %{?_with_grass:1}%{!?_with_grass:%{?_without_grass:0}%{!?_without_grass:%{?_grass_support:%{_grass}}%{!?_grass:0}}}
+#%define grass_support %{?_with_grass:1}%{!?_with_grass:%{?_without_grass:0}%{!?_without_grass:%{?_grass_support:%{_grass}}%{!?_grass:0}}}
+%define grass_support 0
 
 %if %{grass_support}
 BuildRequires: grass-devel
@@ -333,7 +334,7 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
-* Thu Dec 06 2007 Release Engineering <rel-eng at fedoraproject dot org> - 1.4.2-4
+* Thu Dec 06 2007 Release Engineering <rel-eng at fedoraproject dot org> - 1.4.2-5
 - Rebuild for deps
 - Disable grass to avoid circular deps
 
