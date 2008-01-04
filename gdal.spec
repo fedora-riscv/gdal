@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.2
-Release:   6%{?dist}
+Release:   7%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -20,11 +20,11 @@ BuildRequires: python-devel >= 2.4 xerces-c-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
 # build against grass by default
-%define _with_grass 0
+%define _with_grass 1
 
 %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")
 #%define grass_support %{?_with_grass:1}%{!?_with_grass:%{?_without_grass:0}%{!?_without_grass:%{?_grass_support:%{_grass}}%{!?_grass:0}}}
-%define grass_support 0
+%define grass_support 1
 
 %if %{grass_support}
 BuildRequires: grass-devel
@@ -361,6 +361,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Thu Jan 03 2008 Alex Lancaster <alexlan[AT]fedoraproject.org> - 1.4.2-7
+- Re-enable grass support now that gdal has been bootstrapped
+
 * Wed Jan 02 2008 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.4.2-6
 - Bootstrap 1st: disabling grass support
 - Workaround for hdf not supporting netcdf (bug 189337 c8)
