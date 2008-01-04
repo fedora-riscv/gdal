@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.4.2
-Release:   5%{?dist}
+Release:   6%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -29,6 +29,9 @@ BuildRequires: perl(ExtUtils::MakeMaker)
 %if %{grass_support}
 BuildRequires: grass-devel
 %endif
+
+# For now not building refman.pdf
+%define build_refman_pdf 0
 
 %description
 The GDAL library provides support to handle multiple GIS file formats.
@@ -94,6 +97,19 @@ chmod -x ogr/ogrsf_frmts/ogdi/ogrogdi.h
 chmod -x ogr/ogrsf_frmts/ogdi/ogrogdilayer.cpp
 chmod -x ogr/ogrsf_frmts/ogdi/ogrogdidatasource.cpp
 chmod -x ogr/ogrsf_frmts/ogdi/ogrogdidriver.cpp
+
+# bug 189337 c8
+# HAVE_NETCDF is not present anymore in hdf
+pushd frmts/hdf4
+for f in *.cpp
+	do
+	sed -i \
+		-e 's|MAX_NC_NAME|H4_MAX_NC_NAME|' \
+		-e 's|MAX_VAR_DIMS|H4_MAX_VAR_DIMS|' \
+		-e 's|MAX_NC_DIMS|H4_MAX_NC_DIMS|g' \
+		$f
+done
+popd
 
 %build
 
@@ -236,11 +252,15 @@ mkdir -p doc/ogrsf_frmts; find ogr/ogrsf_frmts -name "*.html" -exec install -m 6
 # some commented out are broken for now
 pushd doc; doxygen *.dox; popd
 pushd rfc; doxygen *.dox; popd
+%if %{build_refman_pdf}
 pushd rfc/latex; make refman.pdf; popd
+%endif
 #pushd ogr/ogrsf_frmts; doxygen *.dox; popd
 #pushd ogr/ogrsf_frmts/latex; make refman.pdf; popd
 pushd swig/perl; doxygen; popd
+%if %{build_refman_pdf}
 pushd swig/perl/latex; make refman.pdf; popd
+%endif
 
 # cleanup junks
 for junk in {*.a,*.la,*.bs,.exists,.packlist,.cvsignore} ; do
@@ -306,7 +326,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(-,root,root,-)
-%doc html ogr/html rfc/html rfc/latex/refman.pdf 
+%doc html ogr/html rfc/html 
+%if %{build_refman_pdf}
+%doc rfc/latex/refman.pdf
+%endif 
 %doc ogr/wcts/html 
 #%doc ogr/ogrsf_frmts/html 
 #%doc ogr/ogrsf_frmts/latex/refman.pdf
@@ -330,10 +353,19 @@ rm -rf $RPM_BUILD_ROOT
 
 %files perl
 %defattr(-,root,root,-)
-%doc swig/perl/html swig/perl/latex/refman.pdf swig/perl/README
+%doc swig/perl/html 
+%if %{build_refman_pdf}
+%doc swig/perl/latex/refman.pdf
+%endif
+%doc swig/perl/README
 %{perl_vendorarch}/*
 
 %changelog
+* Wed Jan 02 2008 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.4.2-6
+- Bootstrap 1st: disabling grass support
+- Workaround for hdf not supporting netcdf (bug 189337 c8)
+- Disabling documents creation for now.
+
 * Thu Dec 06 2007 Release Engineering <rel-eng at fedoraproject dot org> - 1.4.2-5
 - Rebuild for deps
 - Disable grass to avoid circular deps
