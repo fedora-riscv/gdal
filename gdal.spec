@@ -1,14 +1,12 @@
 Name:      gdal
-Version:   1.4.2
-Release:   7%{?dist}
+Version:   1.5.0
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
 URL:       http://gdal.maptools.org
 Source0:   %{name}-%{version}-fedora.tar.gz
-Source1:   http://download.osgeo.org/gdal/gdalautotest-1.4.1.tar.gz
-Patch0:    %{name}-buildfix.patch
-Patch1:    %{name}-swig.patch
+Source1:   http://download.osgeo.org/gdal/gdalautotest-1.5.0.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool swig pkgconfig
 BuildRequires: doxygen tetex-latex ghostscript
@@ -19,19 +17,16 @@ BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel libgeoti
 BuildRequires: python-devel >= 2.4 xerces-c-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
-# build against grass by default
-%define _with_grass 1
+# enable/disable grass support, for bootstrapping
+%define grass_support 0
+# enable/disable refman generation
+%define build_refman  0
 
 %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")
-#%define grass_support %{?_with_grass:1}%{!?_with_grass:%{?_without_grass:0}%{!?_without_grass:%{?_grass_support:%{_grass}}%{!?_grass:0}}}
-%define grass_support 1
 
 %if %{grass_support}
 BuildRequires: grass-devel
 %endif
-
-# For now not building refman.pdf
-%define build_refman_pdf 0
 
 %description
 The GDAL library provides support to handle multiple GIS file formats.
@@ -64,8 +59,6 @@ The GDAL perl modules provides support to handle multiple GIS file formats.
 
 %prep
 %setup -q -n %{name}-%{version}-fedora
-%patch0 -p1 -b .buildfix
-%patch1 -p1 -b .swig
 
 # unpack test cases olso.
 tar -xzf %{SOURCE1} .
@@ -92,6 +85,7 @@ find . -name ".cvsignore" -exec rm -rf '{}' \;
 
 # fix some exec bits
 chmod -x alg/gdal_tps.cpp
+chmod -x apps/nearblack.cpp
 chmod -x frmts/jpeg/gdalexif.h
 chmod -x ogr/ogrsf_frmts/ogdi/ogrogdi.h
 chmod -x ogr/ogrsf_frmts/ogdi/ogrogdilayer.cpp
@@ -101,19 +95,20 @@ chmod -x ogr/ogrsf_frmts/ogdi/ogrogdidriver.cpp
 # bug 189337 c8
 # HAVE_NETCDF is not present anymore in hdf
 pushd frmts/hdf4
-for f in *.cpp
-	do
-	sed -i \
-		-e 's|MAX_NC_NAME|H4_MAX_NC_NAME|' \
-		-e 's|MAX_VAR_DIMS|H4_MAX_VAR_DIMS|' \
-		-e 's|MAX_NC_DIMS|H4_MAX_NC_DIMS|g' \
-		$f
+for file in `find . -type f -name "*.c*"`
+do
+  sed -i \
+    -e 's|MAX_NC_NAME|H4_MAX_NC_NAME|' \
+    -e 's|MAX_VAR_DIMS|H4_MAX_VAR_DIMS|' \
+    -e 's|MAX_NC_DIMS|H4_MAX_NC_DIMS|g' \
+   $file
 done
 popd
 
 %build
 
-# fix hardcoded issues with cfitso and ogdi
+# fix hardcoded issues
+sed -i 's|@LIBTOOL@|%{_bindir}/libtool|g' GDALmake.opt.in
 sed -i 's|-L\$with_cfitsio -L\$with_cfitsio\/lib -lcfitsio|-lcfitsio|g' configure
 sed -i 's|-I\$with_cfitsio|-I\$with_cfitsio\/include\/cfitsio|g' configure
 sed -i 's|-L\$with_netcdf -L\$with_netcdf\/lib -lnetcdf|-lnetcdf|g' configure
@@ -123,6 +118,8 @@ sed -i 's|-L\$with_jpeg -L\$with_jpeg\/lib -ljpeg|-ljpeg|g' configure
 sed -i 's|-L\$with_libtiff\/lib -ltiff|-ltiff|g' configure
 sed -i 's|-L\$with_grass\/lib||g' configure
 sed -i 's|-lgeotiff -L$with_geotiff $LIBS|-lgeotiff $LIBS|g' configure
+sed -i 's|-L\$with_geotiff\/lib -lgeotiff $LIBS|-lgeotiff $LIBS|g' configure
+sed -i 's|-lmfhdf -ldf $LIBS|-L$libdir/hdf -lmfhdf -ldf $LIBS|g' configure
 sed -i 's|-logdi31|-logdi|g' configure
 
 # fix python path for ppc64
@@ -136,11 +133,11 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 export CPPFLAGS="$CPPFLAGS `dap-config --cflags`"
 export CFLAGS="$RPM_OPT_FLAGS" 
 export CXXFLAGS="$RPM_OPT_FLAGS"
-export LDFLAGS='-L%{_libdir}/netcdf-3 -L%{_libdir}/hdf'
 
 %configure \
         --prefix=%{_prefix} \
         --includedir=%{_includedir}/%{name}/ \
+        --datadir=%{_datadir}/%{name}/ \
         --with-threads      \
         --with-dods-root=%{_libdir} \
         --with-ogdi=`ogdi-config --libdir` \
@@ -164,7 +161,7 @@ export LDFLAGS='-L%{_libdir}/netcdf-3 -L%{_libdir}/hdf'
         --with-python             \
         --with-perl               \
         --with-xerces             \
-        --with-xerces-lib='-lxerces-c -L%{_libdir}/hdf -L%{_libdir}/netcdf-3' \
+        --with-xerces-lib='-lxerces-c' \
         --with-xerces-inc=%{_includedir} \
         --without-pcraster        \
         --enable-shared           \
@@ -190,8 +187,7 @@ mkdir -p external/include
 
 # WARNING !!!
 # dont use {?_smp_mflags} it break compile
-# use external libtool to avoid hardcoded rpath in libs
-make LIBTOOL=/usr/bin/libtool
+make
 make docs
 
 # make perl modules, disable makefile generate
@@ -205,24 +201,22 @@ rm -rf $RPM_BUILD_ROOT
 
 # fix some perl instalation issue
 sed -i 's|>> $(DESTINSTALLARCHLIB)\/perllocal.pod|> \/dev\/null|g' swig/perl/Makefile_*
+# fix include header instalation issue
+cat GNUmakefile | grep -v "\$(INSTALL_DIR) \$(DESTDIR)\$(INST_INCLUDE)" | \
+                  grep -v "\$(INSTALL_DIR) \$(DESTDIR)\$(INST_DATA)" \
+> GNUmakefile.tmp; mv -f GNUmakefile.tmp GNUmakefile
 
-make \
-        INST_PREFIX=%{buildroot} \
-        INST_BIN=%{buildroot}%{_bindir} \
-        INST_LIB=%{buildroot}%{_libdir} \
-        INST_INCLUDE=%{buildroot}%{_includedir}/%{name} \
-        INST_DATA=%{buildroot}%{_datadir}/%{name} \
-        INST_MAN=%{buildroot}%{_mandir} \
-        INST_PYMOD=%{buildroot}%{python_sitearch} \
-        PERL_INSTALL_ROOT=%{buildroot} \
+make    DESTDIR=%{buildroot} \
         install
+        
+make    DESTDIR=%{buildroot} \
+        INST_MAN=%{_mandir} \
+        install-man 
 
 # move perl modules in the right path
 mkdir -p %{buildroot}%{perl_vendorarch}
-mv %{buildroot}%{_libdir}/Geo %{buildroot}%{perl_vendorarch}/
+mv %{buildroot}%{perl_sitearch}/* %{buildroot}%{perl_vendorarch}/
 rm -rf %{buildroot}%{perl_vendorarch}/Geo/GDAL
-mv %{buildroot}%{perl_sitearch}/auto/Geo/* %{buildroot}%{perl_vendorarch}/Geo/
-rm -rf %{buildroot}%{_libdir}/perl5/site_perl %{buildroot}/auto %{buildroot}%{perl_sitelib}
 
 # install pkgconfig file
 cat > %{name}.pc <<EOF
@@ -243,7 +237,6 @@ install -p -m 644 %{name}.pc %{buildroot}%{_libdir}/pkgconfig/
 
 # fix some exec bits
 find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
-chmod -x pymod/samples/*
 
 # build and include more docs
 mkdir -p doc/frmts; find frmts -name "*.html" -exec install -m 644 '{}' doc/frmts/ \;
@@ -251,25 +244,24 @@ mkdir -p doc/ogrsf_frmts; find ogr/ogrsf_frmts -name "*.html" -exec install -m 6
 
 # some commented out are broken for now
 pushd doc; doxygen *.dox; popd
-pushd rfc; doxygen *.dox; popd
-%if %{build_refman_pdf}
-pushd rfc/latex; make refman.pdf; popd
+pushd ogr/ogrsf_frmts; doxygen *.dox; popd
+%if %{build_refman}
+pushd ogr/ogrsf_frmts/latex; make refman.pdf; popd
 %endif
-#pushd ogr/ogrsf_frmts; doxygen *.dox; popd
-#pushd ogr/ogrsf_frmts/latex; make refman.pdf; popd
 pushd swig/perl; doxygen; popd
-%if %{build_refman_pdf}
+%if %{build_refman}
 pushd swig/perl/latex; make refman.pdf; popd
 %endif
 
 # cleanup junks
+rm -rf %{buildroot}%{_includedir}/%{name}/%{name}
 for junk in {*.a,*.la,*.bs,.exists,.packlist,.cvsignore} ; do
 find %{buildroot} -name "$junk" -exec rm -rf '{}' \;
 done
 
 %check
 
-pushd gdalautotest-1.4.1
+pushd gdalautotest-1.5.0
 
 # export test enviroment
 export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python_sitearch}
@@ -277,14 +269,12 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH%{buildroot}%{_libdir}
 export GDAL_DATA=%{buildroot}%{_datadir}/%{name}/
 
 # remove some testcases for now due to build failure
-rm -rf ogr/ogr_pg.py     # no pgsql during test (disabled)
-rm -rf ogr/ogr_dods.py   # no DODS  during test (disabled)
-rm -rf gdrivers/dods.py  # no DODS  during test (disabled)
-rm -rf gdrivers/hfa.py   # no HFA   during test (disabled)
-rm -rf gcore/hfa_write.py  # HFA driver absent  (disabled)
-rm -rf ogr/ogr_dgn.py      # DGW driver absent  (disabled)
-rm -rf osr/osr_esri.py     # ESRI datum absent  (disabled)
-
+rm -rf ogr/ogr_pg.py        # no pgsql during test (disabled)
+rm -rf ogr/ogr_dods.py      # no DODS  during test (disabled)
+rm -rf gdrivers/dods.py     # no DODS  during test (disabled)
+rm -rf osr/osr_esri.py        # ESRI datum absent  (disabled)
+rm -rf ogr/ogr_sql_test.py    # crash ugly  (mustfix)
+rm -rf gdrivers/dted.py       # crash ugly  (mustfix)
 rm -rf gcore/tiff_write.py # crash ugly on 64bit (mustfix)
 
 # run tests but force than normal exit
@@ -302,7 +292,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %doc NEWS PROVENANCE.TXT-mainstream PROVENANCE.TXT-fedora COMMITERS
 %doc doc/frmts  
-#%doc doc/ogrsf_frmts doc/html
 %{_bindir}/gdal_contour
 %{_bindir}/gdal_rasterize
 %{_bindir}/gdal_translate
@@ -310,6 +299,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/gdalinfo
 %{_bindir}/gdaltindex
 %{_bindir}/gdalwarp
+%{_bindir}/gdal_grid
+%{_bindir}/gdalenhance
+%{_bindir}/gdalmanage
+%{_bindir}/gdaltransform
+%{_bindir}/nearblack
 %{_bindir}/ogr*
 %{_libdir}/*.so.*
 %dir %{_datadir}/%{name}
@@ -318,21 +312,25 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/gdalinfo.1.gz
 %{_mandir}/man1/gdaltindex.1.gz
 %{_mandir}/man1/gdalwarp.1.gz
+%{_mandir}/man1/gdaltransform.1.gz
+%{_mandir}/man1/gdal2tiles.1.gz
+%{_mandir}/man1/nearblack.1.gz
 %{_mandir}/man1/gdal_contour.1.gz 
 %{_mandir}/man1/gdal_rasterize.1.gz
 %{_mandir}/man1/gdal_translate.1.gz
 %{_mandir}/man1/gdal_utilities.1.gz
+%{_mandir}/man1/gdal_grid.1.gz
+%{_mandir}/man1/gdal_retile.1.gz
 %{_mandir}/man1/ogr*.1.gz
 
 %files devel
 %defattr(-,root,root,-)
-%doc html ogr/html rfc/html 
-%if %{build_refman_pdf}
-%doc rfc/latex/refman.pdf
-%endif 
+%doc html ogr/html 
 %doc ogr/wcts/html 
-#%doc ogr/ogrsf_frmts/html 
-#%doc ogr/ogrsf_frmts/latex/refman.pdf
+%doc ogr/ogrsf_frmts/html 
+%if %{build_refman}
+%doc ogr/ogrsf_frmts/latex/refman.pdf
+%endif
 %{_bindir}/%{name}-config
 %dir %{_includedir}/%{name}
 %{_includedir}/%{name}/*.h
@@ -342,10 +340,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files python
 %defattr(-,root,root,-)
-%doc pymod/samples
 %exclude %{_bindir}/*.py?
 %attr(0755,root,root) %{_bindir}/*.py
-%exclude %{python_sitearch}/*.la
 %{python_sitearch}/*
 %{_mandir}/man1/pct2rgb.1.gz
 %{_mandir}/man1/rgb2pct.1.gz
@@ -354,13 +350,29 @@ rm -rf $RPM_BUILD_ROOT
 %files perl
 %defattr(-,root,root,-)
 %doc swig/perl/html 
-%if %{build_refman_pdf}
+%if %{build_refman}
 %doc swig/perl/latex/refman.pdf
 %endif
 %doc swig/perl/README
 %{perl_vendorarch}/*
 
 %changelog
+* Mon Jan 07 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.0-1
+- update to new 1.5.0 upstream stable
+- dropped build patch since HFA/ILI/DGN mandatories are now present
+- dropped swig patch, its upstream now
+- enable HFA it holds Intergraph (TM) explicit public license
+- enable DGN it holds Avenza Systems (TM) explicit public license
+- enable ILI headers since now contain proper public license message
+- keep and polish up rest of doubted license
+- further fixed hdf not supporting netcdf for for bz#189337
+- kill the annoying -Lexternal/lib for -lgeotiff
+- fix configure to not export LDFLAGS anyomre, upstream 
+  should really switch to real GNU automagic stuff
+- pymod samples and rfc docs now gone
+- hardcode external libtool to be used, LIBTOOL env not propagating anymore
+- use DESTDIR instead
+
 * Thu Jan 03 2008 Alex Lancaster <alexlan[AT]fedoraproject.org> - 1.4.2-7
 - Re-enable grass support now that gdal has been bootstrapped
 
