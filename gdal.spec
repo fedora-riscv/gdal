@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.5.0
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -216,7 +216,6 @@ make    DESTDIR=%{buildroot} \
 # move perl modules in the right path
 mkdir -p %{buildroot}%{perl_vendorarch}
 mv %{buildroot}%{perl_sitearch}/* %{buildroot}%{perl_vendorarch}/
-rm -rf %{buildroot}%{perl_vendorarch}/Geo/GDAL
 
 # install pkgconfig file
 cat > %{name}.pc <<EOF
@@ -357,6 +356,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Mon Jan 14 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.0-2
+- fix perl dependency issue.
+
 * Mon Jan 07 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.0-1
 - update to new 1.5.0 upstream stable
 - dropped build patch since HFA/ILI/DGN mandatories are now present
