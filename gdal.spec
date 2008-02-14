@@ -1,12 +1,13 @@
 Name:      gdal
 Version:   1.5.0
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
 URL:       http://gdal.maptools.org
 Source0:   %{name}-%{version}-fedora.tar.gz
 Source1:   http://download.osgeo.org/gdal/gdalautotest-1.5.0.tar.gz
+Patch0:    %{name}-gcc43.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool swig pkgconfig
 BuildRequires: doxygen tetex-latex ghostscript
@@ -59,6 +60,7 @@ The GDAL perl modules provides support to handle multiple GIS file formats.
 
 %prep
 %setup -q -n %{name}-%{version}-fedora
+%patch0 -p0 -b .gcc43
 
 # unpack test cases olso.
 tar -xzf %{SOURCE1} .
@@ -95,12 +97,13 @@ chmod -x ogr/ogrsf_frmts/ogdi/ogrogdidriver.cpp
 # bug 189337 c8
 # HAVE_NETCDF is not present anymore in hdf
 pushd frmts/hdf4
-for file in `find . -type f -name "*.c*"`
+for file in `find . -type f -name "*.*"`
 do
   sed -i \
     -e 's|MAX_NC_NAME|H4_MAX_NC_NAME|' \
     -e 's|MAX_VAR_DIMS|H4_MAX_VAR_DIMS|' \
     -e 's|MAX_NC_DIMS|H4_MAX_NC_DIMS|g' \
+    -e 's|UNKNOWN|H4_UNKNOWN|g' \
    $file
 done
 popd
@@ -134,13 +137,20 @@ export CPPFLAGS="$CPPFLAGS `dap-config --cflags`"
 export CFLAGS="$RPM_OPT_FLAGS" 
 export CXXFLAGS="$RPM_OPT_FLAGS"
 
+# we have multilib ogdi-config
+%if "%{_lib}" == "lib"
+%define cpuarch 32
+%else
+%define cpuarch 64
+%endif
+
 %configure \
         --prefix=%{_prefix} \
         --includedir=%{_includedir}/%{name}/ \
         --datadir=%{_datadir}/%{name}/ \
         --with-threads      \
         --with-dods-root=%{_libdir} \
-        --with-ogdi=`ogdi-config --libdir` \
+        --with-ogdi=`ogdi-config-%{cpuarch} --libdir` \
         --with-cfitsio=%{_prefix} \
         --with-geotiff=external   \
         --with-tiff=external      \
@@ -252,6 +262,9 @@ pushd swig/perl; doxygen; popd
 pushd swig/perl/latex; make refman.pdf; popd
 %endif
 
+# install cpl_config.h bz#430894
+install -p -m 644 port/cpl_config.h %{buildroot}%{_includedir}/%{name}/
+
 # cleanup junks
 rm -rf %{buildroot}%{_includedir}/%{name}/%{name}
 for junk in {*.a,*.la,*.bs,.exists,.packlist,.cvsignore} ; do
@@ -356,6 +369,10 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Tue Feb 12 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.0-3
+- install cpl_config.h manually for bz#430894
+- fix gcc4.3 build
+
 * Mon Jan 14 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.0-2
 - fix perl dependency issue.
 
