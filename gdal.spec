@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.5.0
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -134,6 +134,7 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/netcdf-3"
 export CPPFLAGS="$CPPFLAGS -I%{_includedir}/hdf"
 export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 export CPPFLAGS="$CPPFLAGS `dap-config --cflags`"
+export CPPFLAGS="$CPPFLAGS -DH5_USE_16_API"
 export CFLAGS="$RPM_OPT_FLAGS" 
 export CXXFLAGS="$RPM_OPT_FLAGS"
 
@@ -369,6 +370,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Wed Feb 29 2008 Orion Poplawski <orion@cora.nwra.com> - 1.5.0-4
+- Rebuild for hdf5-1.8.0, use compatability API define
+
 * Tue Feb 12 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.0-3
 - install cpl_config.h manually for bz#430894
 - fix gcc4.3 build
