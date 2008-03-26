@@ -1,6 +1,6 @@
 Name:      gdal
-Version:   1.5.0
-Release:   4%{?dist}
+Version:   1.5.1
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -8,6 +8,7 @@ URL:       http://gdal.maptools.org
 Source0:   %{name}-%{version}-fedora.tar.gz
 Source1:   http://download.osgeo.org/gdal/gdalautotest-1.5.0.tar.gz
 Patch0:    %{name}-gcc43.patch
+Patch1:    %{name}-perl510.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool swig pkgconfig
 BuildRequires: doxygen tetex-latex ghostscript
@@ -61,6 +62,7 @@ The GDAL perl modules provides support to handle multiple GIS file formats.
 %prep
 %setup -q -n %{name}-%{version}-fedora
 %patch0 -p0 -b .gcc43
+%patch1 -p0 -b .perl510
 
 # unpack test cases olso.
 tar -xzf %{SOURCE1} .
@@ -227,6 +229,7 @@ make    DESTDIR=%{buildroot} \
 # move perl modules in the right path
 mkdir -p %{buildroot}%{perl_vendorarch}
 mv %{buildroot}%{perl_sitearch}/* %{buildroot}%{perl_vendorarch}/
+find %{buildroot}%{perl_vendorarch} -name "*.dox" -exec rm -rf '{}' \;
 
 # install pkgconfig file
 cat > %{name}.pc <<EOF
@@ -288,7 +291,6 @@ rm -rf gdrivers/dods.py     # no DODS  during test (disabled)
 rm -rf osr/osr_esri.py        # ESRI datum absent  (disabled)
 rm -rf ogr/ogr_sql_test.py    # crash ugly  (mustfix)
 rm -rf gdrivers/dted.py       # crash ugly  (mustfix)
-rm -rf gcore/tiff_write.py # crash ugly on 64bit (mustfix)
 
 # run tests but force than normal exit
 ./run_all.py || exit 0
@@ -370,6 +372,11 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Tue Mar 25 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-1
+- new bugfix release from upstream
+- drop large parts from gcc43 patch, some are upstream now
+- fix building with perl-5.10 swig binding issue
+
 * Wed Feb 29 2008 Orion Poplawski <orion@cora.nwra.com> - 1.5.0-4
 - Rebuild for hdf5-1.8.0, use compatability API define
 
