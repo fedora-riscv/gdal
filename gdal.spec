@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.5.1
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -20,9 +20,9 @@ BuildRequires: python-devel >= 2.4 xerces-c-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 0
+%define grass_support 1
 # enable/disable refman generation
-%define build_refman  0
+%define build_refman  1
 
 %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")
 
@@ -372,6 +372,10 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Fri Mar 28 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-2
+- enable build against newer grass
+- enable build of reference manuals
+
 * Tue Mar 25 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-1
 - new bugfix release from upstream
 - drop large parts from gcc43 patch, some are upstream now
