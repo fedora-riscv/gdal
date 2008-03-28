@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.5.1
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -372,6 +372,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Fri Mar 28 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-3
+- rebuild to really pick up grass63 in koji
+
 * Fri Mar 28 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-2
 - enable build against newer grass
 - enable build of reference manuals
