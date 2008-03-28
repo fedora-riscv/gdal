@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.5.1
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -20,7 +20,7 @@ BuildRequires: python-devel >= 2.4 xerces-c-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 1
+%define grass_support 0
 # enable/disable refman generation
 %define build_refman  1
 
@@ -372,6 +372,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Fri Mar 28 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-4
+- disable grass to bootstrap once again
+
 * Fri Mar 28 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-3
 - rebuild to really pick up grass63 in koji
 
