@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.5.1
-Release:   5%{?dist}
+Release:   6%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -137,8 +137,10 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/hdf"
 export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 export CPPFLAGS="$CPPFLAGS `dap-config --cflags`"
 export CPPFLAGS="$CPPFLAGS -DH5_USE_16_API"
-export CFLAGS="$RPM_OPT_FLAGS" 
-export CXXFLAGS="$RPM_OPT_FLAGS"
+
+# code may contain sensible buffer overflows triggered by gcc ssp flag (mustfixupstream).
+export CXXFLAGS=`echo %{optflags}|sed -e 's/-Wp,-D_FORTIFY_SOURCE=2 //g'`
+export CFLAGS=`echo %{optflags}|sed -e 's/-Wp,-D_FORTIFY_SOURCE=2 //g'`
 
 # we have multilib ogdi-config
 %if "%{_lib}" == "lib"
@@ -372,6 +374,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Wed Apr 16 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-6
+- disable fortify source, it crash gdal for now.
+
 * Fri Mar 28 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-5
 - really eanble against grass63
 
