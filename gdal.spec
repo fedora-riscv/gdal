@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.5.1
-Release:   6%{?dist}
+Release:   7%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -10,7 +10,7 @@ Source1:   http://download.osgeo.org/gdal/gdalautotest-1.5.0.tar.gz
 Patch0:    %{name}-gcc43.patch
 Patch1:    %{name}-perl510.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: libtool swig pkgconfig
+BuildRequires: libtool swig pkgconfig sed
 BuildRequires: doxygen tetex-latex ghostscript
 BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
 BuildRequires: jasper-devel cfitsio-devel hdf-devel libdap-devel librx-devel
@@ -374,6 +374,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Thu May 15 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-7
+- buildrequire sed
+
 * Wed Apr 16 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-6
 - disable fortify source, it crash gdal for now.
 
