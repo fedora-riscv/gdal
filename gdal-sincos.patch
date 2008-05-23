@@ -1,0 +1,11 @@
+--- frmts/hdf4/hdf-eos/GDapi.c.orig	2008-05-20 15:01:09.000000000 +0300
++++ frmts/hdf4/hdf-eos/GDapi.c	2008-05-20 15:02:07.000000000 +0300
+@@ -6258,7 +6258,7 @@
+ 
+ 
+ 
+-#if !defined(HP9000) && !defined(DEC_ALPHA)
++#if 0
+ void
+ sincos(double val, double *sin_val, double *cos_val)
+ {

@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.5.1
-Release:   7%{?dist}
+Release:   8%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -9,6 +9,7 @@ Source0:   %{name}-%{version}-fedora.tar.gz
 Source1:   http://download.osgeo.org/gdal/gdalautotest-1.5.0.tar.gz
 Patch0:    %{name}-gcc43.patch
 Patch1:    %{name}-perl510.patch
+Patch2:    %{name}-sincos.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool swig pkgconfig
 BuildRequires: doxygen tetex-latex ghostscript
@@ -63,6 +64,7 @@ The GDAL perl modules provides support to handle multiple GIS file formats.
 %setup -q -n %{name}-%{version}-fedora
 %patch0 -p0 -b .gcc43
 %patch1 -p0 -b .perl510
+%patch2 -p0 -b .x86_64
 
 # unpack test cases olso.
 tar -xzf %{SOURCE1} .
@@ -374,8 +376,11 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
+* Thu May 23 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-8
+- fix sincos on all arch
+
 * Thu May 15 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-7
-- fix a sed option for koji
+- fix x86_64 problem
 
 * Wed Apr 16 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-6
 - disable fortify source, it crash gdal for now.
