@@ -5,7 +5,7 @@
  
  
 -#if !defined(HP9000) && !defined(DEC_ALPHA)
-+#if !defined(HP9000) && !defined(DEC_ALPHA) && !defined(__x86_64__)
++#if 0
  void
  sincos(double val, double *sin_val, double *cos_val)
  {
