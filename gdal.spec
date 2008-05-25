@@ -141,8 +141,8 @@ export CPPFLAGS="$CPPFLAGS `dap-config --cflags`"
 export CPPFLAGS="$CPPFLAGS -DH5_USE_16_API"
 
 # code may contain sensible buffer overflows triggered by gcc ssp flag (mustfixupstream).
-export CXXFLAGS=`echo %{optflags}|sed -e 's/-Wp,-D_FORTIFY_SOURCE=2 //g'`
-export CFLAGS=`echo %{optflags}|sed -e 's/-Wp,-D_FORTIFY_SOURCE=2 //g'`
+export CXXFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,-D_FORTIFY_SOURCE\=2 / /g'`
+export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / /g'`
 
 # we have multilib ogdi-config
 %if "%{_lib}" == "lib"
