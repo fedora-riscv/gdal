@@ -64,7 +64,7 @@ The GDAL perl modules provides support to handle multiple GIS file formats.
 %setup -q -n %{name}-%{version}-fedora
 %patch0 -p0 -b .gcc43
 %patch1 -p0 -b .perl510
-%patch2 -p0 -b .x86_64
+%patch2 -p0 -b .sincos
 
 # unpack test cases olso.
 tar -xzf %{SOURCE1} .
