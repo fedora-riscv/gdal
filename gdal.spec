@@ -141,8 +141,8 @@ export CPPFLAGS="$CPPFLAGS `dap-config --cflags`"
 export CPPFLAGS="$CPPFLAGS -DH5_USE_16_API"
 
 # code may contain sensible buffer overflows triggered by gcc ssp flag (mustfixupstream).
-export CXXFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,-D_FORTIFY_SOURCE\=2 / /g'`
-export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / /g'`
+export CXXFLAGS=`echo %{optflags}|sed -e 's/-Wp,-D_FORTIFY_SOURCE=2 / /g'`
+export CFLAGS=`echo %{optflags}|sed -e 's/-Wp,-D_FORTIFY_SOURCE=2 / /g'`
 
 # we have multilib ogdi-config
 %if "%{_lib}" == "lib"
@@ -190,12 +190,12 @@ export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / /g'`
 
 # fixup hardcoded wrong compile flags.
 cp GDALmake.opt GDALmake.opt.orig
-sed -e "s/^CFLAGS.*$/CFLAGS=$CFLAGS/" \
--e "s/^CXXFLAGS.*$/CXXFLAGS=$CXXFLAGS/" \
--e "s/^FFLAGS.*$/FFLAGS=$FFLAGS/" \
--e "s/ cfitsio / /" \
--e "s/-ldap++/-ldap -ldapclient -ldapserver/" \
--e "s/-L\$(INST_LIB) -lgdal/-lgdal/" \
+sed -e 's/^CFLAGS.*\$/CFLAGS=$CFLAGS/' \
+-e 's/^CXXFLAGS.*\$/CXXFLAGS=$CXXFLAGS/' \
+-e 's/^FFLAGS.*\$/FFLAGS=$FFLAGS/' \
+-e 's/ cfitsio / /' \
+-e 's/-ldap++/-ldap -ldapclient -ldapserver/' \
+-e 's/-L\$(INST_LIB) -lgdal/-lgdal/' \
 GDALmake.opt.orig > GDALmake.opt
 rm GDALmake.opt.orig
 
