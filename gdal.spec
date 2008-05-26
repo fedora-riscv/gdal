@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.5.1
-Release:   8%{?dist}
+Release:   9%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -11,9 +11,9 @@ Patch0:    %{name}-gcc43.patch
 Patch1:    %{name}-perl510.patch
 Patch2:    %{name}-sincos.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: libtool swig pkgconfig
-BuildRequires: doxygen tetex-latex ghostscript
+BuildRequires: libtool swig pkgconfig ruby java-devel ant
 BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
+BuildRequires: doxygen tetex-latex ghostscript ruby-devel jpackage-utils
 BuildRequires: jasper-devel cfitsio-devel hdf-devel libdap-devel librx-devel
 BuildRequires: unixODBC-devel mysql-devel sqlite-devel postgresql-devel zlib-devel
 BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel libgeotiff-devel
@@ -25,7 +25,8 @@ BuildRequires: perl(ExtUtils::MakeMaker)
 # enable/disable refman generation
 %define build_refman  1
 
-%define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")
+%{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
+%{!?ruby_sitearch: %define ruby_sitearch %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
 
 %if %{grass_support}
 BuildRequires: grass-devel
@@ -59,6 +60,24 @@ Requires: %{name} = %{version}-%{release}
 
 %description perl
 The GDAL perl modules provides support to handle multiple GIS file formats.
+
+%package ruby
+Summary: Ruby modules for the GDAL file format library
+Group: Development/Libraries
+Requires: %{name} = %{version}-%{release}
+
+%description ruby
+The GDAL ruby  modules provides support to handle multiple GIS file formats.
+
+%package java
+Summary: Java modules for the GDAL file format library
+Group: Development/Libraries
+Requires: java
+Requires: jpackage-utils
+Requires: %{name} = %{version}-%{release}
+
+%description java
+The GDAL java modules provides support to handle multiple GIS file formats.
 
 %prep
 %setup -q -n %{name}-%{version}-fedora
@@ -135,14 +154,15 @@ sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"\/usr\/lib64\"|g' con
 # append some path for few libs
 export CPPFLAGS="`pkg-config ogdi --cflags`"
 export CPPFLAGS="$CPPFLAGS -I%{_includedir}/netcdf-3"
+export CPPFLAGS="$CPPFLAGS -I%{_includedir}/netcdf"
 export CPPFLAGS="$CPPFLAGS -I%{_includedir}/hdf"
 export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 export CPPFLAGS="$CPPFLAGS `dap-config --cflags`"
 export CPPFLAGS="$CPPFLAGS -DH5_USE_16_API"
 
 # code may contain sensible buffer overflows triggered by gcc ssp flag (mustfixupstream).
-export CXXFLAGS=`echo %{optflags}|sed -e 's/-Wp,-D_FORTIFY_SOURCE=2 //g'`
-export CFLAGS=`echo %{optflags}|sed -e 's/-Wp,-D_FORTIFY_SOURCE=2 //g'`
+export CXXFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,-D_FORTIFY_SOURCE\=2 / -fPIC -DPIC /g'`
+export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -DPIC /g'`
 
 # we have multilib ogdi-config
 %if "%{_lib}" == "lib"
@@ -177,6 +197,8 @@ export CFLAGS=`echo %{optflags}|sed -e 's/-Wp,-D_FORTIFY_SOURCE=2 //g'`
         --with-curl               \
         --with-python             \
         --with-perl               \
+        --with-ruby               \
+        --with-java               \
         --with-xerces             \
         --with-xerces-lib='-lxerces-c' \
         --with-xerces-inc=%{_includedir} \
@@ -190,12 +212,9 @@ export CFLAGS=`echo %{optflags}|sed -e 's/-Wp,-D_FORTIFY_SOURCE=2 //g'`
 
 # fixup hardcoded wrong compile flags.
 cp GDALmake.opt GDALmake.opt.orig
-sed -e "s/^CFLAGS.*$/CFLAGS=$CFLAGS/" \
--e "s/^CXXFLAGS.*$/CXXFLAGS=$CXXFLAGS/" \
--e "s/^FFLAGS.*$/FFLAGS=$FFLAGS/" \
--e "s/ cfitsio / /" \
--e "s/-ldap++/-ldap -ldapclient -ldapserver/" \
--e "s/-L\$(INST_LIB) -lgdal/-lgdal/" \
+sed -e 's/ cfitsio / /' \
+-e 's/-ldap++/-ldap -ldapclient -ldapserver/' \
+-e 's/-L\$(INST_LIB) -lgdal/-lgdal/' \
 GDALmake.opt.orig > GDALmake.opt
 rm GDALmake.opt.orig
 
@@ -208,9 +227,17 @@ make
 make docs
 
 # make perl modules, disable makefile generate
-pushd swig/perl; 
- perl Makefile.PL;  make; 
+pushd swig/perl
+ perl Makefile.PL;  make;
  echo > Makefile.PL;
+popd
+
+# make java modules
+pushd swig/java
+make generate
+# disable ColorEntry for now (Ticket: #2331)
+rm -rf org/gdal/gdal/ColorEntry.java
+make build
 popd
 
 %install
@@ -225,15 +252,25 @@ cat GNUmakefile | grep -v "\$(INSTALL_DIR) \$(DESTDIR)\$(INST_INCLUDE)" | \
 
 make    DESTDIR=%{buildroot} \
         install
-        
+
 make    DESTDIR=%{buildroot} \
         INST_MAN=%{_mandir} \
-        install-man 
+        install-man
 
 # move perl modules in the right path
 mkdir -p %{buildroot}%{perl_vendorarch}
 mv %{buildroot}%{perl_sitearch}/* %{buildroot}%{perl_vendorarch}/
 find %{buildroot}%{perl_vendorarch} -name "*.dox" -exec rm -rf '{}' \;
+
+# move ruby modules in the right path
+mv %{buildroot}%{ruby_sitearch}/%{name}/*.* %{buildroot}%{ruby_sitearch}/
+rm -rf %{buildroot}%{ruby_sitearch}/%{name}
+
+# install java modules in the right path
+# JAR files
+mkdir -p %{buildroot}%{_javadir}
+cp -p swig/java/gdal.jar  \
+      %{buildroot}%{_javadir}/%{name}-%{version}.jar
 
 # install pkgconfig file
 cat > %{name}.pc <<EOF
@@ -254,6 +291,7 @@ install -p -m 644 %{name}.pc %{buildroot}%{_libdir}/pkgconfig/
 
 # fix some exec bits
 find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
+find %{buildroot}%{python_sitearch} -name "*.so" -exec chmod 755 '{}' \;
 
 # build and include more docs
 mkdir -p doc/frmts; find frmts -name "*.html" -exec install -m 644 '{}' doc/frmts/ \;
@@ -310,7 +348,7 @@ rm -rf $RPM_BUILD_ROOT
 %files 
 %defattr(-,root,root,-)
 %doc NEWS PROVENANCE.TXT-mainstream PROVENANCE.TXT-fedora COMMITERS
-%doc doc/frmts  
+%doc doc/frmts
 %{_bindir}/gdal_contour
 %{_bindir}/gdal_rasterize
 %{_bindir}/gdal_translate
@@ -344,9 +382,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(-,root,root,-)
-%doc html ogr/html 
-%doc ogr/wcts/html 
-%doc ogr/ogrsf_frmts/html 
+%doc html ogr/html
+%doc ogr/wcts/html
+%doc ogr/ogrsf_frmts/html
 %if %{build_refman}
 %doc ogr/ogrsf_frmts/latex/refman.pdf
 %endif
@@ -375,7 +413,23 @@ rm -rf $RPM_BUILD_ROOT
 %doc swig/perl/README
 %{perl_vendorarch}/*
 
+%files ruby
+%defattr(-,root,root,-)
+%{ruby_sitearch}/gdal.so
+%{ruby_sitearch}/ogr.so
+%{ruby_sitearch}/osr.so
+%{ruby_sitearch}/gdalconst.so
+
+%files java
+%defattr(-,root,root,-)
+%{_javadir}/%{name}-%{version}.jar
+
 %changelog
+* Sun May 25 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-9
+- enable ruby and java packages
+- fix spurious sed problem
+- spec file cosmetics
+
 * Thu May 23 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-8
 - fix sincos on all arch
 
