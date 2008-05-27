@@ -1,10 +1,10 @@
 Name:      gdal
 Version:   1.5.1
-Release:   9%{?dist}
+Release:   10%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
-URL:       http://gdal.maptools.org
+URL:       http://www.gdal.org/
 Source0:   %{name}-%{version}-fedora.tar.gz
 Source1:   http://download.osgeo.org/gdal/gdalautotest-1.5.0.tar.gz
 Patch0:    %{name}-gcc43.patch
@@ -24,6 +24,13 @@ BuildRequires: perl(ExtUtils::MakeMaker)
 %define grass_support 1
 # enable/disable refman generation
 %define build_refman  1
+
+# we have multilib triage
+%if "%{_lib}" == "lib"
+%define cpuarch 32
+%else
+%define cpuarch 64
+%endif
 
 %{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 %{!?ruby_sitearch: %define ruby_sitearch %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
@@ -81,14 +88,19 @@ The GDAL java modules provides support to handle multiple GIS file formats.
 
 %prep
 %setup -q -n %{name}-%{version}-fedora
-%patch0 -p0 -b .gcc43
-%patch1 -p0 -b .perl510
-%patch2 -p0 -b .sincos
+%patch0 -p0 -b .gcc43~
+%patch1 -p0 -b .perl510~
+%patch2 -p0 -b .sincos~
 
 # unpack test cases olso.
 tar -xzf %{SOURCE1} .
 
-# fix wrongly encoded files from tarball
+# fix russian docs from tarball
+for ru in `find doc/ru/ -type f -name "*.dox"`; do
+iconv -f KOI8-R -t UTF-8 < $ru > $ru.tmp
+mv -f $ru.tmp  $ru
+done
+
 set +x
 for f in `find . -type f` ; do
    if file $f | grep -q ISO-8859 ; then
@@ -116,6 +128,7 @@ chmod -x ogr/ogrsf_frmts/ogdi/ogrogdi.h
 chmod -x ogr/ogrsf_frmts/ogdi/ogrogdilayer.cpp
 chmod -x ogr/ogrsf_frmts/ogdi/ogrogdidatasource.cpp
 chmod -x ogr/ogrsf_frmts/ogdi/ogrogdidriver.cpp
+find swig/python/samples -name "*.py" -exec chmod -x '{}' \;
 
 # bug 189337 c8
 # HAVE_NETCDF is not present anymore in hdf
@@ -164,13 +177,6 @@ export CPPFLAGS="$CPPFLAGS -DH5_USE_16_API"
 export CXXFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,-D_FORTIFY_SOURCE\=2 / -fPIC -DPIC /g'`
 export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -DPIC /g'`
 
-# we have multilib ogdi-config
-%if "%{_lib}" == "lib"
-%define cpuarch 32
-%else
-%define cpuarch 64
-%endif
-
 %configure \
         --prefix=%{_prefix} \
         --includedir=%{_includedir}/%{name}/ \
@@ -218,13 +224,16 @@ sed -e 's/ cfitsio / /' \
 GDALmake.opt.orig > GDALmake.opt
 rm GDALmake.opt.orig
 
-# fixup non-existent lookup dir
-mkdir -p external/include
+# fix doxygen for multilib docs
+sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' swig/perl/Doxyfile
+sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/gxf/Doxyfile
+sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/sdts/Doxyfile
+sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/pcraster/doxygen.cfg
+sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/iso8211/Doxyfile
 
 # WARNING !!!
 # dont use {?_smp_mflags} it break compile
 make
-make docs
 
 # make perl modules, disable makefile generate
 pushd swig/perl
@@ -235,10 +244,36 @@ popd
 # make java modules
 pushd swig/java
 make generate
-# disable ColorEntry for now (Ticket: #2331)
+# disable ColorEntry for now (gdal Ticket: #2331)
 rm -rf org/gdal/gdal/ColorEntry.java
 make build
 popd
+
+# remake documentation for multilib issues
+# olso include many pdf documentation
+for docdir in ./ doc doc/ru doc/br ogr ogr/ogrsf_frmts ogr/ogrsf_frmts/dgn frmts/gxf frmts/sdts frmts/iso8211 swig/perl; do
+cp -p doc/gdal_footer.html $docdir/footer_local.html
+pushd $docdir
+if [ ! -f Doxyfile ]; then
+doxygen -g
+fi
+sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = footer_local.html\n#HTML_FOOTER |' Doxyfile
+sed -i -e 's|^GENERATE_LATEX|GENERATE_LATEX = YES\n#GENERATE_LATEX |' Doxyfile
+sed -i -e 's|^USE_PDFLATEX|USE_PDFLATEX = YES\n#USE_PDFLATEX |' Doxyfile
+if [ $docdir == "doc/ru" ]; then
+sed -i -e 's|^OUTPUT_LANGUAGE|OUTPUT_LANGUAGE = Russian\n#OUTPUT_LANGUAGE |' Doxyfile
+fi
+rm -rf latex html
+doxygen
+%if %{build_refman}
+pushd latex
+sed -i -e '/rfoot\[/d' -e '/lfoot\[/d' doxygen.sty
+sed -i -e '/small/d' -e '/large/d' refman.tex
+sed -i -e 's|pdflatex|pdflatex -interaction nonstopmode |g' Makefile
+make refman.pdf || true; popd
+%endif
+rm -rf footer_local.html; popd
+done
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -266,8 +301,8 @@ find %{buildroot}%{perl_vendorarch} -name "*.dox" -exec rm -rf '{}' \;
 mv %{buildroot}%{ruby_sitearch}/%{name}/*.* %{buildroot}%{ruby_sitearch}/
 rm -rf %{buildroot}%{ruby_sitearch}/%{name}
 
-# install java modules in the right path
-# JAR files
+# install multilib java modules in the right path
+touch -r VERSION swig/java/gdal.jar
 mkdir -p %{buildroot}%{_javadir}
 cp -p swig/java/gdal.jar  \
       %{buildroot}%{_javadir}/%{name}-%{version}.jar
@@ -293,23 +328,53 @@ install -p -m 644 %{name}.pc %{buildroot}%{_libdir}/pkgconfig/
 find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
 find %{buildroot}%{python_sitearch} -name "*.so" -exec chmod 755 '{}' \;
 
-# build and include more docs
-mkdir -p doc/frmts; find frmts -name "*.html" -exec install -m 644 '{}' doc/frmts/ \;
-mkdir -p doc/ogrsf_frmts; find ogr/ogrsf_frmts -name "*.html" -exec install -m 644 '{}' doc/ogrsf_frmts \;
-
-# some commented out are broken for now
-pushd doc; doxygen *.dox; popd
-pushd ogr/ogrsf_frmts; doxygen *.dox; popd
+# install and include all docs
+rm -rf docs doc/docs-perl
+mkdir -p doc/gdal_frmts; find frmts -name "*.html" -exec install -p -m 644 '{}' doc/gdal_frmts/ \;
+mkdir -p doc/ogrsf_frmts; find ogr -name "*.html" -exec install -p -m 644 '{}' doc/ogrsf_frmts/ \;
 %if %{build_refman}
-pushd ogr/ogrsf_frmts/latex; make refman.pdf; popd
+mkdir -p docs/docs-%{cpuarch}/pdf
+pushd docs/docs-%{cpuarch}/pdf; mkdir -p br ru en ogr ogrsf_frmts/dgn frmts/gxf frmts/sdts frmts/iso8211 ; popd
+install -p -m 644 doc/latex/refman.pdf docs/docs-%{cpuarch}/pdf/en
+install -p -m 644 doc/br/latex/refman.pdf docs/docs-%{cpuarch}/pdf/br/
+install -p -m 644 doc/ru/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ru/
+install -p -m 644 latex/refman.pdf docs/docs-%{cpuarch}/refman.pdf
+install -p -m 644 ogr/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogr/
+install -p -m 644 ogr/ogrsf_frmts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/
+install -p -m 644 ogr/ogrsf_frmts/dgn/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/dgn/
+install -p -m 644 frmts/gxf/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/gxf/
+install -p -m 644 frmts/sdts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
+install -p -m 644 frmts/iso8211/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/iso8211/
+mkdir -p doc/docs-perl/docs-%{cpuarch}/pdf
+install -p -m 644 swig/perl/latex/refman.pdf doc/docs-perl/docs-%{cpuarch}/pdf
 %endif
-pushd swig/perl; doxygen; popd
-%if %{build_refman}
-pushd swig/perl/latex; make refman.pdf; popd
-%endif
+pushd docs/docs-%{cpuarch}/; mkdir -p en/html gdal_frmts ogrsf_frmts br ru; popd
+cp -pr html/* docs/docs-%{cpuarch}/
+cp -pr doc/html/* docs/docs-%{cpuarch}/en/html
+cp -pr doc/gdal_frmts/* docs/docs-%{cpuarch}/gdal_frmts
+cp -pr doc/ogrsf_frmts/* docs/docs-%{cpuarch}/ogrsf_frmts
+cp -pr doc/br/html/* docs/docs-%{cpuarch}/br
+cp -pr doc/ru/html/* docs/docs-%{cpuarch}/ru
+cp -pr swig/perl/html/* doc/docs-perl/docs-%{cpuarch}/
 
-# install cpl_config.h bz#430894
-install -p -m 644 port/cpl_config.h %{buildroot}%{_includedir}/%{name}/
+# install multilib cpl_config.h bz#430894
+install -p -m 644 port/cpl_config.h %{buildroot}%{_includedir}/%{name}/cpl_config-%{cpuarch}.h
+# create universal multilib cpl_config.h bz#341231
+cat > %{buildroot}%{_includedir}/%{name}/cpl_config.h <<EOF
+include <bits/wordsize.h>
+
+if __WORDSIZE == 32
+include "gdal/cpl_config-32.h"
+elif __WORDSIZE == 64
+include "gdal/cpl_config-64.h"
+else
+error "Unknown word size"
+endif
+EOF
+touch -r VERSION port/cpl_config.h
+
+# multilib gdal-config
+mv %{buildroot}%{_bindir}/%{name}-config %{buildroot}%{_bindir}/%{name}-config-%{cpuarch}
 
 # cleanup junks
 rm -rf %{buildroot}%{_includedir}/%{name}/%{name}
@@ -335,7 +400,7 @@ rm -rf ogr/ogr_sql_test.py    # crash ugly  (mustfix)
 rm -rf gdrivers/dted.py       # crash ugly  (mustfix)
 
 # run tests but force than normal exit
-./run_all.py || exit 0
+./run_all.py || true
 
 popd
 
@@ -345,10 +410,10 @@ rm -rf $RPM_BUILD_ROOT
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
-%files 
+%files
 %defattr(-,root,root,-)
 %doc NEWS PROVENANCE.TXT-mainstream PROVENANCE.TXT-fedora COMMITERS
-%doc doc/frmts
+%doc docs/
 %{_bindir}/gdal_contour
 %{_bindir}/gdal_rasterize
 %{_bindir}/gdal_translate
@@ -382,13 +447,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(-,root,root,-)
-%doc html ogr/html
-%doc ogr/wcts/html
-%doc ogr/ogrsf_frmts/html
-%if %{build_refman}
-%doc ogr/ogrsf_frmts/latex/refman.pdf
-%endif
-%{_bindir}/%{name}-config
+%doc docs
+%{_bindir}/%{name}-config-%{cpuarch}
 %dir %{_includedir}/%{name}
 %{_includedir}/%{name}/*.h
 %{_libdir}/*.so
@@ -397,6 +457,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files python
 %defattr(-,root,root,-)
+%doc swig/python/samples
 %exclude %{_bindir}/*.py?
 %attr(0755,root,root) %{_bindir}/*.py
 %{python_sitearch}/*
@@ -406,10 +467,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files perl
 %defattr(-,root,root,-)
-%doc swig/perl/html 
-%if %{build_refman}
-%doc swig/perl/latex/refman.pdf
-%endif
+%doc doc/docs-perl
 %doc swig/perl/README
 %{perl_vendorarch}/*
 
@@ -422,13 +480,15 @@ rm -rf $RPM_BUILD_ROOT
 
 %files java
 %defattr(-,root,root,-)
+%doc swig/java/apps
 %{_javadir}/%{name}-%{version}.jar
 
 %changelog
-* Sun May 25 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-9
-- enable ruby and java packages
-- fix spurious sed problem
-- spec file cosmetics
+* Tue May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-10
+- fix for multilib packaging bz#341231
+- huge spec cleanup
+- enable russian and brazil docs
+- enable and triage more docs
 
 * Thu May 23 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-8
 - fix sincos on all arch
