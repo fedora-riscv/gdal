@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.5.1
-Release:   10%{?dist}
+Release:   11%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -361,20 +361,36 @@ cp -pr swig/perl/html/* doc/docs-perl/docs-%{cpuarch}/
 install -p -m 644 port/cpl_config.h %{buildroot}%{_includedir}/%{name}/cpl_config-%{cpuarch}.h
 # create universal multilib cpl_config.h bz#341231
 cat > %{buildroot}%{_includedir}/%{name}/cpl_config.h <<EOF
-include <bits/wordsize.h>
+#include <bits/wordsize.h>
 
-if __WORDSIZE == 32
-include "gdal/cpl_config-32.h"
-elif __WORDSIZE == 64
-include "gdal/cpl_config-64.h"
-else
-error "Unknown word size"
-endif
+#if __WORDSIZE == 32
+#include "gdal/cpl_config-32.h"
+#else
+#if __WORDSIZE == 64
+#include "gdal/cpl_config-64.h"
+#else
+#error "Unknown word size"
+#endif
+#endif
 EOF
 touch -r VERSION port/cpl_config.h
 
 # multilib gdal-config
 mv %{buildroot}%{_bindir}/%{name}-config %{buildroot}%{_bindir}/%{name}-config-%{cpuarch}
+cat > %{buildroot}%{_bindir}/%{name}-config <<EOF
+#!/bin/bash
+
+ARCH=$(uname -m)
+case $ARCH in
+x86_64 | ppc64 | ia64 | s390x | sparc64 | alpha | alphaev6 )
+gdal-config-64 ${*}
+;;
+*)
+gdal-config-32 ${*}
+;;
+esac
+EOF
+touch -r VERSION %{buildroot}%{_bindir}/%{name}-config
 
 # cleanup junks
 rm -rf %{buildroot}%{_includedir}/%{name}/%{name}
@@ -448,6 +464,7 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(-,root,root,-)
 %doc docs
+%{_bindir}/%{name}-config
 %{_bindir}/%{name}-config-%{cpuarch}
 %dir %{_includedir}/%{name}
 %{_includedir}/%{name}/*.h
@@ -484,11 +501,20 @@ rm -rf $RPM_BUILD_ROOT
 %{_javadir}/%{name}-%{version}.jar
 
 %changelog
+* Tue May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-11
+- fix multilib gdal-config, add wrapper around
+- fix typos in cpl_config.h wrapper
+
 * Tue May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-10
 - fix for multilib packaging bz#341231
 - huge spec cleanup
 - enable russian and brazil docs
 - enable and triage more docs
+
+* Sun May 25 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-9
+- enable ruby and java packages
+- fix spurious sed problem
+- spec file cosmetics
 
 * Thu May 23 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-8
 - fix sincos on all arch
