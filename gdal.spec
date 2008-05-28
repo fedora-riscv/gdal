@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.5.1
-Release:   12%{?dist}
+Release:   13%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -307,10 +307,6 @@ mkdir -p %{buildroot}%{_javadir}
 cp -p swig/java/gdal.jar  \
       %{buildroot}%{_javadir}/%{name}-%{version}.jar
 
-
-mkdir -p %{buildroot}%{_libdir}/pkgconfig/
-install -p -m 644 %{name}.pc %{buildroot}%{_libdir}/pkgconfig/
-
 # fix some exec bits
 find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
 find %{buildroot}%{python_sitearch} -name "*.so" -exec chmod 755 '{}' \;
@@ -375,6 +371,10 @@ Version: %{version}
 Libs: -L\${libdir} -lgdal
 Cflags: -I\${includedir}/%{name}
 EOF
+
+mkdir -p %{buildroot}%{_libdir}/pkgconfig/
+install -p -m 644 %{name}.pc %{buildroot}%{_libdir}/pkgconfig/
+touch -r NEWS %{buildroot}%{_libdir}/pkgconfig/
 
 # multilib gdal-config
 mv %{buildroot}%{_bindir}/%{name}-config %{buildroot}%{_bindir}/%{name}-config-%{cpuarch}
@@ -503,6 +503,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_javadir}/%{name}-%{version}.jar
 
 %changelog
+* Wed May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-13
+- fix pkgconfig too
+
 * Wed May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-12
 - fix once more gdal-config
 
