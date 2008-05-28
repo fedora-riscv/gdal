@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.5.1
-Release:   10%{?dist}
+Release:   12%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -183,7 +183,7 @@ export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -D
         --datadir=%{_datadir}/%{name}/ \
         --with-threads      \
         --with-dods-root=%{_libdir} \
-        --with-ogdi=`ogdi-config-%{cpuarch} --libdir` \
+        --with-ogdi=`ogdi-config --libdir` \
         --with-cfitsio=%{_prefix} \
         --with-geotiff=external   \
         --with-tiff=external      \
@@ -302,24 +302,11 @@ mv %{buildroot}%{ruby_sitearch}/%{name}/*.* %{buildroot}%{ruby_sitearch}/
 rm -rf %{buildroot}%{ruby_sitearch}/%{name}
 
 # install multilib java modules in the right path
-touch -r VERSION swig/java/gdal.jar
+touch -r NEWS swig/java/gdal.jar
 mkdir -p %{buildroot}%{_javadir}
 cp -p swig/java/gdal.jar  \
       %{buildroot}%{_javadir}/%{name}-%{version}.jar
 
-# install pkgconfig file
-cat > %{name}.pc <<EOF
-prefix=%{_prefix}
-exec_prefix=%{_prefix}
-libdir=%{_libdir}
-includedir=%{_includedir}
-
-Name: GDAL
-Description: GIS file format library
-Version: %{version}
-Libs: -L\${libdir} -lgdal
-Cflags: -I\${includedir}/%{name}
-EOF
 
 mkdir -p %{buildroot}%{_libdir}/pkgconfig/
 install -p -m 644 %{name}.pc %{buildroot}%{_libdir}/pkgconfig/
@@ -361,20 +348,51 @@ cp -pr swig/perl/html/* doc/docs-perl/docs-%{cpuarch}/
 install -p -m 644 port/cpl_config.h %{buildroot}%{_includedir}/%{name}/cpl_config-%{cpuarch}.h
 # create universal multilib cpl_config.h bz#341231
 cat > %{buildroot}%{_includedir}/%{name}/cpl_config.h <<EOF
-include <bits/wordsize.h>
+#include <bits/wordsize.h>
 
-if __WORDSIZE == 32
-include "gdal/cpl_config-32.h"
-elif __WORDSIZE == 64
-include "gdal/cpl_config-64.h"
-else
-error "Unknown word size"
-endif
+#if __WORDSIZE == 32
+#include "gdal/cpl_config-32.h"
+#else
+#if __WORDSIZE == 64
+#include "gdal/cpl_config-64.h"
+#else
+#error "Unknown word size"
+#endif
+#endif
 EOF
-touch -r VERSION port/cpl_config.h
+touch -r NEWS port/cpl_config.h
+
+# install pkgconfig file
+cat > %{name}.pc <<EOF
+prefix=%{_prefix}
+exec_prefix=%{_prefix}
+libdir=%{_libdir}
+includedir=%{_includedir}
+
+Name: GDAL
+Description: GIS file format library
+Version: %{version}
+Libs: -L\${libdir} -lgdal
+Cflags: -I\${includedir}/%{name}
+EOF
 
 # multilib gdal-config
 mv %{buildroot}%{_bindir}/%{name}-config %{buildroot}%{_bindir}/%{name}-config-%{cpuarch}
+cat > %{buildroot}%{_bindir}/%{name}-config <<EOF
+#!/bin/bash
+
+ARCH=\$(uname -m)
+case \$ARCH in
+x86_64 | ppc64 | ia64 | s390x | sparc64 | alpha | alphaev6 )
+%{name}-config-64 \${*}
+;;
+*)
+%{name}-config-32 \${*}
+;;
+esac
+EOF
+chmod 755 %{buildroot}%{_bindir}/%{name}-config
+touch -r NEWS %{buildroot}%{_bindir}/%{name}-config
 
 # cleanup junks
 rm -rf %{buildroot}%{_includedir}/%{name}/%{name}
@@ -448,6 +466,7 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(-,root,root,-)
 %doc docs
+%{_bindir}/%{name}-config
 %{_bindir}/%{name}-config-%{cpuarch}
 %dir %{_includedir}/%{name}
 %{_includedir}/%{name}/*.h
@@ -484,6 +503,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_javadir}/%{name}-%{version}.jar
 
 %changelog
+* Wed May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-12
+- fix once more gdal-config
+
+* Tue May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-11
+- fix multilib gdal-config, add wrapper around
+- fix typos in cpl_config.h wrapper
+
 * Tue May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-10
 - fix for multilib packaging bz#341231
 - huge spec cleanup
