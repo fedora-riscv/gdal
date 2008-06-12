@@ -1,15 +1,14 @@
 Name:      gdal
-Version:   1.5.1
-Release:   13%{?dist}
+Version:   1.5.2
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
 URL:       http://www.gdal.org/
 Source0:   %{name}-%{version}-fedora.tar.gz
 Source1:   http://download.osgeo.org/gdal/gdalautotest-1.5.0.tar.gz
-Patch0:    %{name}-gcc43.patch
-Patch1:    %{name}-perl510.patch
-Patch2:    %{name}-sincos.patch
+Patch0:    %{name}-perl510.patch
+Patch1:    %{name}-sincos.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool pkgconfig
 BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
@@ -25,7 +24,7 @@ BuildRequires: ant swig ruby java-devel
 %endif
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 0
+%define grass_support 1
 # enable/disable refman generation
 %define build_refman  1
 
@@ -94,9 +93,8 @@ The GDAL java modules provides support to handle multiple GIS file formats.
 
 %prep
 %setup -q -n %{name}-%{version}-fedora
-%patch0 -p0 -b .gcc43~
-%patch1 -p0 -b .perl510~
-%patch2 -p0 -b .sincos~
+%patch0 -p0 -b .perl510~
+%patch1 -p0 -b .sincos~
 
 # unpack test cases olso.
 tar -xzf %{SOURCE1} .
@@ -520,6 +518,11 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Thu Jun 12 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.2-1
+- a new bugfix upstream
+- drop gcc43 patch
+- more license cleaned
+
 * Wed May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-13
 - fix pkgconfig too
 
