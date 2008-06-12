@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.5.1
-Release:   12%{?dist}
+Release:   13%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -11,17 +11,21 @@ Patch0:    %{name}-gcc43.patch
 Patch1:    %{name}-perl510.patch
 Patch2:    %{name}-sincos.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: libtool swig pkgconfig ruby java-devel ant
+BuildRequires: libtool pkgconfig
 BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
 BuildRequires: doxygen tetex-latex ghostscript ruby-devel jpackage-utils
 BuildRequires: jasper-devel cfitsio-devel hdf-devel libdap-devel librx-devel
 BuildRequires: unixODBC-devel mysql-devel sqlite-devel postgresql-devel zlib-devel
 BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel libgeotiff-devel
-BuildRequires: python-devel >= 2.4 xerces-c-devel
+BuildRequires: python-devel xerces-c-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
+%if "%{?dist}" != ".el4"
+BuildRequires: ant swig ruby java-devel
+%endif
+
 # enable/disable grass support, for bootstrapping
-%define grass_support 1
+%define grass_support 0
 # enable/disable refman generation
 %define build_refman  1
 
@@ -68,6 +72,7 @@ Requires: %{name} = %{version}-%{release}
 %description perl
 The GDAL perl modules provides support to handle multiple GIS file formats.
 
+%if "%{?dist}" != ".el4"
 %package ruby
 Summary: Ruby modules for the GDAL file format library
 Group: Development/Libraries
@@ -85,6 +90,7 @@ Requires: %{name} = %{version}-%{release}
 
 %description java
 The GDAL java modules provides support to handle multiple GIS file formats.
+%endif
 
 %prep
 %setup -q -n %{name}-%{version}-fedora
@@ -203,8 +209,10 @@ export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -D
         --with-curl               \
         --with-python             \
         --with-perl               \
+%if "%{?dist}" != ".el4"
         --with-ruby               \
         --with-java               \
+%endif
         --with-xerces             \
         --with-xerces-lib='-lxerces-c' \
         --with-xerces-inc=%{_includedir} \
@@ -241,6 +249,7 @@ pushd swig/perl
  echo > Makefile.PL;
 popd
 
+%if "%{?dist}" != ".el4"
 # make java modules
 pushd swig/java
 make generate
@@ -248,6 +257,7 @@ make generate
 rm -rf org/gdal/gdal/ColorEntry.java
 make build
 popd
+%endif
 
 # remake documentation for multilib issues
 # olso include many pdf documentation
@@ -297,6 +307,7 @@ mkdir -p %{buildroot}%{perl_vendorarch}
 mv %{buildroot}%{perl_sitearch}/* %{buildroot}%{perl_vendorarch}/
 find %{buildroot}%{perl_vendorarch} -name "*.dox" -exec rm -rf '{}' \;
 
+%if "%{?dist}" != ".el4"
 # move ruby modules in the right path
 mv %{buildroot}%{ruby_sitearch}/%{name}/*.* %{buildroot}%{ruby_sitearch}/
 rm -rf %{buildroot}%{ruby_sitearch}/%{name}
@@ -306,10 +317,7 @@ touch -r NEWS swig/java/gdal.jar
 mkdir -p %{buildroot}%{_javadir}
 cp -p swig/java/gdal.jar  \
       %{buildroot}%{_javadir}/%{name}-%{version}.jar
-
-
-mkdir -p %{buildroot}%{_libdir}/pkgconfig/
-install -p -m 644 %{name}.pc %{buildroot}%{_libdir}/pkgconfig/
+%endif
 
 # fix some exec bits
 find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
@@ -329,7 +337,10 @@ install -p -m 644 latex/refman.pdf docs/docs-%{cpuarch}/refman.pdf
 install -p -m 644 ogr/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogr/
 install -p -m 644 ogr/ogrsf_frmts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/
 install -p -m 644 ogr/ogrsf_frmts/dgn/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/dgn/
+%if "%{?dist}" != ".el4"
+# broken on el4
 install -p -m 644 frmts/gxf/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/gxf/
+%endif
 install -p -m 644 frmts/sdts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
 install -p -m 644 frmts/iso8211/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/iso8211/
 mkdir -p doc/docs-perl/docs-%{cpuarch}/pdf
@@ -375,6 +386,10 @@ Version: %{version}
 Libs: -L\${libdir} -lgdal
 Cflags: -I\${includedir}/%{name}
 EOF
+
+mkdir -p %{buildroot}%{_libdir}/pkgconfig/
+install -p -m 644 %{name}.pc %{buildroot}%{_libdir}/pkgconfig/
+touch -r NEWS %{buildroot}%{_libdir}/pkgconfig/
 
 # multilib gdal-config
 mv %{buildroot}%{_bindir}/%{name}-config %{buildroot}%{_bindir}/%{name}-config-%{cpuarch}
@@ -490,6 +505,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc swig/perl/README
 %{perl_vendorarch}/*
 
+%if "%{?dist}" != ".el4"
 %files ruby
 %defattr(-,root,root,-)
 %{ruby_sitearch}/gdal.so
@@ -501,8 +517,12 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %doc swig/java/apps
 %{_javadir}/%{name}-%{version}.jar
+%endif
 
 %changelog
+* Wed May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-13
+- fix pkgconfig too
+
 * Wed May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-12
 - fix once more gdal-config
 
