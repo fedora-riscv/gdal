@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.5.2
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -9,6 +9,7 @@ Source0:   %{name}-%{version}-fedora.tar.gz
 Source1:   http://download.osgeo.org/gdal/gdalautotest-1.5.0.tar.gz
 Patch0:    %{name}-perl510.patch
 Patch1:    %{name}-sincos.patch
+Patch2:    %{name}-libdap.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool pkgconfig
 BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
@@ -95,6 +96,7 @@ The GDAL java modules provides support to handle multiple GIS file formats.
 %setup -q -n %{name}-%{version}-fedora
 %patch0 -p0 -b .perl510~
 %patch1 -p0 -b .sincos~
+%patch2 -p1 -b .libdap~
 
 # unpack test cases olso.
 tar -xzf %{SOURCE1} .
@@ -518,6 +520,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Tue Sep  9 2008 Patrice Dumas <pertusus@free.fr> - 1.5.2-2
+- patch for libdap > 0.8.0, from Rob Cermak
+
 * Thu Jun 12 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.2-1
 - a new bugfix upstream
 - drop gcc43 patch
