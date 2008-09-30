@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.5.2
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -12,12 +12,12 @@ Patch1:    %{name}-sincos.patch
 Patch2:    %{name}-libdap.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool pkgconfig
+BuildRequires: python-devel numpy xerces-c-devel
 BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
 BuildRequires: doxygen tetex-latex ghostscript ruby-devel jpackage-utils
 BuildRequires: jasper-devel cfitsio-devel hdf-devel libdap-devel librx-devel
 BuildRequires: unixODBC-devel mysql-devel sqlite-devel postgresql-devel zlib-devel
 BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel libgeotiff-devel
-BuildRequires: python-devel xerces-c-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 
 %if "%{?dist}" != ".el4"
@@ -59,6 +59,7 @@ The GDAL library provides support to handle multiple GIS file formats.
 %package python
 Summary: Python modules for the GDAL file format library
 Group: Development/Libraries
+Requires: numpy
 Requires: %{name} = %{version}-%{release}
 
 %description python
@@ -520,6 +521,10 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Tue Sep 30 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.2-4
+- enable gdal_array for python subpackage
+- require numpy
+
 * Tue Sep  9 2008 Patrice Dumas <pertusus@free.fr> - 1.5.2-3
 - patch for libdap > 0.8.0, from Rob Cermak
 
