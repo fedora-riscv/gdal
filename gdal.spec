@@ -1,15 +1,13 @@
 Name:      gdal
-Version:   1.5.2
-Release:   4%{?dist}
+Version:   1.5.3
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
 URL:       http://www.gdal.org/
 Source0:   %{name}-%{version}-fedora.tar.gz
 Source1:   http://download.osgeo.org/gdal/gdalautotest-1.5.0.tar.gz
-Patch0:    %{name}-perl510.patch
-Patch1:    %{name}-sincos.patch
-Patch2:    %{name}-libdap.patch
+Patch0:    %{name}-libdap.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool pkgconfig
 BuildRequires: python-devel numpy xerces-c-devel
@@ -56,6 +54,13 @@ Requires: %{name} = %{version}-%{release}
 %description devel
 The GDAL library provides support to handle multiple GIS file formats.
 
+%package static
+Summary: Static Development Libraries for the GDAL file format library
+Group: Development/Libraries
+
+%description static
+The GDAL library provides support to handle multiple GIS file formats.
+
 %package python
 Summary: Python modules for the GDAL file format library
 Group: Development/Libraries
@@ -95,9 +100,9 @@ The GDAL java modules provides support to handle multiple GIS file formats.
 
 %prep
 %setup -q -n %{name}-%{version}-fedora
-%patch0 -p0 -b .perl510~
-%patch1 -p0 -b .sincos~
-%patch2 -p1 -b .libdap~
+%if "%{?dist}" == ".fc10"
+%patch0 -p1 -b .libdap~
+%endif
 
 # unpack test cases olso.
 tar -xzf %{SOURCE1} .
@@ -222,7 +227,6 @@ export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -D
 %if %{grass_support}
         --with-libgrass             \
         --with-grass=%{_prefix}     \
-        --disable-static
 %endif
 
 # fixup hardcoded wrong compile flags.
@@ -255,7 +259,7 @@ popd
 pushd swig/java
 make generate
 # disable ColorEntry for now (gdal Ticket: #2331)
-rm -rf org/gdal/gdal/ColorEntry.java
+rm -rf org/gdal/gdal/ColorTable.java
 make build
 popd
 %endif
@@ -296,6 +300,9 @@ cat GNUmakefile | grep -v "\$(INSTALL_DIR) \$(DESTDIR)\$(INST_INCLUDE)" | \
                   grep -v "\$(INSTALL_DIR) \$(DESTDIR)\$(INST_DATA)" \
 > GNUmakefile.tmp; mv -f GNUmakefile.tmp GNUmakefile
 
+# fix python installation path
+sed -i 's|setup.py install|setup.py install --root=%{buildroot}|' swig/python/GNUmakefile
+
 make    DESTDIR=%{buildroot} \
         install
 
@@ -333,7 +340,7 @@ mkdir -p docs/docs-%{cpuarch}/pdf
 pushd docs/docs-%{cpuarch}/pdf; mkdir -p br ru en ogr ogrsf_frmts/dgn frmts/gxf frmts/sdts frmts/iso8211 ; popd
 install -p -m 644 doc/latex/refman.pdf docs/docs-%{cpuarch}/pdf/en
 install -p -m 644 doc/br/latex/refman.pdf docs/docs-%{cpuarch}/pdf/br/
-install -p -m 644 doc/ru/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ru/
+#install -p -m 644 doc/ru/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ru/
 install -p -m 644 latex/refman.pdf docs/docs-%{cpuarch}/refman.pdf
 install -p -m 644 ogr/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogr/
 install -p -m 644 ogr/ogrsf_frmts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/
@@ -412,7 +419,7 @@ touch -r NEWS %{buildroot}%{_bindir}/%{name}-config
 
 # cleanup junks
 rm -rf %{buildroot}%{_includedir}/%{name}/%{name}
-for junk in {*.a,*.la,*.bs,.exists,.packlist,.cvsignore} ; do
+for junk in {*.la,*.bs,.exists,.packlist,.cvsignore} ; do
 find %{buildroot} -name "$junk" -exec rm -rf '{}' \;
 done
 
@@ -461,6 +468,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/gdaltransform
 %{_bindir}/nearblack
 %{_bindir}/ogr*
+%{_bindir}/testepsg
 %{_libdir}/*.so.*
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
@@ -489,6 +497,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/%{name}.pc
 %{_mandir}/man1/%{name}-config*
+
+%files static
+%defattr(-,root,root,-)
+%{_libdir}/*.a
 
 %files python
 %defattr(-,root,root,-)
@@ -521,6 +533,12 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Fri Oct 24 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.3-1
+- new stable
+- ship static package too
+- fix some doc generation
+- libdap patch for fc10 only
+
 * Tue Sep 30 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.2-4
 - enable gdal_array for python subpackage
 - require numpy
