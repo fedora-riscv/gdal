@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.5.3
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -533,6 +533,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Sat Nov 29 2008 Ignacio Vazquez-Abrams <ivazqueznet+rpm@gmail.com> - 1.5.3-2
+- Rebuild for Python 2.6
+
 * Fri Oct 24 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.3-1
 - new stable
 - ship static package too
