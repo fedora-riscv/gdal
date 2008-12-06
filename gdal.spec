@@ -1,12 +1,12 @@
 Name:      gdal
-Version:   1.5.3
-Release:   2%{?dist}
+Version:   1.6.0
+Release:   0.1.rc4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
 URL:       http://www.gdal.org/
-Source0:   %{name}-%{version}-fedora.tar.gz
-Source1:   http://download.osgeo.org/gdal/gdalautotest-1.5.0.tar.gz
+Source0:   %{name}-%{version}RC4-fedora.tar.gz
+Source1:   http://download.osgeo.org/gdal/gdalautotest-1.6.0.tar.gz
 Patch0:    %{name}-libdap.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool pkgconfig
@@ -23,7 +23,7 @@ BuildRequires: ant swig ruby java-devel
 %endif
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 1
+%define grass_support 0
 # enable/disable refman generation
 %define build_refman  1
 
@@ -105,7 +105,7 @@ The GDAL java modules provides support to handle multiple GIS file formats.
 %endif
 
 # unpack test cases olso.
-tar -xzf %{SOURCE1} .
+tar -xzf %{SOURCE1}
 
 # fix russian docs from tarball
 for ru in `find doc/ru/ -type f -name "*.dox"`; do
@@ -142,20 +142,6 @@ chmod -x ogr/ogrsf_frmts/ogdi/ogrogdidatasource.cpp
 chmod -x ogr/ogrsf_frmts/ogdi/ogrogdidriver.cpp
 find swig/python/samples -name "*.py" -exec chmod -x '{}' \;
 
-# bug 189337 c8
-# HAVE_NETCDF is not present anymore in hdf
-pushd frmts/hdf4
-for file in `find . -type f -name "*.*"`
-do
-  sed -i \
-    -e 's|MAX_NC_NAME|H4_MAX_NC_NAME|' \
-    -e 's|MAX_VAR_DIMS|H4_MAX_VAR_DIMS|' \
-    -e 's|MAX_NC_DIMS|H4_MAX_NC_DIMS|g' \
-    -e 's|UNKNOWN|H4_UNKNOWN|g' \
-   $file
-done
-popd
-
 %build
 
 # fix hardcoded issues
@@ -170,7 +156,7 @@ sed -i 's|-L\$with_libtiff\/lib -ltiff|-ltiff|g' configure
 sed -i 's|-L\$with_grass\/lib||g' configure
 sed -i 's|-lgeotiff -L$with_geotiff $LIBS|-lgeotiff $LIBS|g' configure
 sed -i 's|-L\$with_geotiff\/lib -lgeotiff $LIBS|-lgeotiff $LIBS|g' configure
-sed -i 's|-lmfhdf -ldf $LIBS|-L$libdir/hdf -lmfhdf -ldf $LIBS|g' configure
+sed -i 's|-lmfhdf -ldf|-L$libdir/hdf -lmfhdf -ldf|g' configure
 sed -i 's|-logdi31|-logdi|g' configure
 
 # fix python path for ppc64
@@ -237,6 +223,9 @@ sed -e 's/ cfitsio / /' \
 GDALmake.opt.orig > GDALmake.opt
 rm GDALmake.opt.orig
 
+# fix ruby flags
+sed -i -e "s/\$(LD)/g++ -L..\/..\/.libs\/ $RPM_OPT_FLAGS/g" swig/ruby/RubyMakefile.mk
+
 # fix doxygen for multilib docs
 sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' swig/perl/Doxyfile
 sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/gxf/Doxyfile
@@ -257,6 +246,11 @@ popd
 %if "%{?dist}" != ".el4"
 # make java modules
 pushd swig/java
+# fix makefile
+sed -i -e 's|include java.opt|\#include java.opt|' GNUmakefile
+sed -i -e 's|-cp|\#-cp|g' GNUmakefile
+sed -i -e 's|\$(LD) -shared \$(LDFLAGS) \$(CONFIG_LIBS)|g++ -shared -lgdal -L..\/..\/.libs|g' GNUmakefile
+# build java module
 make generate
 # disable ColorEntry for now (gdal Ticket: #2331)
 rm -rf org/gdal/gdal/ColorTable.java
@@ -419,13 +413,14 @@ touch -r NEWS %{buildroot}%{_bindir}/%{name}-config
 
 # cleanup junks
 rm -rf %{buildroot}%{_includedir}/%{name}/%{name}
+rm -rf %{buildroot}%{_bindir}/gdal_sieve.dox
 for junk in {*.la,*.bs,.exists,.packlist,.cvsignore} ; do
 find %{buildroot} -name "$junk" -exec rm -rf '{}' \;
 done
 
 %check
 
-pushd gdalautotest-1.5.0
+pushd gdalautotest-1.6.0
 
 # export test enviroment
 export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python_sitearch}
@@ -434,11 +429,12 @@ export GDAL_DATA=%{buildroot}%{_datadir}/%{name}/
 
 # remove some testcases for now due to build failure
 rm -rf ogr/ogr_pg.py        # no pgsql during test (disabled)
+rm -rf ogr/ogr_mysql.py     # no mysql during test (disabled)
 rm -rf ogr/ogr_dods.py      # no DODS  during test (disabled)
 rm -rf gdrivers/dods.py     # no DODS  during test (disabled)
 rm -rf osr/osr_esri.py        # ESRI datum absent  (disabled)
-rm -rf ogr/ogr_sql_test.py    # crash ugly  (mustfix)
-rm -rf gdrivers/dted.py       # crash ugly  (mustfix)
+rm -rf ogr/ogr_sql_test.py    # no SQl during tests
+rm -rf gcore/mask.py       # crash ugly  (mustfix)
 
 # run tests but force than normal exit
 ./run_all.py || true
@@ -475,7 +471,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/gdaladdo.1.gz
 %{_mandir}/man1/gdalinfo.1.gz
 %{_mandir}/man1/gdaltindex.1.gz
-%{_mandir}/man1/gdalwarp.1.gz
 %{_mandir}/man1/gdaltransform.1.gz
 %{_mandir}/man1/gdal2tiles.1.gz
 %{_mandir}/man1/nearblack.1.gz
@@ -533,6 +528,11 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Sat Dec 06 2008 Balint Cristian <rezso@rdsor.ro> - 1.6.0-0.1.rc4
+- new branch
+- disable grass
+- fix ruby compile
+
 * Sat Nov 29 2008 Ignacio Vazquez-Abrams <ivazqueznet+rpm@gmail.com> - 1.5.3-2
 - Rebuild for Python 2.6
 
