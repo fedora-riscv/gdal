@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.6.0
-Release:   0.1.rc4%{?dist}
+Release:   0.2.rc4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -23,7 +23,7 @@ BuildRequires: ant swig ruby java-devel
 %endif
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 0
+%define grass_support 1
 # enable/disable refman generation
 %define build_refman  1
 
@@ -433,7 +433,7 @@ rm -rf ogr/ogr_mysql.py     # no mysql during test (disabled)
 rm -rf ogr/ogr_dods.py      # no DODS  during test (disabled)
 rm -rf gdrivers/dods.py     # no DODS  during test (disabled)
 rm -rf osr/osr_esri.py        # ESRI datum absent  (disabled)
-rm -rf ogr/ogr_sql_test.py    # no SQl during tests
+rm -rf ogr/ogr_sql_test.py    # no SQL during tests
 rm -rf gcore/mask.py       # crash ugly  (mustfix)
 
 # run tests but force than normal exit
@@ -528,6 +528,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Sat Dec 06 2008 Balint Cristian <rezso@rdsor.ro> - 1.6.0-0.2.rc4
+- enable grass
+
 * Sat Dec 06 2008 Balint Cristian <rezso@rdsor.ro> - 1.6.0-0.1.rc4
 - new branch
 - disable grass
