@@ -1,11 +1,11 @@
 Name:      gdal
 Version:   1.6.0
-Release:   0.2.rc4%{?dist}
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
 URL:       http://www.gdal.org/
-Source0:   %{name}-%{version}RC4-fedora.tar.gz
+Source0:   %{name}-%{version}-fedora.tar.gz
 Source1:   http://download.osgeo.org/gdal/gdalautotest-1.6.0.tar.gz
 Patch0:    %{name}-libdap.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -528,6 +528,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Fri Dec 12 2008 Balint Cristian <rezso@rdsor.ro> - 1.6.0-1
+- final stable release
+
 * Sat Dec 06 2008 Balint Cristian <rezso@rdsor.ro> - 1.6.0-0.2.rc4
 - enable grass
 
