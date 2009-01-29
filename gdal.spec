@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.6.0
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -23,7 +23,7 @@ BuildRequires: ant swig ruby java-devel
 %endif
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 1
+%define grass_support 0
 # enable/disable refman generation
 %define build_refman  1
 
@@ -528,6 +528,10 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Thu Jan 29 2009 Balint Cristian <crisitan.balint@gmail.com> - 1.6.0-2
+- email change
+- rebuild without grass
+
 * Fri Dec 12 2008 Balint Cristian <rezso@rdsor.ro> - 1.6.0-1
 - final stable release
 
