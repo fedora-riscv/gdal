@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.6.0
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -8,6 +8,7 @@ URL:       http://www.gdal.org/
 Source0:   %{name}-%{version}-fedora.tar.gz
 Source1:   http://download.osgeo.org/gdal/gdalautotest-1.6.0.tar.gz
 Patch0:    %{name}-libdap.patch
+Patch1:    %{name}-mysql.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool pkgconfig
 BuildRequires: python-devel numpy xerces-c-devel
@@ -103,6 +104,7 @@ The GDAL java modules provides support to handle multiple GIS file formats.
 %if "%{?dist}" == ".fc10"
 %patch0 -p1 -b .libdap~
 %endif
+%patch1 -p0 -b .mysql~
 
 # unpack test cases olso.
 tar -xzf %{SOURCE1}
@@ -528,6 +530,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Thu Jan 29 2009 Balint Cristian <crisitan.balint@gmail.com> - 1.6.0-3
+- rebuild against mysql 5.1.30
+
 * Thu Jan 29 2009 Balint Cristian <crisitan.balint@gmail.com> - 1.6.0-2
 - email change
 - rebuild without grass
