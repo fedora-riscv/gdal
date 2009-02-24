@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.6.0
-Release:   4%{?dist}
+Release:   5%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -530,6 +530,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Tue Feb 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.6.0-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
 * Wed Feb 04 2009 Balint Cristian <cristian.balint@gmail.com> - 1.6.0-4
 - rebuild with grass support
 - fix email typo
