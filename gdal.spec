@@ -34,6 +34,12 @@ BuildRequires: ant swig ruby java-devel
 %define cpuarch 64
 %endif
 
+# Alpha is 64bit only but uses "lib" not "lib64"
+# Also true for ia64!?
+%ifarch alpha
+%define cpuarch 64
+%endif
+
 %{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 %{!?ruby_sitearch: %define ruby_sitearch %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
 
