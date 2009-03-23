@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.6.0
-Release:   7%{?dist}
+Release:   8%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -25,7 +25,7 @@ BuildRequires: ant swig ruby java-devel-gcj
 %endif
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 0
+%define grass_support 1
 # enable/disable refman generation
 %define build_refman  1
 
@@ -531,6 +531,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Mon Mar 23 2009 Jesse Keating <jkeating@redhat.com> - 1.6.0-8
+- re-enable grass support
+
 * Sun Mar 22 2009 Lubomir Rintel <lkundrak@v3.sk> - 1.6.0-7
 - Depend specifically on GCJ for Java (Alex Lancaster)
 - Disable grass (Alex Lancaster)
