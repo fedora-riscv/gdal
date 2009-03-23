@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.6.0
-Release:   6%{?dist}
+Release:   7%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -531,7 +531,7 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
-* Sun Mar 22 2009 Lubomir Rintel <lkundrak@v3.sk> - 1.6.0-6
+* Sun Mar 22 2009 Lubomir Rintel <lkundrak@v3.sk> - 1.6.0-7
 - Depend specifically on GCJ for Java (Alex Lancaster)
 - Disable grass (Alex Lancaster)
 - Create %%_bindir before copying files there
