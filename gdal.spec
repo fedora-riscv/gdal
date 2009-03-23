@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.6.0
-Release:   5%{?dist}
+Release:   6%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -9,6 +9,7 @@ Source0:   %{name}-%{version}-fedora.tar.gz
 Source1:   http://download.osgeo.org/gdal/gdalautotest-1.6.0.tar.gz
 Patch0:    %{name}-libdap.patch
 Patch1:    %{name}-mysql.patch
+Patch2:    %{name}-bindir.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool pkgconfig
 BuildRequires: python-devel numpy xerces-c-devel
@@ -20,11 +21,11 @@ BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel libgeoti
 BuildRequires: perl(ExtUtils::MakeMaker)
 
 %if "%{?dist}" != ".el4"
-BuildRequires: ant swig ruby java-devel
+BuildRequires: ant swig ruby java-devel-gcj
 %endif
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 1
+%define grass_support 0
 # enable/disable refman generation
 %define build_refman  1
 
@@ -105,6 +106,7 @@ The GDAL java modules provides support to handle multiple GIS file formats.
 %patch0 -p1 -b .libdap~
 %endif
 %patch1 -p0 -b .mysql~
+%patch2 -p1 -b .bindir~
 
 # unpack test cases olso.
 tar -xzf %{SOURCE1}
@@ -502,8 +504,7 @@ rm -rf $RPM_BUILD_ROOT
 %files python
 %defattr(-,root,root,-)
 %doc swig/python/samples
-%exclude %{_bindir}/*.py?
-%attr(0755,root,root) %{_bindir}/*.py
+%attr(0755,root,root) %{_bindir}/*
 %{python_sitearch}/*
 %{_mandir}/man1/pct2rgb.1.gz
 %{_mandir}/man1/rgb2pct.1.gz
@@ -530,6 +531,11 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Sun Mar 22 2009 Lubomir Rintel <lkundrak@v3.sk> - 1.6.0-6
+- Depend specifically on GCJ for Java (Alex Lancaster)
+- Disable grass (Alex Lancaster)
+- Create %%_bindir before copying files there
+
 * Tue Feb 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.6.0-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
 
