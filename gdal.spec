@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.6.0
-Release:   8%{?dist}
+Release:   9%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -531,6 +531,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Wed Jul 22 2009 Orion Poplawski <orion@cora.nwra.com> - 1.6.0-9
+- Rebuild for libdap 3.9.3
+
 * Mon Mar 23 2009 Jesse Keating <jkeating@redhat.com> - 1.6.0-8
 - re-enable grass support
 
