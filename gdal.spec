@@ -25,7 +25,7 @@ BuildRequires: ant swig ruby java-devel-gcj
 %endif
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 1
+%define grass_support 0
 # enable/disable refman generation
 %define build_refman  1
 
@@ -532,7 +532,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Wed Jul 22 2009 Orion Poplawski <orion@cora.nwra.com> - 1.6.0-9
-- Rebuild for libdap 3.9.3
+- Rebuild for libdap 3.9.3, bootstrap
 
 * Mon Mar 23 2009 Jesse Keating <jkeating@redhat.com> - 1.6.0-8
 - re-enable grass support
