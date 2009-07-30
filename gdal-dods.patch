@@ -1,0 +1,48 @@
+--- gdal-1.6.1/frmts/dods/dodsdataset2.cpp.org	2009-07-15 12:54:31.160838902 +0200
++++ gdal-1.6.1/frmts/dods/dodsdataset2.cpp	2009-07-15 12:58:38.080454628 +0200
+@@ -693,15 +693,15 @@
+ /* -------------------------------------------------------------------- */
+ /*      Try and fetch the corresponding DAS subtree if it exists.       */
+ /* -------------------------------------------------------------------- */
+-    AttrTable *poFileInfo = oDAS.find_container( "GLOBAL" );
++    AttrTable *poFileInfo = oDAS.container()->find_container( "GLOBAL" );
+ 
+     if( poFileInfo == NULL )
+     {
+-        poFileInfo = oDAS.find_container( "NC_GLOBAL" );
++        poFileInfo = oDAS.container()->find_container( "NC_GLOBAL" );
+ 
+ 	if( poFileInfo == NULL )
+ 	{
+-	    poFileInfo = oDAS.find_container( "HDF_GLOBAL" );
++	    poFileInfo = oDAS.container()->find_container( "HDF_GLOBAL" );
+ 
+ 	    if( poFileInfo == NULL )
+ 	    {
+@@ -1275,7 +1275,7 @@
+ /* -------------------------------------------------------------------- */
+ /*      Try and fetch the corresponding DAS subtree if it exists.       */
+ /* -------------------------------------------------------------------- */
+-    AttrTable *poBandInfo = poDODS->GetDAS().find_container( oVarName );
++    AttrTable *poBandInfo = poDODS->GetDAS().container()->find_container( oVarName );
+ 
+     if( poBandInfo == NULL )
+     {
+--- gdal-1.6.0-fedora/ogr/ogrsf_frmts/dods/ogrdodsdatasource.cpp.dods~	2007-01-18 03:22:39.000000000 +0100
++++ gdal-1.6.0-fedora/ogr/ogrsf_frmts/dods/ogrdodsdatasource.cpp	2009-07-30 09:39:21.000000000 +0200
+@@ -193,12 +193,12 @@ int OGRDODSDataSource::Open( const char 
+ /* -------------------------------------------------------------------- */
+     AttrTable::Attr_iter dv_i;
+ 
+-    for( dv_i = oDAS.attr_begin(); dv_i != oDAS.attr_end(); dv_i++ )
++    for( dv_i = oDAS.container()->attr_begin(); dv_i != oDAS.container()->attr_end(); dv_i++ )
+     {
+         if( EQUALN(oDAS.get_name(dv_i).c_str(),"ogr_layer_info",14) 
+-            && oDAS.is_container( dv_i ) )
++            && oDAS.container()->is_container( dv_i ) )
+         {
+-            AttrTable *poAttr = oDAS.get_attr_table( dv_i );
++            AttrTable *poAttr = oDAS.container()->get_attr_table( dv_i );
+             string target_container = poAttr->get_attr( "target_container" );
+             BaseType *poVar = poDDS->var( target_container.c_str() );
+             
