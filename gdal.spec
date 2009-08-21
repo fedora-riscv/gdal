@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.6.1
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -537,6 +537,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Fri Aug 21 2009 Tomas Mraz <tmraz@redhat.com> - 1.6.1-2
+- rebuilt with new openssl
+
 * Thu Jul 30 2009 Dan Horak <dan[at]danny.cz> - 1.6.1-1
 - add patch for incompatibilities caused by libdap 3.9.x (thanks goes to arekm from PLD)
 - update to 1.6.1
