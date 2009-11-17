@@ -1,10 +1,11 @@
 Name:      gdal
-Version:   1.6.1
-Release:   2%{?dist}
+Version:   1.6.2
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
 URL:       http://www.gdal.org/
+#Source0:   http://download.osgeo.org/gdal/gdal-%{version}.tar.gz
 # see PROVENANCE.TXT-fedora for details
 Source0:   %{name}-%{version}-fedora.tar.gz
 Source1:   http://download.osgeo.org/gdal/gdalautotest-1.6.0.tar.gz
@@ -457,7 +458,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%doc NEWS PROVENANCE.TXT-mainstream PROVENANCE.TXT-fedora COMMITERS
+%doc NEWS PROVENANCE.TXT PROVENANCE.TXT-fedora COMMITERS
 %doc docs/
 %{_bindir}/gdal_contour
 %{_bindir}/gdal_rasterize
@@ -537,6 +538,10 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Tue Nov 17 2009 Orion Poplawski <orion@cora.nwra.com> - 1.6.2-1
+- Update to 1.6.2
+- Rebuild for netcdf 4.1.0
+
 * Fri Aug 21 2009 Tomas Mraz <tmraz@redhat.com> - 1.6.1-2
 - rebuilt with new openssl
 
