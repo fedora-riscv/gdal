@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.6.2
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -18,7 +18,8 @@ BuildRequires: libtool pkgconfig
 BuildRequires: python-devel numpy xerces-c-devel
 BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
 BuildRequires: doxygen tetex-latex ghostscript ruby-devel jpackage-utils
-BuildRequires: jasper-devel cfitsio-devel hdf-devel libdap-devel librx-devel
+BuildRequires: jasper-devel cfitsio-devel libdap-devel librx-devel
+BuildRequires: hdf-static hdf-devel
 BuildRequires: unixODBC-devel mysql-devel sqlite-devel postgresql-devel zlib-devel
 BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel libgeotiff-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
@@ -538,6 +539,10 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Tue Dec  8 2009 Michael Schwendt <mschwendt@fedoraproject.org> - 1.6.2-3
+- Explicitly BR hdf-static in accordance with the Packaging
+  Guidelines (hdf-devel is still static-only).
+
 * Thu Nov 19 2009 Orion Poplawski <orion@cora.nwra.com> - 1.6.2-2
 - re-enable grass support
 
