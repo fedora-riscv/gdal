@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.6.1
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -537,6 +537,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Wed Jan 13 2010 Devrim GÜNDÜZ <devrim@gunduz.org> - 1.6.1-3
+- Rebuild against new GEOS.
+
 * Fri Aug 21 2009 Tomas Mraz <tmraz@redhat.com> - 1.6.1-2
 - rebuilt with new openssl
 
