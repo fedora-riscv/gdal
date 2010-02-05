@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.6.2
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -29,7 +29,7 @@ BuildRequires: ant swig ruby java-devel-gcj
 %endif
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 1
+%define grass_support 0
 # enable/disable refman generation
 %define build_refman  1
 
@@ -539,6 +539,10 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Fri Feb  5 2010 Kevin Kofler <Kevin@tigcc.ticalc.org> - 1.6.2-4
+- temporarily disable grass support for bootstrapping
+- rebuild for new libxerces-c
+
 * Tue Dec  8 2009 Michael Schwendt <mschwendt@fedoraproject.org> - 1.6.2-3
 - Explicitly BR hdf-static in accordance with the Packaging
   Guidelines (hdf-devel is still static-only).
