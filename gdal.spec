@@ -1,21 +1,25 @@
 Name:      gdal
-Version:   1.6.0
-Release:   8%{?dist}
+Version:   1.6.2
+Release:   6%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
 URL:       http://www.gdal.org/
+#Source0:   http://download.osgeo.org/gdal/gdal-%{version}.tar.gz
+# see PROVENANCE.TXT-fedora for details
 Source0:   %{name}-%{version}-fedora.tar.gz
 Source1:   http://download.osgeo.org/gdal/gdalautotest-1.6.0.tar.gz
 Patch0:    %{name}-libdap.patch
 Patch1:    %{name}-mysql.patch
 Patch2:    %{name}-bindir.patch
+Patch3:    %{name}-dods.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool pkgconfig
 BuildRequires: python-devel numpy xerces-c-devel
 BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
 BuildRequires: doxygen tetex-latex ghostscript ruby-devel jpackage-utils
-BuildRequires: jasper-devel cfitsio-devel hdf-devel libdap-devel librx-devel
+BuildRequires: jasper-devel cfitsio-devel libdap-devel librx-devel
+BuildRequires: hdf-static hdf-devel
 BuildRequires: unixODBC-devel mysql-devel sqlite-devel postgresql-devel zlib-devel
 BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel libgeotiff-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
@@ -107,6 +111,7 @@ The GDAL java modules provides support to handle multiple GIS file formats.
 %endif
 %patch1 -p0 -b .mysql~
 %patch2 -p1 -b .bindir~
+%patch3 -p1 -b .dods~
 
 # unpack test cases olso.
 tar -xzf %{SOURCE1}
@@ -162,6 +167,7 @@ sed -i 's|-lgeotiff -L$with_geotiff $LIBS|-lgeotiff $LIBS|g' configure
 sed -i 's|-L\$with_geotiff\/lib -lgeotiff $LIBS|-lgeotiff $LIBS|g' configure
 sed -i 's|-lmfhdf -ldf|-L$libdir/hdf -lmfhdf -ldf|g' configure
 sed -i 's|-logdi31|-logdi|g' configure
+sed -i 's|libproj.so|libproj.so.0|g' ogr/ogrct.cpp
 
 # fix python path for ppc64
 sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"\/usr\/lib64\"|g' configure
@@ -330,6 +336,7 @@ find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
 find %{buildroot}%{python_sitearch} -name "*.so" -exec chmod 755 '{}' \;
 
 # install and include all docs
+# due TeX-related issues some refman.pdf are not created
 rm -rf docs doc/docs-perl
 mkdir -p doc/gdal_frmts; find frmts -name "*.html" -exec install -p -m 644 '{}' doc/gdal_frmts/ \;
 mkdir -p doc/ogrsf_frmts; find ogr -name "*.html" -exec install -p -m 644 '{}' doc/ogrsf_frmts/ \;
@@ -339,15 +346,15 @@ pushd docs/docs-%{cpuarch}/pdf; mkdir -p br ru en ogr ogrsf_frmts/dgn frmts/gxf 
 install -p -m 644 doc/latex/refman.pdf docs/docs-%{cpuarch}/pdf/en
 install -p -m 644 doc/br/latex/refman.pdf docs/docs-%{cpuarch}/pdf/br/
 #install -p -m 644 doc/ru/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ru/
-install -p -m 644 latex/refman.pdf docs/docs-%{cpuarch}/refman.pdf
-install -p -m 644 ogr/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogr/
+#install -p -m 644 latex/refman.pdf docs/docs-%{cpuarch}/refman.pdf
+#install -p -m 644 ogr/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogr/
 install -p -m 644 ogr/ogrsf_frmts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/
 install -p -m 644 ogr/ogrsf_frmts/dgn/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/dgn/
 %if "%{?dist}" != ".el4"
 # broken on el4
 install -p -m 644 frmts/gxf/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/gxf/
 %endif
-install -p -m 644 frmts/sdts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
+#install -p -m 644 frmts/sdts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
 install -p -m 644 frmts/iso8211/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/iso8211/
 mkdir -p doc/docs-perl/docs-%{cpuarch}/pdf
 install -p -m 644 swig/perl/latex/refman.pdf doc/docs-perl/docs-%{cpuarch}/pdf
@@ -453,13 +460,14 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%doc NEWS PROVENANCE.TXT-mainstream PROVENANCE.TXT-fedora COMMITERS
+%doc NEWS PROVENANCE.TXT PROVENANCE.TXT-fedora COMMITERS
 %doc docs/
 %{_bindir}/gdal_contour
 %{_bindir}/gdal_rasterize
 %{_bindir}/gdal_translate
 %{_bindir}/gdaladdo
 %{_bindir}/gdalinfo
+%{_bindir}/gdalbuildvrt
 %{_bindir}/gdaltindex
 %{_bindir}/gdalwarp
 %{_bindir}/gdal_grid
@@ -472,19 +480,20 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.so.*
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
-%{_mandir}/man1/gdaladdo.1.gz
-%{_mandir}/man1/gdalinfo.1.gz
-%{_mandir}/man1/gdaltindex.1.gz
-%{_mandir}/man1/gdaltransform.1.gz
-%{_mandir}/man1/gdal2tiles.1.gz
-%{_mandir}/man1/nearblack.1.gz
-%{_mandir}/man1/gdal_contour.1.gz 
-%{_mandir}/man1/gdal_rasterize.1.gz
-%{_mandir}/man1/gdal_translate.1.gz
-%{_mandir}/man1/gdal_utilities.1.gz
-%{_mandir}/man1/gdal_grid.1.gz
-%{_mandir}/man1/gdal_retile.1.gz
-%{_mandir}/man1/ogr*.1.gz
+%{_mandir}/man1/gdaladdo.1*
+%{_mandir}/man1/gdalbuildvrt.1*
+%{_mandir}/man1/gdalinfo.1*
+%{_mandir}/man1/gdaltindex.1*
+%{_mandir}/man1/gdaltransform.1*
+%{_mandir}/man1/gdal2tiles.1*
+%{_mandir}/man1/nearblack.1*
+%{_mandir}/man1/gdal_contour.1*
+%{_mandir}/man1/gdal_rasterize.1*
+%{_mandir}/man1/gdal_translate.1*
+%{_mandir}/man1/gdal_utilities.1*
+%{_mandir}/man1/gdal_grid.1*
+%{_mandir}/man1/gdal_retile.1*
+%{_mandir}/man1/ogr*.1*
 
 %files devel
 %defattr(-,root,root,-)
@@ -504,11 +513,11 @@ rm -rf $RPM_BUILD_ROOT
 %files python
 %defattr(-,root,root,-)
 %doc swig/python/samples
-%attr(0755,root,root) %{_bindir}/*
+%attr(0755,root,root) %{_bindir}/*.py
 %{python_sitearch}/*
-%{_mandir}/man1/pct2rgb.1.gz
-%{_mandir}/man1/rgb2pct.1.gz
-%{_mandir}/man1/gdal_merge.1.gz
+%{_mandir}/man1/pct2rgb.1*
+%{_mandir}/man1/rgb2pct.1*
+%{_mandir}/man1/gdal_merge.1*
 
 %files perl
 %defattr(-,root,root,-)
@@ -531,6 +540,43 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Thu Mar 18 2010 Balint Cristian <cristian.balint@gmail.com> - 1.6.2.6
+- fix bz#572617
+
+* Fri Feb  5 2010 Kevin Kofler <Kevin@tigcc.ticalc.org> - 1.6.2-5
+- reenable grass support
+
+* Fri Feb  5 2010 Kevin Kofler <Kevin@tigcc.ticalc.org> - 1.6.2-4
+- temporarily disable grass support for bootstrapping
+- rebuild for new libxerces-c
+
+* Tue Dec  8 2009 Michael Schwendt <mschwendt@fedoraproject.org> - 1.6.2-3
+- Explicitly BR hdf-static in accordance with the Packaging
+  Guidelines (hdf-devel is still static-only).
+
+* Thu Nov 19 2009 Orion Poplawski <orion@cora.nwra.com> - 1.6.2-2
+- re-enable grass support
+
+* Tue Nov 17 2009 Orion Poplawski <orion@cora.nwra.com> - 1.6.2-1
+- Update to 1.6.2
+- Rebuild for netcdf 4.1.0
+
+* Fri Aug 21 2009 Tomas Mraz <tmraz@redhat.com> - 1.6.1-2
+- rebuilt with new openssl
+
+* Thu Jul 30 2009 Dan Horak <dan[at]danny.cz> - 1.6.1-1
+- add patch for incompatibilities caused by libdap 3.9.x (thanks goes to arekm from PLD)
+- update to 1.6.1
+- don't install some refman.pdf, because they don't build
+- don't fail on man pages with suffix other than .gz
+- fix filelist for python subpackage
+
+* Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.6.0-10
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
+* Wed Jul 22 2009 Orion Poplawski <orion@cora.nwra.com> - 1.6.0-9
+- Rebuild for libdap 3.9.3, bootstrap
+
 * Mon Mar 23 2009 Jesse Keating <jkeating@redhat.com> - 1.6.0-8
 - re-enable grass support
 
