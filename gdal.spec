@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.7.1
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -158,6 +158,7 @@ sed -i 's|-lgeotiff -L$with_geotiff $LIBS|-lgeotiff $LIBS|g' configure
 sed -i 's|-L\$with_geotiff\/lib -lgeotiff $LIBS|-lgeotiff $LIBS|g' configure
 sed -i 's|-lmfhdf -ldf|-L$libdir/hdf -lmfhdf -ldf|g' configure
 sed -i 's|-logdi31|-logdi|g' configure
+sed -i 's|libproj.so|libproj.so.0|g' ogr/ogrct.cpp
 
 # fix python path for ppc64
 sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"\/usr\/lib64\"|g' configure
@@ -533,6 +534,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Thu Mar 18 2010 Balint Cristian <cristian.balint@gmail.com> - 1.7.1-2
+- fix bz#572617
+
 * Thu Mar 18 2010 Balint Cristian <cristian.balint@gmail.com> - 1.7.1-1
 - new stable branch
 - re-enable java ColorTable
