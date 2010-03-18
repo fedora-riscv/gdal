@@ -1,6 +1,6 @@
 Name:      gdal
-Version:   1.6.2
-Release:   5%{?dist}
+Version:   1.7.1
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -8,11 +8,10 @@ URL:       http://www.gdal.org/
 #Source0:   http://download.osgeo.org/gdal/gdal-%{version}.tar.gz
 # see PROVENANCE.TXT-fedora for details
 Source0:   %{name}-%{version}-fedora.tar.gz
-Source1:   http://download.osgeo.org/gdal/gdalautotest-1.6.0.tar.gz
+Source1:   http://download.osgeo.org/gdal/gdalautotest-1.7.0.tar.gz
 Patch0:    %{name}-libdap.patch
 Patch1:    %{name}-mysql.patch
 Patch2:    %{name}-bindir.patch
-Patch3:    %{name}-dods.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool pkgconfig
 BuildRequires: python-devel numpy xerces-c-devel
@@ -29,7 +28,7 @@ BuildRequires: ant swig ruby java-devel-gcj
 %endif
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 1
+%define grass_support 0
 # enable/disable refman generation
 %define build_refman  1
 
@@ -111,7 +110,6 @@ The GDAL java modules provides support to handle multiple GIS file formats.
 %endif
 %patch1 -p0 -b .mysql~
 %patch2 -p1 -b .bindir~
-%patch3 -p1 -b .dods~
 
 # unpack test cases olso.
 tar -xzf %{SOURCE1}
@@ -142,13 +140,6 @@ set -x
 find . -name ".cvsignore" -exec rm -rf '{}' \;
 
 # fix some exec bits
-chmod -x alg/gdal_tps.cpp
-chmod -x apps/nearblack.cpp
-chmod -x frmts/jpeg/gdalexif.h
-chmod -x ogr/ogrsf_frmts/ogdi/ogrogdi.h
-chmod -x ogr/ogrsf_frmts/ogdi/ogrogdilayer.cpp
-chmod -x ogr/ogrsf_frmts/ogdi/ogrogdidatasource.cpp
-chmod -x ogr/ogrsf_frmts/ogdi/ogrogdidriver.cpp
 find swig/python/samples -name "*.py" -exec chmod -x '{}' \;
 
 %build
@@ -190,7 +181,7 @@ export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -D
         --datadir=%{_datadir}/%{name}/ \
         --with-threads      \
         --with-dods-root=%{_libdir} \
-        --with-ogdi=`ogdi-config --libdir` \
+        --with-ogdi               \
         --with-cfitsio=%{_prefix} \
         --with-geotiff=external   \
         --with-tiff=external      \
@@ -218,11 +209,13 @@ export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -D
         --with-xerces-lib='-lxerces-c' \
         --with-xerces-inc=%{_includedir} \
         --without-pcraster        \
+        --with-jpeg12=no          \
         --enable-shared           \
 %if %{grass_support}
         --with-libgrass             \
         --with-grass=%{_prefix}     \
 %endif
+        --with-gdal-ver=%{version}-fedora
 
 # fixup hardcoded wrong compile flags.
 cp GDALmake.opt GDALmake.opt.orig
@@ -261,8 +254,6 @@ sed -i -e 's|-cp|\#-cp|g' GNUmakefile
 sed -i -e 's|\$(LD) -shared \$(LDFLAGS) \$(CONFIG_LIBS)|g++ -shared -lgdal -L..\/..\/.libs|g' GNUmakefile
 # build java module
 make generate
-# disable ColorEntry for now (gdal Ticket: #2331)
-rm -rf org/gdal/gdal/ColorTable.java
 make build
 popd
 %endif
@@ -337,6 +328,7 @@ find %{buildroot}%{python_sitearch} -name "*.so" -exec chmod 755 '{}' \;
 # install and include all docs
 # due TeX-related issues some refman.pdf are not created
 rm -rf docs doc/docs-perl
+
 mkdir -p doc/gdal_frmts; find frmts -name "*.html" -exec install -p -m 644 '{}' doc/gdal_frmts/ \;
 mkdir -p doc/ogrsf_frmts; find ogr -name "*.html" -exec install -p -m 644 '{}' doc/ogrsf_frmts/ \;
 %if %{build_refman}
@@ -424,17 +416,18 @@ touch -r NEWS %{buildroot}%{_bindir}/%{name}-config
 # cleanup junks
 rm -rf %{buildroot}%{_includedir}/%{name}/%{name}
 rm -rf %{buildroot}%{_bindir}/gdal_sieve.dox
+rm -rf %{buildroot}%{_bindir}/gdal_fillnodata.dox
 for junk in {*.la,*.bs,.exists,.packlist,.cvsignore} ; do
 find %{buildroot} -name "$junk" -exec rm -rf '{}' \;
 done
 
 %check
 
-pushd gdalautotest-1.6.0
+pushd gdalautotest-1.7.0
 
 # export test enviroment
 export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python_sitearch}
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH%{buildroot}%{_libdir}
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}
 export GDAL_DATA=%{buildroot}%{_datadir}/%{name}/
 
 # remove some testcases for now due to build failure
@@ -466,6 +459,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/gdal_translate
 %{_bindir}/gdaladdo
 %{_bindir}/gdalinfo
+%{_bindir}/gdaldem
 %{_bindir}/gdalbuildvrt
 %{_bindir}/gdaltindex
 %{_bindir}/gdalwarp
@@ -479,20 +473,20 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.so.*
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
-%{_mandir}/man1/gdaladdo.1*
-%{_mandir}/man1/gdalbuildvrt.1*
-%{_mandir}/man1/gdalinfo.1*
-%{_mandir}/man1/gdaltindex.1*
-%{_mandir}/man1/gdaltransform.1*
-%{_mandir}/man1/gdal2tiles.1*
-%{_mandir}/man1/nearblack.1*
-%{_mandir}/man1/gdal_contour.1*
-%{_mandir}/man1/gdal_rasterize.1*
-%{_mandir}/man1/gdal_translate.1*
-%{_mandir}/man1/gdal_utilities.1*
-%{_mandir}/man1/gdal_grid.1*
-%{_mandir}/man1/gdal_retile.1*
-%{_mandir}/man1/ogr*.1*
+#%{_mandir}/man1/gdaladdo.1*
+#%{_mandir}/man1/gdalbuildvrt.1*
+#%{_mandir}/man1/gdalinfo.1*
+#%{_mandir}/man1/gdaltindex.1*
+#%{_mandir}/man1/gdaltransform.1*
+#%{_mandir}/man1/gdal2tiles.1*
+#%{_mandir}/man1/nearblack.1*
+#%{_mandir}/man1/gdal_contour.1*
+#%{_mandir}/man1/gdal_rasterize.1*
+#%{_mandir}/man1/gdal_translate.1*
+#%{_mandir}/man1/gdal_utilities.1*
+#%{_mandir}/man1/gdal_grid.1*
+#%{_mandir}/man1/gdal_retile.1*
+#%{_mandir}/man1/ogr*.1*
 
 %files devel
 %defattr(-,root,root,-)
@@ -503,7 +497,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/%{name}/*.h
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/%{name}.pc
-%{_mandir}/man1/%{name}-config*
+#%{_mandir}/man1/%{name}-config*
 
 %files static
 %defattr(-,root,root,-)
@@ -514,9 +508,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc swig/python/samples
 %attr(0755,root,root) %{_bindir}/*.py
 %{python_sitearch}/*
-%{_mandir}/man1/pct2rgb.1*
-%{_mandir}/man1/rgb2pct.1*
-%{_mandir}/man1/gdal_merge.1*
+#%{_mandir}/man1/pct2rgb.1*
+#%{_mandir}/man1/rgb2pct.1*
+#%{_mandir}/man1/gdal_merge.1*
 
 %files perl
 %defattr(-,root,root,-)
@@ -539,6 +533,13 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Thu Mar 18 2010 Balint Cristian <cristian.balint@gmail.com> - 1.7.1-1
+- new stable branch
+- re-enable java ColorTable
+- gdal custom fedora version banner
+- rebuild without grass
+- gdal manual are gone (upstream fault)
+
 * Fri Feb  5 2010 Kevin Kofler <Kevin@tigcc.ticalc.org> - 1.6.2-5
 - reenable grass support
 
