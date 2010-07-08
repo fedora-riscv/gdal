@@ -1,6 +1,6 @@
 Name:      gdal
-Version:   1.7.1
-Release:   2%{?dist}
+Version:   1.7.2
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -291,9 +291,9 @@ rm -rf $RPM_BUILD_ROOT
 # fix some perl instalation issue
 sed -i 's|>> $(DESTINSTALLARCHLIB)\/perllocal.pod|> \/dev\/null|g' swig/perl/Makefile_*
 # fix include header instalation issue
-cat GNUmakefile | grep -v "\$(INSTALL_DIR) \$(DESTDIR)\$(INST_INCLUDE)" | \
-                  grep -v "\$(INSTALL_DIR) \$(DESTDIR)\$(INST_DATA)" \
-> GNUmakefile.tmp; mv -f GNUmakefile.tmp GNUmakefile
+#cat GNUmakefile | grep -v "\$(INSTALL_DIR) \$(DESTDIR)\$(INST_INCLUDE)" | \
+#                  grep -v "\$(INSTALL_DIR) \$(DESTDIR)\$(INST_DATA)" \
+#> GNUmakefile.tmp; mv -f GNUmakefile.tmp GNUmakefile
 
 # fix python installation path
 sed -i 's|setup.py install|setup.py install --root=%{buildroot}|' swig/python/GNUmakefile
@@ -361,7 +361,7 @@ cp -pr doc/ru/html/* docs/docs-%{cpuarch}/ru
 cp -pr swig/perl/html/* doc/docs-perl/docs-%{cpuarch}/
 
 # install multilib cpl_config.h bz#430894
-install -p -m 644 port/cpl_config.h %{buildroot}%{_includedir}/%{name}/cpl_config-%{cpuarch}.h
+install -p -D -m 644 port/cpl_config.h %{buildroot}%{_includedir}/%{name}/cpl_config-%{cpuarch}.h
 # create universal multilib cpl_config.h bz#341231
 cat > %{buildroot}%{_includedir}/%{name}/cpl_config.h <<EOF
 #include <bits/wordsize.h>
@@ -534,6 +534,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Fri Jul 09 2010 Robert Scheck <robert@fedoraproject.org> - 1.7.2-1
+- upgrade to 1.7.2 (#587707, huge thanks to Sven Lankes)
+
 * Thu Mar 18 2010 Balint Cristian <cristian.balint@gmail.com> - 1.7.1-2
 - fix bz#572617
 
