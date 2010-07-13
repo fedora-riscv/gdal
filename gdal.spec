@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.7.2
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -28,7 +28,7 @@ BuildRequires: ant swig ruby java-devel-gcj
 %endif
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 0
+%define grass_support 1
 # enable/disable refman generation
 %define build_refman  1
 
@@ -534,6 +534,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Tue Jul 13 2010 Kevin Kofler <Kevin@tigcc.ticalc.org> - 1.7.2-2
+- reenable grass support
+
 * Fri Jul 09 2010 Robert Scheck <robert@fedoraproject.org> - 1.7.2-1
 - upgrade to 1.7.2 (#587707, huge thanks to Sven Lankes)
 
