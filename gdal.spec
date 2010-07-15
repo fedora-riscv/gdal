@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.7.2
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -12,6 +12,7 @@ Source1:   http://download.osgeo.org/gdal/gdalautotest-1.7.0.tar.gz
 Patch0:    %{name}-libdap.patch
 Patch1:    %{name}-mysql.patch
 Patch2:    %{name}-bindir.patch
+Patch3:    %{name}-AIS.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool pkgconfig
 BuildRequires: python-devel numpy xerces-c-devel
@@ -28,7 +29,7 @@ BuildRequires: ant swig ruby java-devel-gcj
 %endif
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 1
+%define grass_support 0
 # enable/disable refman generation
 %define build_refman  1
 
@@ -110,6 +111,7 @@ The GDAL java modules provides support to handle multiple GIS file formats.
 %endif
 %patch1 -p0 -b .mysql~
 %patch2 -p1 -b .bindir~
+%patch3 -p1 -b .AIS~
 
 # unpack test cases olso.
 tar -xzf %{SOURCE1}
@@ -534,6 +536,10 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Thu Jul 17 2010 Orion Poplawski <orion@cora.nwra.com> - 1.7.2-3
+- Add patch to change AISConnect() to Connect() for libdap 3.10
+- build without grass for libdap soname bump
+
 * Tue Jul 13 2010 Kevin Kofler <Kevin@tigcc.ticalc.org> - 1.7.2-2
 - reenable grass support
 
