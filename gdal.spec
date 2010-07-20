@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.7.2
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -29,7 +29,7 @@ BuildRequires: ant swig ruby java-devel-gcj
 %endif
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 0
+%define grass_support 1
 # enable/disable refman generation
 %define build_refman  1
 
@@ -536,6 +536,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Tue Jul 20 2010 Orion Poplawski <orion@cora.nwra.com> - 1.7.2-4
+- Rebuild with grass support
+
 * Thu Jul 17 2010 Orion Poplawski <orion@cora.nwra.com> - 1.7.2-3
 - Add patch to change AISConnect() to Connect() for libdap 3.10
 - build without grass for libdap soname bump
