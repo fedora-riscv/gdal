@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.7.2
-Release:   4%{?dist}
+Release:   5%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -536,6 +536,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
+* Wed Jul 21 2010 David Malcolm <dmalcolm@redhat.com> - 1.7.2-5
+- Rebuilt for https://fedoraproject.org/wiki/Features/Python_2.7/MassRebuild
+
 * Tue Jul 20 2010 Orion Poplawski <orion@cora.nwra.com> - 1.7.2-4
 - Rebuild with grass support
 
