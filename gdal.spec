@@ -1,33 +1,35 @@
-Name:      gdal
-Version:   1.6.1
-Release:   3%{?dist}
-Summary:   GIS file format library
-Group:     System Environment/Libraries
-License:   MIT
-URL:       http://www.gdal.org/
+Name:		gdal
+Version:	1.7.2
+Release:	1%{?dist}
+Summary:	GIS file format library
+Group:		System Environment/Libraries
+License:	MIT
+URL:		http://www.gdal.org/
+#Source0:	http://download.osgeo.org/gdal/gdal-%{version}.tar.gz
 # see PROVENANCE.TXT-fedora for details
-Source0:   %{name}-%{version}-fedora.tar.gz
-Source1:   http://download.osgeo.org/gdal/gdalautotest-1.6.0.tar.gz
-Patch0:    %{name}-libdap.patch
-Patch1:    %{name}-mysql.patch
-Patch2:    %{name}-bindir.patch
-Patch3:    %{name}-dods.patch
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: libtool pkgconfig
-BuildRequires: python-devel numpy xerces-c-devel
-BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
-BuildRequires: doxygen tetex-latex ghostscript ruby-devel jpackage-utils
-BuildRequires: jasper-devel cfitsio-devel hdf-devel libdap-devel librx-devel
-BuildRequires: unixODBC-devel mysql-devel sqlite-devel postgresql-devel zlib-devel
-BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel libgeotiff-devel
-BuildRequires: perl(ExtUtils::MakeMaker)
+Source0:	%{name}-%{version}-fedora.tar.gz
+Source1:	http://download.osgeo.org/gdal/gdalautotest-1.7.0.tar.gz
+Patch0:		%{name}-libdap.patch
+Patch1:		%{name}-mysql.patch
+Patch2:		%{name}-bindir.patch
+Patch3:		%{name}-AIS.patch
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRequires:	libtool pkgconfig
+BuildRequires:	python-devel numpy xerces-c-devel
+BuildRequires:	libpng-devel libungif-devel libjpeg-devel libtiff-devel
+BuildRequires:	doxygen tetex-latex ghostscript ruby-devel jpackage-utils
+BuildRequires:	jasper-devel cfitsio-devel libdap-devel librx-devel
+BuildRequires:	hdf-static hdf-devel
+BuildRequires:	unixODBC-devel mysql-devel sqlite-devel postgresql-devel zlib-devel
+BuildRequires:	proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel libgeotiff-devel
+BuildRequires:	perl(ExtUtils::MakeMaker)
 
 %if "%{?dist}" != ".el4"
 BuildRequires: ant swig ruby java-devel-gcj
 %endif
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 0
+%define grass_support 1
 # enable/disable refman generation
 %define build_refman  1
 
@@ -109,7 +111,7 @@ The GDAL java modules provides support to handle multiple GIS file formats.
 %endif
 %patch1 -p0 -b .mysql~
 %patch2 -p1 -b .bindir~
-%patch3 -p1 -b .dods~
+%patch3 -p1 -b .AIS~
 
 # unpack test cases olso.
 tar -xzf %{SOURCE1}
@@ -140,13 +142,6 @@ set -x
 find . -name ".cvsignore" -exec rm -rf '{}' \;
 
 # fix some exec bits
-chmod -x alg/gdal_tps.cpp
-chmod -x apps/nearblack.cpp
-chmod -x frmts/jpeg/gdalexif.h
-chmod -x ogr/ogrsf_frmts/ogdi/ogrogdi.h
-chmod -x ogr/ogrsf_frmts/ogdi/ogrogdilayer.cpp
-chmod -x ogr/ogrsf_frmts/ogdi/ogrogdidatasource.cpp
-chmod -x ogr/ogrsf_frmts/ogdi/ogrogdidriver.cpp
 find swig/python/samples -name "*.py" -exec chmod -x '{}' \;
 
 %build
@@ -165,6 +160,7 @@ sed -i 's|-lgeotiff -L$with_geotiff $LIBS|-lgeotiff $LIBS|g' configure
 sed -i 's|-L\$with_geotiff\/lib -lgeotiff $LIBS|-lgeotiff $LIBS|g' configure
 sed -i 's|-lmfhdf -ldf|-L$libdir/hdf -lmfhdf -ldf|g' configure
 sed -i 's|-logdi31|-logdi|g' configure
+sed -i 's|libproj.so|libproj.so.0|g' ogr/ogrct.cpp
 
 # fix python path for ppc64
 sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"\/usr\/lib64\"|g' configure
@@ -188,7 +184,7 @@ export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -D
         --datadir=%{_datadir}/%{name}/ \
         --with-threads      \
         --with-dods-root=%{_libdir} \
-        --with-ogdi=`ogdi-config --libdir` \
+        --with-ogdi               \
         --with-cfitsio=%{_prefix} \
         --with-geotiff=external   \
         --with-tiff=external      \
@@ -216,11 +212,13 @@ export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -D
         --with-xerces-lib='-lxerces-c' \
         --with-xerces-inc=%{_includedir} \
         --without-pcraster        \
+        --with-jpeg12=no          \
         --enable-shared           \
 %if %{grass_support}
         --with-libgrass             \
         --with-grass=%{_prefix}     \
 %endif
+        --with-gdal-ver=%{version}-fedora
 
 # fixup hardcoded wrong compile flags.
 cp GDALmake.opt GDALmake.opt.orig
@@ -259,8 +257,6 @@ sed -i -e 's|-cp|\#-cp|g' GNUmakefile
 sed -i -e 's|\$(LD) -shared \$(LDFLAGS) \$(CONFIG_LIBS)|g++ -shared -lgdal -L..\/..\/.libs|g' GNUmakefile
 # build java module
 make generate
-# disable ColorEntry for now (gdal Ticket: #2331)
-rm -rf org/gdal/gdal/ColorTable.java
 make build
 popd
 %endif
@@ -297,9 +293,9 @@ rm -rf $RPM_BUILD_ROOT
 # fix some perl instalation issue
 sed -i 's|>> $(DESTINSTALLARCHLIB)\/perllocal.pod|> \/dev\/null|g' swig/perl/Makefile_*
 # fix include header instalation issue
-cat GNUmakefile | grep -v "\$(INSTALL_DIR) \$(DESTDIR)\$(INST_INCLUDE)" | \
-                  grep -v "\$(INSTALL_DIR) \$(DESTDIR)\$(INST_DATA)" \
-> GNUmakefile.tmp; mv -f GNUmakefile.tmp GNUmakefile
+#cat GNUmakefile | grep -v "\$(INSTALL_DIR) \$(DESTDIR)\$(INST_INCLUDE)" | \
+#                  grep -v "\$(INSTALL_DIR) \$(DESTDIR)\$(INST_DATA)" \
+#> GNUmakefile.tmp; mv -f GNUmakefile.tmp GNUmakefile
 
 # fix python installation path
 sed -i 's|setup.py install|setup.py install --root=%{buildroot}|' swig/python/GNUmakefile
@@ -335,6 +331,7 @@ find %{buildroot}%{python_sitearch} -name "*.so" -exec chmod 755 '{}' \;
 # install and include all docs
 # due TeX-related issues some refman.pdf are not created
 rm -rf docs doc/docs-perl
+
 mkdir -p doc/gdal_frmts; find frmts -name "*.html" -exec install -p -m 644 '{}' doc/gdal_frmts/ \;
 mkdir -p doc/ogrsf_frmts; find ogr -name "*.html" -exec install -p -m 644 '{}' doc/ogrsf_frmts/ \;
 %if %{build_refman}
@@ -366,7 +363,7 @@ cp -pr doc/ru/html/* docs/docs-%{cpuarch}/ru
 cp -pr swig/perl/html/* doc/docs-perl/docs-%{cpuarch}/
 
 # install multilib cpl_config.h bz#430894
-install -p -m 644 port/cpl_config.h %{buildroot}%{_includedir}/%{name}/cpl_config-%{cpuarch}.h
+install -p -D -m 644 port/cpl_config.h %{buildroot}%{_includedir}/%{name}/cpl_config-%{cpuarch}.h
 # create universal multilib cpl_config.h bz#341231
 cat > %{buildroot}%{_includedir}/%{name}/cpl_config.h <<EOF
 #include <bits/wordsize.h>
@@ -422,17 +419,18 @@ touch -r NEWS %{buildroot}%{_bindir}/%{name}-config
 # cleanup junks
 rm -rf %{buildroot}%{_includedir}/%{name}/%{name}
 rm -rf %{buildroot}%{_bindir}/gdal_sieve.dox
+rm -rf %{buildroot}%{_bindir}/gdal_fillnodata.dox
 for junk in {*.la,*.bs,.exists,.packlist,.cvsignore} ; do
 find %{buildroot} -name "$junk" -exec rm -rf '{}' \;
 done
 
 %check
 
-pushd gdalautotest-1.6.0
+pushd gdalautotest-1.7.0
 
 # export test enviroment
 export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python_sitearch}
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH%{buildroot}%{_libdir}
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}
 export GDAL_DATA=%{buildroot}%{_datadir}/%{name}/
 
 # remove some testcases for now due to build failure
@@ -457,13 +455,14 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%doc NEWS PROVENANCE.TXT-mainstream PROVENANCE.TXT-fedora COMMITERS
+%doc NEWS PROVENANCE.TXT PROVENANCE.TXT-fedora COMMITERS
 %doc docs/
 %{_bindir}/gdal_contour
 %{_bindir}/gdal_rasterize
 %{_bindir}/gdal_translate
 %{_bindir}/gdaladdo
 %{_bindir}/gdalinfo
+%{_bindir}/gdaldem
 %{_bindir}/gdalbuildvrt
 %{_bindir}/gdaltindex
 %{_bindir}/gdalwarp
@@ -477,20 +476,20 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.so.*
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
-%{_mandir}/man1/gdaladdo.1*
-%{_mandir}/man1/gdalbuildvrt.1*
-%{_mandir}/man1/gdalinfo.1*
-%{_mandir}/man1/gdaltindex.1*
-%{_mandir}/man1/gdaltransform.1*
-%{_mandir}/man1/gdal2tiles.1*
-%{_mandir}/man1/nearblack.1*
-%{_mandir}/man1/gdal_contour.1*
-%{_mandir}/man1/gdal_rasterize.1*
-%{_mandir}/man1/gdal_translate.1*
-%{_mandir}/man1/gdal_utilities.1*
-%{_mandir}/man1/gdal_grid.1*
-%{_mandir}/man1/gdal_retile.1*
-%{_mandir}/man1/ogr*.1*
+#%{_mandir}/man1/gdaladdo.1*
+#%{_mandir}/man1/gdalbuildvrt.1*
+#%{_mandir}/man1/gdalinfo.1*
+#%{_mandir}/man1/gdaltindex.1*
+#%{_mandir}/man1/gdaltransform.1*
+#%{_mandir}/man1/gdal2tiles.1*
+#%{_mandir}/man1/nearblack.1*
+#%{_mandir}/man1/gdal_contour.1*
+#%{_mandir}/man1/gdal_rasterize.1*
+#%{_mandir}/man1/gdal_translate.1*
+#%{_mandir}/man1/gdal_utilities.1*
+#%{_mandir}/man1/gdal_grid.1*
+#%{_mandir}/man1/gdal_retile.1*
+#%{_mandir}/man1/ogr*.1*
 
 %files devel
 %defattr(-,root,root,-)
@@ -501,7 +500,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/%{name}/*.h
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/%{name}.pc
-%{_mandir}/man1/%{name}-config*
+#%{_mandir}/man1/%{name}-config*
 
 %files static
 %defattr(-,root,root,-)
@@ -512,9 +511,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc swig/python/samples
 %attr(0755,root,root) %{_bindir}/*.py
 %{python_sitearch}/*
-%{_mandir}/man1/pct2rgb.1*
-%{_mandir}/man1/rgb2pct.1*
-%{_mandir}/man1/gdal_merge.1*
+#%{_mandir}/man1/pct2rgb.1*
+#%{_mandir}/man1/rgb2pct.1*
+#%{_mandir}/man1/gdal_merge.1*
 
 %files perl
 %defattr(-,root,root,-)
@@ -537,276 +536,6 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %changelog
-* Wed Jan 13 2010 Devrim GÜNDÜZ <devrim@gunduz.org> - 1.6.1-3
-- Rebuild against new GEOS.
-
-* Fri Aug 21 2009 Tomas Mraz <tmraz@redhat.com> - 1.6.1-2
-- rebuilt with new openssl
-
-* Thu Jul 30 2009 Dan Horak <dan[at]danny.cz> - 1.6.1-1
-- add patch for incompatibilities caused by libdap 3.9.x (thanks goes to arekm from PLD)
-- update to 1.6.1
-- don't install some refman.pdf, because they don't build
-- don't fail on man pages with suffix other than .gz
-- fix filelist for python subpackage
-
-* Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.6.0-10
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
-
-* Wed Jul 22 2009 Orion Poplawski <orion@cora.nwra.com> - 1.6.0-9
-- Rebuild for libdap 3.9.3, bootstrap
-
-* Mon Mar 23 2009 Jesse Keating <jkeating@redhat.com> - 1.6.0-8
-- re-enable grass support
-
-* Sun Mar 22 2009 Lubomir Rintel <lkundrak@v3.sk> - 1.6.0-7
-- Depend specifically on GCJ for Java (Alex Lancaster)
-- Disable grass (Alex Lancaster)
-- Create %%_bindir before copying files there
-
-* Tue Feb 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.6.0-5
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
-
-* Wed Feb 04 2009 Balint Cristian <cristian.balint@gmail.com> - 1.6.0-4
-- rebuild with grass support
-- fix email typo
-
-* Thu Jan 29 2009 Balint Cristian <cristian.balint@gmail.com> - 1.6.0-3
-- rebuild against mysql 5.1.30
-
-* Thu Jan 29 2009 Balint Cristian <cristian.balint@gmail.com> - 1.6.0-2
-- email change
-- rebuild without grass
-
-* Fri Dec 12 2008 Balint Cristian <rezso@rdsor.ro> - 1.6.0-1
-- final stable release
-
-* Sat Dec 06 2008 Balint Cristian <rezso@rdsor.ro> - 1.6.0-0.2.rc4
-- enable grass
-
-* Sat Dec 06 2008 Balint Cristian <rezso@rdsor.ro> - 1.6.0-0.1.rc4
-- new branch
-- disable grass
-- fix ruby compile
-
-* Sat Nov 29 2008 Ignacio Vazquez-Abrams <ivazqueznet+rpm@gmail.com> - 1.5.3-2
-- Rebuild for Python 2.6
-
-* Fri Oct 24 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.3-1
-- new stable
-- ship static package too
-- fix some doc generation
-- libdap patch for fc10 only
-
-* Tue Sep 30 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.2-4
-- enable gdal_array for python subpackage
-- require numpy
-
-* Tue Sep  9 2008 Patrice Dumas <pertusus@free.fr> - 1.5.2-3
-- patch for libdap > 0.8.0, from Rob Cermak
-
-* Thu Jun 12 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.2-1
-- a new bugfix upstream
-- drop gcc43 patch
-- more license cleaned
-
-* Wed May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-13
-- fix pkgconfig too
-
-* Wed May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-12
-- fix once more gdal-config
-
-* Tue May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-11
-- fix multilib gdal-config, add wrapper around
-- fix typos in cpl_config.h wrapper
-
-* Tue May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-10
-- fix for multilib packaging bz#341231
-- huge spec cleanup
-- enable russian and brazil docs
-- enable and triage more docs
-
-* Sun May 25 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-9
-- enable ruby and java packages
-- fix spurious sed problem
-- spec file cosmetics
-
-* Thu May 23 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-8
-- fix sincos on all arch
-
-* Thu May 15 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-7
-- fix x86_64 problem
-
-* Wed Apr 16 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-6
-- disable fortify source, it crash gdal for now.
-
-* Fri Mar 28 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-5
-- really eanble against grass63
-
-* Fri Mar 28 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-4
-- disable grass to bootstrap once again
-
-* Fri Mar 28 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-3
-- rebuild to really pick up grass63 in koji
-
-* Fri Mar 28 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-2
-- enable build against newer grass
-- enable build of reference manuals
-
-* Tue Mar 25 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-1
-- new bugfix release from upstream
-- drop large parts from gcc43 patch, some are upstream now
-- fix building with perl-5.10 swig binding issue
-
-* Wed Feb 29 2008 Orion Poplawski <orion@cora.nwra.com> - 1.5.0-4
-- Rebuild for hdf5-1.8.0, use compatability API define
-
-* Tue Feb 12 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.0-3
-- install cpl_config.h manually for bz#430894
-- fix gcc4.3 build
-
-* Mon Jan 14 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.0-2
-- fix perl dependency issue.
-
-* Mon Jan 07 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.0-1
-- update to new 1.5.0 upstream stable
-- dropped build patch since HFA/ILI/DGN mandatories are now present
-- dropped swig patch, its upstream now
-- enable HFA it holds Intergraph (TM) explicit public license
-- enable DGN it holds Avenza Systems (TM) explicit public license
-- enable ILI headers since now contain proper public license message
-- keep and polish up rest of doubted license
-- further fixed hdf not supporting netcdf for for bz#189337
-- kill the annoying -Lexternal/lib for -lgeotiff
-- fix configure to not export LDFLAGS anyomre, upstream 
-  should really switch to real GNU automagic stuff
-- pymod samples and rfc docs now gone
-- hardcode external libtool to be used, LIBTOOL env not propagating anymore
-- use DESTDIR instead
-
-* Thu Jan 03 2008 Alex Lancaster <alexlan[AT]fedoraproject.org> - 1.4.2-7
-- Re-enable grass support now that gdal has been bootstrapped
-
-* Wed Jan 02 2008 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.4.2-6
-- Bootstrap 1st: disabling grass support
-- Workaround for hdf not supporting netcdf (bug 189337 c8)
-- Disabling documents creation for now.
-
-* Thu Dec 06 2007 Release Engineering <rel-eng at fedoraproject dot org> - 1.4.2-5
-- Rebuild for deps
-- Disable grass to avoid circular deps
-
-* Tue Aug 28 2007 Fedora Release Engineering <rel-eng at fedoraproject dot org> - 1.4.2-3
-- Rebuild for selinux ppc32 issue.
-
-* Wed Jul 24 2007 Balint Cristian <cbalint@redhat.com> 1.4.2-2
-- disable one more HFA test, HFA is unaviable due to license
-
-* Wed Jul 24 2007 Balint Cristian <cbalint@redhat.com> 1.4.2-1
-- new upstream one
-- catch some more docs
-- fix ogr python module runtime
-- include testcases and run tests
-- enable geotiff external library we have new libgeotiff now
-- EPSG geodetic database is licensed OK since v6.13 so re-enable
-- enable it against grass by default, implement optional switches 
-
-* Tue Jun 05 2007 Balint Cristian <cbalint@redhat.com> 1.4.1-4
-- re-build.
-
-* Sat May 12 2007 Balint Cristian <cbalint@redhat.com> 1.4.1-3
-- re-build against grass.
-
-* Fri May 11 2007 Balint Cristian <cbalint@redhat.com> 1.4.1-2
-- fix python lookup paths for ppc64.
-
-* Wed May 09 2007 Balint Cristian <cbalint@redhat.com> 1.4.1-1
-- new upstream release.
-- disable temporary grass-devel requirement untill find a
-  resonable solution for gdal-grass egg-chicken dep problem.
-
-* Fri Apr 20 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-22
-- and olso dont attempt pack missing docs.
-
-* Fri Apr 20 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-21
-- exclude some docs, doxygen segfault with those now upstream.
-
-* Fri Apr 20 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-20
-- rebuild against latest fedora upstream tree.
-
-* Mon Apr 02 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-19
-- own gdal includedir
-- fix one more spurious lib path
-
-* Wed Mar 21 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-18
-- remove system lib path from gdal-config --libs, its implicit
-
-* Tue Mar 20 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-17
-- enable build against grass
-- fix incorrect use of 32/64 library paths lookups
-
-* Fri Mar 16 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-16
-- fix gdal flag from pkgconfig file
-
-* Thu Mar 15 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-15
-- require pkgconfig
-- generate pkgconfig from spec instead
-
-* Thu Mar 15 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-14
-- require perl(ExtUtils::MakeMaker) instead ?dist checking
-- add pkgconfig file 
-
-* Wed Mar 14 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-13
-- fix typo in specfile
-
-* Wed Mar 14 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-12
-- add missing dot from dist string in specfile
-
-* Wed Mar 14 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-11
-- fix fc6 fc5 builds
-
-* Thu Mar 1 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-10
-- fix mock build
-- require perl-devel
-
-* Tue Feb 27 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-9
-- repack tarball for fedora, explain changes in PROVENANCE-fedora,
-  license should be clean now according to PROVENANCE-* files
-- require ogdi since is aviable now
-- drop nogeotiff patch, in -fedora tarball geotiff is removed
-- man page triage over subpackages
-- exclude python byte compiled objects
-- fix some source C file exec bits
-
-* Sat Feb 24 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-8
-- fix more things in spec
-- include more docs
-
-* Wed Feb 21 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-7
-- libtool in requirement list for build
-
-* Wed Feb 21 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-6
-- use external libtool to avoid rpath usage
-- include more docs
-
-* Mon Feb 12 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-5
-- use rm -rf for removal of dirs.
-- fix require lists
-
-* Mon Feb 12 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-4
-- fix doxygen buildreq
-- make sure r-path is fine.
-
-* Sat Feb 10 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-3
-- disable now ogdi (pending ogdi submission).
-
-* Sat Feb 10 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-2
-- more fixups for lib paths
-
-* Fri Feb 09 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-1
-- first pack for fedora extras
-- disable geotiff (untill license sorted out)
-- enable all options aviable from extras
-- pack perl and python modules
-- kill r-path from libs
-- pack all docs posible
+* Mon Oct 11 2010 Devrim GÜNDÜZ <devrim@gunduz.org> - 1.7.2-1
+- Initial build of gdal 1.7.2 for EL-6, based on rawide spec.
+- Trim changelog
