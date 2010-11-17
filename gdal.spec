@@ -29,7 +29,7 @@ BuildRequires: ant swig ruby java-devel-gcj
 %endif
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 1
+%define grass_support 0
 # enable/disable refman generation
 %define build_refman  1
 
