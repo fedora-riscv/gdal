@@ -1,14 +1,16 @@
 Name:      gdal
-Version:   1.7.2
-Release:   5%{?dist}
+Version:   1.7.3
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
 URL:       http://www.gdal.org/
-#Source0:   http://download.osgeo.org/gdal/gdal-%{version}.tar.gz
+# Source0:   http://download.osgeo.org/gdal/gdal-%%{version}.tar.gz
 # see PROVENANCE.TXT-fedora for details
 Source0:   %{name}-%{version}-fedora.tar.gz
-Source1:   http://download.osgeo.org/gdal/gdalautotest-1.7.0.tar.gz
+Source1:   http://download.osgeo.org/gdal/gdalautotest-1.7.3.tar.gz
+# create versionless symlink
+Source2:   gdal-1.7.3.pom
 Patch0:    %{name}-libdap.patch
 Patch1:    %{name}-mysql.patch
 Patch2:    %{name}-bindir.patch
@@ -18,18 +20,24 @@ BuildRequires: libtool pkgconfig
 BuildRequires: python-devel numpy xerces-c-devel
 BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
 BuildRequires: doxygen tetex-latex ghostscript ruby-devel jpackage-utils
-BuildRequires: jasper-devel cfitsio-devel libdap-devel librx-devel
+BuildRequires: jasper-devel cfitsio-devel libdap-devel librx-devel 
 BuildRequires: hdf-static hdf-devel
 BuildRequires: unixODBC-devel mysql-devel sqlite-devel postgresql-devel zlib-devel
 BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel libgeotiff-devel
+BuildRequires: curl-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
+BuildRequires: chrpath
+# no xerces-c package available for ppc in el5, so excluding the same.
+%if "%{?dist}" == ".el6"
+ExcludeArch: ppc64
+%endif
 
 %if "%{?dist}" != ".el4"
 BuildRequires: ant swig ruby java-devel-gcj
 %endif
 
 # enable/disable grass support, for bootstrapping
-%define grass_support 1
+%define grass_support 0
 # enable/disable refman generation
 %define build_refman  1
 
@@ -40,8 +48,8 @@ BuildRequires: ant swig ruby java-devel-gcj
 %define cpuarch 64
 %endif
 
-%{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
-%{!?ruby_sitearch: %define ruby_sitearch %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
+%{!?python_lib: %define python_lib %(%{__python} -c 'from distutils.sysconfig import get_python_lib; print get_python_lib(1)')}
+%{!?ruby_sitelib: %define ruby_sitelib %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
 
 %if %{grass_support}
 BuildRequires: grass-devel
@@ -97,12 +105,25 @@ The GDAL ruby  modules provides support to handle multiple GIS file formats.
 Summary: Java modules for the GDAL file format library
 Group: Development/Libraries
 Requires: java
+# require maven2 for the poms and depmap frag parent dirs
+# these are provided by many JPP packages but that is wrong
+Requires: maven2
 Requires: jpackage-utils
+Requires(post): jpackage-utils
+Requires(postun): jpackage-utils
 Requires: %{name} = %{version}-%{release}
 
 %description java
 The GDAL java modules provides support to handle multiple GIS file formats.
 %endif
+
+%package doc
+Summary: Documentation for GDAL
+Group: Documentation
+Requires: %{name} = %{version}-%{release}
+
+%description doc
+This package contains html and pdf documentation for GDAL.
 
 %prep
 %setup -q -n %{name}-%{version}-fedora
@@ -113,7 +134,7 @@ The GDAL java modules provides support to handle multiple GIS file formats.
 %patch2 -p1 -b .bindir~
 %patch3 -p1 -b .AIS~
 
-# unpack test cases olso.
+# unpack test cases also.
 tar -xzf %{SOURCE1}
 
 # fix russian docs from tarball
@@ -204,6 +225,7 @@ export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -D
         --with-curl               \
         --with-python             \
         --with-perl               \
+        --with-pcraster           \
 %if "%{?dist}" != ".el4"
         --with-ruby               \
         --with-java               \
@@ -211,7 +233,6 @@ export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -D
         --with-xerces             \
         --with-xerces-lib='-lxerces-c' \
         --with-xerces-inc=%{_includedir} \
-        --without-pcraster        \
         --with-jpeg12=no          \
         --enable-shared           \
 %if %{grass_support}
@@ -230,6 +251,7 @@ rm GDALmake.opt.orig
 
 # fix ruby flags
 sed -i -e "s/\$(LD)/g++ -L..\/..\/.libs\/ $RPM_OPT_FLAGS/g" swig/ruby/RubyMakefile.mk
+sed -i -e "s/\$(CFLAGS)/$(CFLAGS) -fPIC/g" swig/ruby/RubyMakefile.mk
 
 # fix doxygen for multilib docs
 sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' swig/perl/Doxyfile
@@ -253,16 +275,14 @@ popd
 pushd swig/java
 # fix makefile
 sed -i -e 's|include java.opt|\#include java.opt|' GNUmakefile
-sed -i -e 's|-cp|\#-cp|g' GNUmakefile
 sed -i -e 's|\$(LD) -shared \$(LDFLAGS) \$(CONFIG_LIBS)|g++ -shared -lgdal -L..\/..\/.libs|g' GNUmakefile
 # build java module
-make generate
-make build
+make
 popd
 %endif
 
 # remake documentation for multilib issues
-# olso include many pdf documentation
+# also include many pdf documentation
 for docdir in ./ doc doc/ru doc/br ogr ogr/ogrsf_frmts ogr/ogrsf_frmts/dgn frmts/gxf frmts/sdts frmts/iso8211 swig/perl; do
 cp -p doc/gdal_footer.html $docdir/footer_local.html
 pushd $docdir
@@ -292,10 +312,6 @@ rm -rf $RPM_BUILD_ROOT
 
 # fix some perl instalation issue
 sed -i 's|>> $(DESTINSTALLARCHLIB)\/perllocal.pod|> \/dev\/null|g' swig/perl/Makefile_*
-# fix include header instalation issue
-#cat GNUmakefile | grep -v "\$(INSTALL_DIR) \$(DESTDIR)\$(INST_INCLUDE)" | \
-#                  grep -v "\$(INSTALL_DIR) \$(DESTDIR)\$(INST_DATA)" \
-#> GNUmakefile.tmp; mv -f GNUmakefile.tmp GNUmakefile
 
 # fix python installation path
 sed -i 's|setup.py install|setup.py install --root=%{buildroot}|' swig/python/GNUmakefile
@@ -312,21 +328,42 @@ mkdir -p %{buildroot}%{perl_vendorarch}
 mv %{buildroot}%{perl_sitearch}/* %{buildroot}%{perl_vendorarch}/
 find %{buildroot}%{perl_vendorarch} -name "*.dox" -exec rm -rf '{}' \;
 
+# fix some exec bits
+find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
+find %{buildroot}%{python_lib} -name "*.so" -exec chmod 755 '{}' \;
+cat /dev/null > python-sitearch.files
+for pf in $(find %{buildroot}%{python_lib}); do
+        echo $pf | sed -e 's|^%{buildroot}||' >> python-sitearch.files
+done
+
 %if "%{?dist}" != ".el4"
 # move ruby modules in the right path
-mv %{buildroot}%{ruby_sitearch}/%{name}/*.* %{buildroot}%{ruby_sitearch}/
-rm -rf %{buildroot}%{ruby_sitearch}/%{name}
+mv %{buildroot}%{ruby_sitelib}/%{name}/*.* %{buildroot}%{ruby_sitelib}/
+rm -rf %{buildroot}%{ruby_sitelib}/%{name}
+cat /dev/null > ruby-sitearch.files
+for rf in $(find %{buildroot}%{ruby_sitelib}); do
+        echo $rf | sed -e 's|^%{buildroot}||' >> ruby-sitearch.files
+done
 
 # install multilib java modules in the right path
 touch -r NEWS swig/java/gdal.jar
 mkdir -p %{buildroot}%{_javadir}
 cp -p swig/java/gdal.jar  \
       %{buildroot}%{_javadir}/%{name}-%{version}.jar
-%endif
 
-# fix some exec bits
-find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
-find %{buildroot}%{python_sitearch} -name "*.so" -exec chmod 755 '{}' \;
+# create versionless symlink
+ln -s %{name}-%{version}.jar %{buildroot}%{_javadir}/%{name}.jar
+
+# add pom
+%__mkdir_p %{buildroot}%{_datadir}/maven2/poms
+%__install -m 644 %{SOURCE2} \
+               %{buildroot}%{_datadir}/maven2/poms/JPP-%{name}.pom
+
+# copy JNI libraries and links, non versioned link needed by JNI
+cp -pvl swig/java/.libs/*.so*  \
+      %{buildroot}%{_libdir}
+chrpath --delete %{buildroot}%{_libdir}/*jni.so*
+%endif
 
 # install and include all docs
 # due TeX-related issues some refman.pdf are not created
@@ -339,20 +376,24 @@ mkdir -p docs/docs-%{cpuarch}/pdf
 pushd docs/docs-%{cpuarch}/pdf; mkdir -p br ru en ogr ogrsf_frmts/dgn frmts/gxf frmts/sdts frmts/iso8211 ; popd
 install -p -m 644 doc/latex/refman.pdf docs/docs-%{cpuarch}/pdf/en
 install -p -m 644 doc/br/latex/refman.pdf docs/docs-%{cpuarch}/pdf/br/
-#install -p -m 644 doc/ru/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ru/
-#install -p -m 644 latex/refman.pdf docs/docs-%{cpuarch}/refman.pdf
-#install -p -m 644 ogr/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogr/
+install -p -m 644 latex/refman.pdf docs/docs-%{cpuarch}/
+install -p -m 644 latex/class*.pdf docs/docs-%{cpuarch}/
+install -p -m 644 ogr/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogr/
+install -p -m 644 ogr/latex/class*.pdf docs/docs-%{cpuarch}/pdf/ogr/
 install -p -m 644 ogr/ogrsf_frmts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/
 install -p -m 644 ogr/ogrsf_frmts/dgn/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/dgn/
 %if "%{?dist}" != ".el4"
 # broken on el4
 install -p -m 644 frmts/gxf/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/gxf/
+install -p -m 644 frmts/sdts/latex/class*.pdf docs/docs-%{cpuarch}/pdf/frmts/gxf/
 %endif
-#install -p -m 644 frmts/sdts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
+install -p -m 644 frmts/sdts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
 install -p -m 644 frmts/iso8211/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/iso8211/
 mkdir -p doc/docs-perl/docs-%{cpuarch}/pdf
 install -p -m 644 swig/perl/latex/refman.pdf doc/docs-perl/docs-%{cpuarch}/pdf
 %endif
+mkdir -p docs/docs-%{cpuarch}
+mkdir -p doc/docs-perl/docs-%{cpuarch}
 pushd docs/docs-%{cpuarch}/; mkdir -p en/html gdal_frmts ogrsf_frmts br ru; popd
 cp -pr html/* docs/docs-%{cpuarch}/
 cp -pr doc/html/* docs/docs-%{cpuarch}/en/html
@@ -424,12 +465,15 @@ for junk in {*.la,*.bs,.exists,.packlist,.cvsignore} ; do
 find %{buildroot} -name "$junk" -exec rm -rf '{}' \;
 done
 
+# create depmap fragment
+%add_to_maven_depmap org.gdal gdal-java-bindings %{version} JPP %{name}
+
 %check
 
-pushd gdalautotest-1.7.0
+pushd gdalautotest-1.7.3
 
 # export test enviroment
-export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python_sitearch}
+export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python_lib}
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}
 export GDAL_DATA=%{buildroot}%{_datadir}/%{name}/
 
@@ -450,13 +494,25 @@ popd
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
+%post 
+/sbin/ldconfig
+
+%postun
+/sbin/ldconfig
+
+# update maven2 depmap
+%post java
+/sbin/ldconfig
+%update_maven_depmap
+
+# update maven2 depmap
+%postun java
+/sbin/ldconfig
+%update_maven_depmap
 
 %files
 %defattr(-,root,root,-)
 %doc NEWS PROVENANCE.TXT PROVENANCE.TXT-fedora COMMITERS
-%doc docs/
 %{_bindir}/gdal_contour
 %{_bindir}/gdal_rasterize
 %{_bindir}/gdal_translate
@@ -473,47 +529,34 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/nearblack
 %{_bindir}/ogr*
 %{_bindir}/testepsg
-%{_libdir}/*.so.*
+%{_libdir}/libgdal.so.*
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
-#%{_mandir}/man1/gdaladdo.1*
-#%{_mandir}/man1/gdalbuildvrt.1*
-#%{_mandir}/man1/gdalinfo.1*
-#%{_mandir}/man1/gdaltindex.1*
-#%{_mandir}/man1/gdaltransform.1*
-#%{_mandir}/man1/gdal2tiles.1*
-#%{_mandir}/man1/nearblack.1*
-#%{_mandir}/man1/gdal_contour.1*
-#%{_mandir}/man1/gdal_rasterize.1*
-#%{_mandir}/man1/gdal_translate.1*
-#%{_mandir}/man1/gdal_utilities.1*
-#%{_mandir}/man1/gdal_grid.1*
-#%{_mandir}/man1/gdal_retile.1*
-#%{_mandir}/man1/ogr*.1*
+%{_bindir}/epsg_tr.py*
+%{_bindir}/esri2wkt.py*
+%{_bindir}/gcps*
+%{_bindir}/gdal*.py*
+%{_bindir}/pct2rgb.py*
+%{_bindir}/rgb2pct.py*
+%{_bindir}/mkgraticule.py*
 
 %files devel
 %defattr(-,root,root,-)
-%doc docs
 %{_bindir}/%{name}-config
 %{_bindir}/%{name}-config-%{cpuarch}
 %dir %{_includedir}/%{name}
 %{_includedir}/%{name}/*.h
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/%{name}.pc
-#%{_mandir}/man1/%{name}-config*
 
 %files static
 %defattr(-,root,root,-)
 %{_libdir}/*.a
 
-%files python
+%files python -f python-sitearch.files
 %defattr(-,root,root,-)
 %doc swig/python/samples
 %attr(0755,root,root) %{_bindir}/*.py
-%{python_sitearch}/*
-#%{_mandir}/man1/pct2rgb.1*
-#%{_mandir}/man1/rgb2pct.1*
-#%{_mandir}/man1/gdal_merge.1*
 
 %files perl
 %defattr(-,root,root,-)
@@ -522,20 +565,54 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %if "%{?dist}" != ".el4"
-%files ruby
+%files ruby -f ruby-sitearch.files
 %defattr(-,root,root,-)
-%{ruby_sitearch}/gdal.so
-%{ruby_sitearch}/ogr.so
-%{ruby_sitearch}/osr.so
-%{ruby_sitearch}/gdalconst.so
 
 %files java
 %defattr(-,root,root,-)
 %doc swig/java/apps
 %{_javadir}/%{name}-%{version}.jar
+# provide versionless symlink
+%{_javadir}/%{name}.jar
+%{_libdir}/*jni.so.*
+# provide the pom
+%{_datadir}/maven2/poms/*
+# provide the depmap frag
+%{_mavendepmapfragdir}/*
 %endif
 
+%files doc
+%defattr(-,root,root)
+%doc docs
+
 %changelog
+* Sun Nov 21 2010 Viji Nair <viji [AT] fedoraproject DOT org> - 1.7.3-2
+- Install all the generated pdf documentation.
+- Build documentation as a separate package.
+- Spec cleanup
+
+* Fri Nov 19 2010 Viji Nair <viji [AT] fedoraproject DOT org> - 1.7.3-1
+- Update to latest upstream version
+- Added jnis
+- Patches updated with proper version info
+- Added suggestions from Ralph Apel <r.apel@r-apel.de>
+        + Versionless symlink for gdal.jar
+        + Maven2 pom
+        + JPP-style depmap
+        + Use -f XX.files for ruby and python
+
+* Sun Oct 31 2010 Mathieu Baudier <mbaudier@argeo.org> - 1.7.2-5_2
+- PCRaster support
+- cURL support
+- Disable building the reference manual (really too long...)
+
+* Sat Oct 09 2010 Mathieu Baudier <mbaudier@argeo.org> - 1.7.2-5_1
+- Add Java JNI libraries
+
+* Sat Aug 14 2010 Mathieu Baudier <mbaudier@argeo.org> - 1.7.2-5_0
+- Rebuild for EL GIS, based on work contributed by Nikolaos Hatzopoulos and Peter Hopfgartner 
+- Use vanilla sources
+
 * Wed Jul 21 2010 David Malcolm <dmalcolm@redhat.com> - 1.7.2-5
 - Rebuilt for https://fedoraproject.org/wiki/Features/Python_2.7/MassRebuild
 
