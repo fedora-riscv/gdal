@@ -47,6 +47,9 @@ BuildRequires: ant swig ruby java-devel-gcj
 BuildRequires: grass-devel
 %endif
 
+#No xerces-c-devel on EL6/ppc64
+ExcludeArch: ppc64
+
 %description
 The GDAL library provides support to handle multiple GIS file formats.
 
@@ -539,3 +542,4 @@ rm -rf $RPM_BUILD_ROOT
 * Mon Oct 11 2010 Devrim GÜNDÜZ <devrim@gunduz.org> - 1.7.2-1
 - Initial build of gdal 1.7.2 for EL-6, based on rawide spec.
 - Trim changelog
+- ExcludeArch ppc64 due to no xerces-c-devel
