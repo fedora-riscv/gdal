@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.7.3
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -586,6 +586,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs
 
 %changelog
+* Thu Mar 10 2011 Kalev Lember <kalev@smartlink.ee> - 1.7.3-4
+- Rebuilt with xerces-c 3.1
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.7.3-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
