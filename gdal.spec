@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.7.3
-Release:   3%{?dist}
+Release:   3.1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -15,6 +15,7 @@ Patch0:    %{name}-libdap.patch
 Patch1:    %{name}-mysql.patch
 Patch2:    %{name}-bindir.patch
 Patch3:    %{name}-AIS.patch
+Patch4:    %{name}-%{version}-xcompiler.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool pkgconfig
 BuildRequires: python-devel numpy xerces-c-devel
@@ -133,6 +134,7 @@ This package contains html and pdf documentation for GDAL.
 %patch1 -p0 -b .mysql~
 %patch2 -p1 -b .bindir~
 %patch3 -p1 -b .AIS~
+%patch4 -p1 -b .xcompiler
 
 # unpack test cases also.
 tar -xzf %{SOURCE1}
@@ -381,13 +383,17 @@ install -p -m 644 latex/class*.pdf docs/docs-%{cpuarch}/
 install -p -m 644 ogr/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogr/
 install -p -m 644 ogr/latex/class*.pdf docs/docs-%{cpuarch}/pdf/ogr/
 install -p -m 644 ogr/ogrsf_frmts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/
+%ifnarch ppc ppc64
 install -p -m 644 ogr/ogrsf_frmts/dgn/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/dgn/
+%endif
 %if "%{?dist}" != ".el4"
 # broken on el4
 install -p -m 644 frmts/gxf/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/gxf/
 install -p -m 644 frmts/sdts/latex/class*.pdf docs/docs-%{cpuarch}/pdf/frmts/gxf/
 %endif
+%ifnarch ppc ppc64
 install -p -m 644 frmts/sdts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
+%endif
 install -p -m 644 frmts/iso8211/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/iso8211/
 mkdir -p doc/docs-perl/docs-%{cpuarch}/pdf
 install -p -m 644 swig/perl/latex/refman.pdf doc/docs-perl/docs-%{cpuarch}/pdf
@@ -586,6 +592,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs
 
 %changelog
+* Wed Mar 16 2011 Karsten Hopp <karsten@redhat.com> 1.7.3-3.1
+- current gcc doesn't accept -Xcompiler 
+- some pdf's don't build on ppc, ignore them atm.
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.7.3-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 

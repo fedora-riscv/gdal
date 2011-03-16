@@ -1,0 +1,13 @@
+diff -up gdal-1.7.3-fedora/ltmain.sh.xcompiler gdal-1.7.3-fedora/ltmain.sh
+diff -up gdal-1.7.3-fedora/swig/ruby/RubyMakefile.mk.xcompiler gdal-1.7.3-fedora/swig/ruby/RubyMakefile.mk
+--- gdal-1.7.3-fedora/swig/ruby/RubyMakefile.mk.xcompiler	2011-03-15 23:55:58.000000000 +0100
++++ gdal-1.7.3-fedora/swig/ruby/RubyMakefile.mk	2011-03-15 23:56:11.000000000 +0100
+@@ -25,7 +25,7 @@ RUBY_EXTENSIONS_DIR := $(shell ruby -rrb
+ INSTALL_DIR := $(RUBY_EXTENSIONS_DIR)/gdal
+ 
+ RUBY_INCLUDE = -I$(RUBY_INCLUDE_DIR)
+-LDFLAGS += -Xcompiler -shared -L$(RUBY_LIB_DIR)
++LDFLAGS += -shared -L$(RUBY_LIB_DIR)
+ RUBY_LIB := -l$(RUBY_SO_NAME)
+ 
+ build: $(RUBY_MODULES)
