@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.7.3
-Release:   4%{?dist}
+Release:   5%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -15,6 +15,7 @@ Patch0:    %{name}-libdap.patch
 Patch1:    %{name}-mysql.patch
 Patch2:    %{name}-bindir.patch
 Patch3:    %{name}-AIS.patch
+Patch4:    %{name}-%{version}-xcompiler.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool pkgconfig
 BuildRequires: python-devel numpy xerces-c-devel
@@ -50,6 +51,12 @@ BuildRequires: ant swig ruby java-devel-gcj
 
 %{!?python_lib: %define python_lib %(%{__python} -c 'from distutils.sysconfig import get_python_lib; print get_python_lib(1)')}
 %{!?ruby_sitelib: %define ruby_sitelib %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
+
+# We don't want to provide private python extension libs
+%{?filter_setup:
+%filter_provides_in %{python_lib}/.*\.so %{_libdir}/perl5/.*\.so$ 
+%filter_setup
+}
 
 %if %{grass_support}
 BuildRequires: grass-devel
@@ -133,15 +140,10 @@ This package contains html and pdf documentation for GDAL.
 %patch1 -p0 -b .mysql~
 %patch2 -p1 -b .bindir~
 %patch3 -p1 -b .AIS~
+%patch4 -p1 -b .xcompiler
 
 # unpack test cases also.
 tar -xzf %{SOURCE1}
-
-# fix russian docs from tarball
-for ru in `find doc/ru/ -type f -name "*.dox"`; do
-iconv -f KOI8-R -t UTF-8 < $ru > $ru.tmp
-mv -f $ru.tmp  $ru
-done
 
 set +x
 for f in `find . -type f` ; do
@@ -378,16 +380,24 @@ install -p -m 644 doc/latex/refman.pdf docs/docs-%{cpuarch}/pdf/en
 install -p -m 644 doc/br/latex/refman.pdf docs/docs-%{cpuarch}/pdf/br/
 install -p -m 644 latex/refman.pdf docs/docs-%{cpuarch}/
 install -p -m 644 latex/class*.pdf docs/docs-%{cpuarch}/
+install -p -m 644 doc/ru/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ru/
 install -p -m 644 ogr/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogr/
 install -p -m 644 ogr/latex/class*.pdf docs/docs-%{cpuarch}/pdf/ogr/
 install -p -m 644 ogr/ogrsf_frmts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/
-install -p -m 644 ogr/ogrsf_frmts/dgn/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/dgn/
+# Doesn't work at all. Complaints about different nesting level in \pdfendlink
+#%ifnarch ppc ppc64
+#install -p -m 644 ogr/ogrsf_frmts/dgn/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/dgn/
+#%endif
 %if "%{?dist}" != ".el4"
 # broken on el4
 install -p -m 644 frmts/gxf/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/gxf/
 install -p -m 644 frmts/sdts/latex/class*.pdf docs/docs-%{cpuarch}/pdf/frmts/gxf/
 %endif
-install -p -m 644 frmts/sdts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
+# Doesn't work at all. Complaints about different nesting level in \pdfendlink
+# Working in GDAL 1.8.0, funny enough!
+#%ifnarch ppc ppc64
+#install -p -m 644 frmts/sdts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
+#%endif
 install -p -m 644 frmts/iso8211/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/iso8211/
 mkdir -p doc/docs-perl/docs-%{cpuarch}/pdf
 install -p -m 644 swig/perl/latex/refman.pdf doc/docs-perl/docs-%{cpuarch}/pdf
@@ -402,6 +412,10 @@ cp -pr doc/ogrsf_frmts/* docs/docs-%{cpuarch}/ogrsf_frmts
 cp -pr doc/br/html/* docs/docs-%{cpuarch}/br
 cp -pr doc/ru/html/* docs/docs-%{cpuarch}/ru
 cp -pr swig/perl/html/* doc/docs-perl/docs-%{cpuarch}/
+
+# Remove installation shell script
+rm -rf docs/docs-%{cpuarch}/ru/installdox
+rm -rf docs/docs-%{cpuarch}/en/html/installdox
 
 # install multilib cpl_config.h bz#430894
 install -p -D -m 644 port/cpl_config.h %{buildroot}%{_includedir}/%{name}/cpl_config-%{cpuarch}.h
@@ -494,20 +508,18 @@ popd
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post 
-/sbin/ldconfig
+%post -p /sbin/ldconfig
 
-%postun
-/sbin/ldconfig
+%postun -p /sbin/ldconfig
 
-# update maven2 depmap
 %post java
 /sbin/ldconfig
+# update maven2 depmap
 %update_maven_depmap
 
-# update maven2 depmap
 %postun java
 /sbin/ldconfig
+# update maven2 depmap
 %update_maven_depmap
 
 %files
@@ -586,6 +598,15 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs
 
 %changelog
+* Sun Mar 20 2011 Volker Fröhlich <volker27@gmx.at> 1.7.3-5
+- Dropped unnecessary encoding conversion for Russian refman
+- Install Russian refman
+- Don't try to install refman for sdts and dgn, as they fail to compile
+- Added -p to post and postun
+- Remove private-shared-object-provides for Python and Perl
+- Remove installdox scripts
+- gcc 4.6 doesn't accept -Xcompiler 
+
 * Thu Mar 10 2011 Kalev Lember <kalev@smartlink.ee> - 1.7.3-4
 - Rebuilt with xerces-c 3.1
 
