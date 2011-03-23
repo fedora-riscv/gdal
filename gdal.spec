@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.7.3
-Release:   4%{?dist}
+Release:   5%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -598,6 +598,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs
 
 %changelog
+* Wed Mar 23 2011 Dan Horák <dan@danny.cz> - 1.7.3-5
+- rebuilt for mysql 5.5.10 (soname bump in libmysqlclient)
+
 * Sun Mar 20 2011 Volker Fröhlich <volker27@gmx.at> 1.7.3-4
 - Dropped unnecessary encoding conversion for Russian refman
 - Install Russian refman
