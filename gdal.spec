@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.7.3
-Release:   6%{?dist}
+Release:   7%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -598,6 +598,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs
 
 %changelog
+* Thu Mar 31 2011 Orion Poplawski <orion@cora.nwra.com> - 1.7.3-7
+- Rebuild for netcdf 4.1.2
+
 * Wed Mar 23 2011 Dan Horák <dan@danny.cz> - 1.7.3-6
 - rebuilt for mysql 5.5.10 (soname bump in libmysqlclient)
 
