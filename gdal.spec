@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.7.3
-Release:   7%{?dist}
+Release:   8%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -167,6 +167,7 @@ find . -name ".cvsignore" -exec rm -rf '{}' \;
 # fix some exec bits
 find swig/python/samples -name "*.py" -exec chmod -x '{}' \;
 
+
 %build
 
 # fix hardcoded issues
@@ -185,10 +186,10 @@ sed -i 's|-lmfhdf -ldf|-L$libdir/hdf -lmfhdf -ldf|g' configure
 sed -i 's|-logdi31|-logdi|g' configure
 sed -i 's|libproj.so|libproj.so.0|g' ogr/ogrct.cpp
 
-# fix python path for ppc64
+# Fix python path for ppc64
 sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"\/usr\/lib64\"|g' configure
 
-# append some path for few libs
+# Append paths for some libs
 export CPPFLAGS="`pkg-config ogdi --cflags`"
 export CPPFLAGS="$CPPFLAGS -I%{_includedir}/netcdf-3"
 export CPPFLAGS="$CPPFLAGS -I%{_includedir}/netcdf"
@@ -210,7 +211,6 @@ export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -D
         --with-ogdi               \
         --with-cfitsio=%{_prefix} \
         --with-geotiff=external   \
-        --with-tiff=external      \
         --with-libtiff=external   \
         --with-libz               \
         --with-netcdf             \
@@ -222,7 +222,7 @@ export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -D
         --with-gif                \
         --with-jpeg               \
         --with-odbc               \
-        --with-sqlite             \
+        --with-sqlite3            \
         --with-mysql              \
         --with-curl               \
         --with-python             \
@@ -268,51 +268,59 @@ make
 
 # make perl modules, disable makefile generate
 pushd swig/perl
- perl Makefile.PL;  make;
- echo > Makefile.PL;
+  perl Makefile.PL;  make;
+  echo > Makefile.PL;
 popd
 
 %if "%{?dist}" != ".el4"
-# make java modules
-pushd swig/java
-# fix makefile
-sed -i -e 's|include java.opt|\#include java.opt|' GNUmakefile
-sed -i -e 's|\$(LD) -shared \$(LDFLAGS) \$(CONFIG_LIBS)|g++ -shared -lgdal -L..\/..\/.libs|g' GNUmakefile
-# build java module
-make
-popd
+  # make java modules
+  pushd swig/java
+    # fix makefile
+    sed -i -e 's|include java.opt|\#include java.opt|' GNUmakefile
+    sed -i -e 's|\$(LD) -shared \$(LDFLAGS) \$(CONFIG_LIBS)|g++ -shared -lgdal -L..\/..\/.libs|g' GNUmakefile
+    # build java module
+    make
+  popd
 %endif
-
 # remake documentation for multilib issues
 # also include many pdf documentation
-for docdir in ./ doc doc/ru doc/br ogr ogr/ogrsf_frmts ogr/ogrsf_frmts/dgn frmts/gxf frmts/sdts frmts/iso8211 swig/perl; do
-cp -p doc/gdal_footer.html $docdir/footer_local.html
-pushd $docdir
-if [ ! -f Doxyfile ]; then
-doxygen -g
-fi
-sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = footer_local.html\n#HTML_FOOTER |' Doxyfile
-sed -i -e 's|^GENERATE_LATEX|GENERATE_LATEX = YES\n#GENERATE_LATEX |' Doxyfile
-sed -i -e 's|^USE_PDFLATEX|USE_PDFLATEX = YES\n#USE_PDFLATEX |' Doxyfile
-if [ $docdir == "doc/ru" ]; then
-sed -i -e 's|^OUTPUT_LANGUAGE|OUTPUT_LANGUAGE = Russian\n#OUTPUT_LANGUAGE |' Doxyfile
-fi
-rm -rf latex html
-doxygen
-%if %{build_refman}
-pushd latex
-sed -i -e '/rfoot\[/d' -e '/lfoot\[/d' doxygen.sty
-sed -i -e '/small/d' -e '/large/d' refman.tex
-sed -i -e 's|pdflatex|pdflatex -interaction nonstopmode |g' Makefile
-make refman.pdf || true; popd
-%endif
-rm -rf footer_local.html; popd
+
+for docdir in ./ doc doc/ru doc/br ogr frmts/gxf frmts/pcidsk/sdk frmts/sdts frmts/iso8211 frmts/vrt swig/perl swig/python apps; do
+  cp -p doc/gdal_footer.html $docdir/footer_local.html
+  pushd $docdir
+    if [ ! -f Doxyfile ]; then
+      doxygen -g
+    else
+      doxygen -u
+    fi
+    if [ $docdir == "doc" ]; then
+      #TODO: Get that working
+      #sed -i -e 's|^IMAGE_PATH|IMAGE_PATH = doc\n#IMAGE_PATH|' Doxyfile
+    fi
+    sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = footer_local.html\n#HTML_FOOTER |' Doxyfile
+    sed -i -e 's|^GENERATE_LATEX|GENERATE_LATEX = YES\n#GENERATE_LATEX |' Doxyfile
+    sed -i -e 's|^USE_PDFLATEX|USE_PDFLATEX = YES\n#USE_PDFLATEX |' Doxyfile
+    if [ $docdir == "doc/ru" ]; then
+      sed -i -e 's|^OUTPUT_LANGUAGE|OUTPUT_LANGUAGE = Russian\n#OUTPUT_LANGUAGE |' Doxyfile
+    fi
+    rm -rf latex html
+    doxygen
+    rm -rf footer_local.html
+    %if %{build_refman}
+      pushd latex
+        sed -i -e '/rfoot\[/d' -e '/lfoot\[/d' doxygen.sty
+        sed -i -e '/small/d' -e '/large/d' refman.tex
+        sed -i -e 's|pdflatex|pdflatex -interaction nonstopmode |g' Makefile
+        make refman.pdf || true
+      popd
+    %endif
+  popd
 done
 
 %install
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
-# fix some perl instalation issue
+# fix some perl installation issue
 sed -i 's|>> $(DESTINSTALLARCHLIB)\/perllocal.pod|> \/dev\/null|g' swig/perl/Makefile_*
 
 # fix python installation path
@@ -335,7 +343,7 @@ find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
 find %{buildroot}%{python_lib} -name "*.so" -exec chmod 755 '{}' \;
 cat /dev/null > python-sitearch.files
 for pf in $(find %{buildroot}%{python_lib}); do
-        echo $pf | sed -e 's|^%{buildroot}||' >> python-sitearch.files
+  echo $pf | sed -e 's|^%{buildroot}||' >> python-sitearch.files
 done
 
 %if "%{?dist}" != ".el4"
@@ -344,7 +352,7 @@ mv %{buildroot}%{ruby_sitelib}/%{name}/*.* %{buildroot}%{ruby_sitelib}/
 rm -rf %{buildroot}%{ruby_sitelib}/%{name}
 cat /dev/null > ruby-sitearch.files
 for rf in $(find %{buildroot}%{ruby_sitelib}); do
-        echo $rf | sed -e 's|^%{buildroot}||' >> ruby-sitearch.files
+  echo $rf | sed -e 's|^%{buildroot}||' >> ruby-sitearch.files
 done
 
 # install multilib java modules in the right path
@@ -375,15 +383,17 @@ mkdir -p doc/gdal_frmts; find frmts -name "*.html" -exec install -p -m 644 '{}' 
 mkdir -p doc/ogrsf_frmts; find ogr -name "*.html" -exec install -p -m 644 '{}' doc/ogrsf_frmts/ \;
 %if %{build_refman}
 mkdir -p docs/docs-%{cpuarch}/pdf
-pushd docs/docs-%{cpuarch}/pdf; mkdir -p br ru en ogr ogrsf_frmts/dgn frmts/gxf frmts/sdts frmts/iso8211 ; popd
+pushd docs/docs-%{cpuarch}/pdf; mkdir -p apps br ru en ogr frmts/gxf frmts/sdts frmts/iso8211 frmts/vrt frmts/pcidsk; popd
 install -p -m 644 doc/latex/refman.pdf docs/docs-%{cpuarch}/pdf/en
+install -p -m 644 frmts/pcidsk/sdk/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/pcidsk
+install -p -m 644 frmts/vrt/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/vrt
+install -p -m 644 apps/latex/refman.pdf docs/docs-%{cpuarch}/pdf/apps
 install -p -m 644 doc/br/latex/refman.pdf docs/docs-%{cpuarch}/pdf/br/
 install -p -m 644 latex/refman.pdf docs/docs-%{cpuarch}/
 install -p -m 644 latex/class*.pdf docs/docs-%{cpuarch}/
 install -p -m 644 doc/ru/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ru/
 install -p -m 644 ogr/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogr/
 install -p -m 644 ogr/latex/class*.pdf docs/docs-%{cpuarch}/pdf/ogr/
-install -p -m 644 ogr/ogrsf_frmts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/
 # Doesn't work at all. Complaints about different nesting level in \pdfendlink
 #%ifnarch ppc ppc64
 #install -p -m 644 ogr/ogrsf_frmts/dgn/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/dgn/
@@ -391,7 +401,7 @@ install -p -m 644 ogr/ogrsf_frmts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrs
 %if "%{?dist}" != ".el4"
 # broken on el4
 install -p -m 644 frmts/gxf/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/gxf/
-install -p -m 644 frmts/sdts/latex/class*.pdf docs/docs-%{cpuarch}/pdf/frmts/gxf/
+install -p -m 644 frmts/sdts/latex/class*.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
 %endif
 # Doesn't work at all. Complaints about different nesting level in \pdfendlink
 # Working in GDAL 1.8.0, funny enough!
@@ -598,6 +608,13 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs
 
 %changelog
+* Thu Apr 11 2011 Volker Fröhlich <volker27@gmx.at> - 1.7.3-8
+- Solved image path problem with Latex
+- Removed with-tiff and updated with-sqlite to with-sqlite3
+- Add more refman documents
+- Adapted refman loop to actual directories
+- Harmonized buildroot macro use
+
 * Thu Mar 31 2011 Orion Poplawski <orion@cora.nwra.com> - 1.7.3-7
 - Rebuild for netcdf 4.1.2
 
