@@ -293,10 +293,10 @@ for docdir in ./ doc doc/ru doc/br ogr frmts/gxf frmts/pcidsk/sdk frmts/sdts frm
     else
       doxygen -u
     fi
-    if [ $docdir == "doc" ]; then
+    #if [ $docdir == "doc" ]; then
       #TODO: Get that working
       #sed -i -e 's|^IMAGE_PATH|IMAGE_PATH = doc\n#IMAGE_PATH|' Doxyfile
-    fi
+    #fi
     sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = footer_local.html\n#HTML_FOOTER |' Doxyfile
     sed -i -e 's|^GENERATE_LATEX|GENERATE_LATEX = YES\n#GENERATE_LATEX |' Doxyfile
     sed -i -e 's|^USE_PDFLATEX|USE_PDFLATEX = YES\n#USE_PDFLATEX |' Doxyfile
