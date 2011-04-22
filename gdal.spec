@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.7.3
-Release:   9%{?dist}
+Release:   6%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -603,7 +603,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs
 
 %changelog
-* Fri Apr 22 2011 Volker Fröhlich <volker27@gmx.at> - 1.7.3-9
+* Fri Apr 22 2011 Volker Fröhlich <volker27@gmx.at> - 1.7.3-6
 - Patched spaces problem for Mapinfo files (mif)
   (http://trac.osgeo.org/gdal/ticket/3694)
 - Replaced all define macros with global
@@ -613,21 +613,16 @@ rm -rf $RPM_BUILD_ROOT
 - Replaced mkdir and install macros
 - Removed Python files from main package files section, that 
   effectively already belonged to the Python sub-package
-
-* Thu Apr 11 2011 Volker Fröhlich <volker27@gmx.at> - 1.7.3-8
 - Solved image path problem with Latex
 - Removed with-tiff and updated with-sqlite to with-sqlite3
 - Add more refman documents
 - Adapted refman loop to actual directories
 - Harmonized buildroot macro use
 
-* Thu Mar 31 2011 Orion Poplawski <orion@cora.nwra.com> - 1.7.3-7
-- Rebuild for netcdf 4.1.2
-
-* Wed Mar 23 2011 Dan Horák <dan@danny.cz> - 1.7.3-6
+* Wed Mar 23 2011 Dan Horák <dan@danny.cz> - 1.7.3-5
 - rebuilt for mysql 5.5.10 (soname bump in libmysqlclient)
 
-* Sun Mar 20 2011 Volker Fröhlich <volker27@gmx.at> 1.7.3-5
+* Sun Mar 20 2011 Volker Fröhlich <volker27@gmx.at> 1.7.3-4
 - Dropped unnecessary encoding conversion for Russian refman
 - Install Russian refman
 - Don't try to install refman for sdts and dgn, as they fail to compile
