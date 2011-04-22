@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.7.3
-Release:   8%{?dist}
+Release:   9%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -16,6 +16,9 @@ Patch1:    %{name}-mysql.patch
 Patch2:    %{name}-bindir.patch
 Patch3:    %{name}-AIS.patch
 Patch4:    %{name}-%{version}-xcompiler.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=693952 
+# http://trac.osgeo.org/gdal/ticket/3694 -- Still present in 1.8 tarball
+Patch5:    %{name}-1.8.0-mitab.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool pkgconfig
 BuildRequires: python-devel numpy xerces-c-devel
@@ -36,21 +39,20 @@ ExcludeArch: ppc64
 %if "%{?dist}" != ".el4"
 BuildRequires: ant swig ruby java-devel-gcj
 %endif
-
 # enable/disable grass support, for bootstrapping
-%define grass_support 0
+%global grass_support 0
 # enable/disable refman generation
-%define build_refman  1
+%global build_refman  1
 
 # we have multilib triage
 %if "%{_lib}" == "lib"
-%define cpuarch 32
+%global cpuarch 32
 %else
-%define cpuarch 64
+%global cpuarch 64
 %endif
 
-%{!?python_lib: %define python_lib %(%{__python} -c 'from distutils.sysconfig import get_python_lib; print get_python_lib(1)')}
-%{!?ruby_sitelib: %define ruby_sitelib %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
+%{!?python_lib: %global python_lib %(%{__python} -c 'from distutils.sysconfig import get_python_lib; print get_python_lib(1)')}
+%{!?ruby_sitearch: %global ruby_sitearch %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
 
 # We don't want to provide private python extension libs
 %{?filter_setup:
@@ -141,6 +143,7 @@ This package contains html and pdf documentation for GDAL.
 %patch2 -p1 -b .bindir~
 %patch3 -p1 -b .AIS~
 %patch4 -p1 -b .xcompiler
+%patch5 -p3 -b .mitab
 
 # unpack test cases also.
 tar -xzf %{SOURCE1}
@@ -167,6 +170,9 @@ find . -name ".cvsignore" -exec rm -rf '{}' \;
 # fix some exec bits
 find swig/python/samples -name "*.py" -exec chmod -x '{}' \;
 
+# Remove man dir, as it blocks a build target.
+# It obviously slipped into the tarball and is not in Trunk (April 17th, 2011)
+rm -rf man
 
 %build
 
@@ -265,6 +271,7 @@ sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER
 # WARNING !!!
 # dont use {?_smp_mflags} it break compile
 make
+make man
 
 # make perl modules, disable makefile generate
 pushd swig/perl
@@ -341,19 +348,11 @@ find %{buildroot}%{perl_vendorarch} -name "*.dox" -exec rm -rf '{}' \;
 # fix some exec bits
 find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
 find %{buildroot}%{python_lib} -name "*.so" -exec chmod 755 '{}' \;
-cat /dev/null > python-sitearch.files
-for pf in $(find %{buildroot}%{python_lib}); do
-  echo $pf | sed -e 's|^%{buildroot}||' >> python-sitearch.files
-done
 
 %if "%{?dist}" != ".el4"
 # move ruby modules in the right path
-mv %{buildroot}%{ruby_sitelib}/%{name}/*.* %{buildroot}%{ruby_sitelib}/
-rm -rf %{buildroot}%{ruby_sitelib}/%{name}
-cat /dev/null > ruby-sitearch.files
-for rf in $(find %{buildroot}%{ruby_sitelib}); do
-  echo $rf | sed -e 's|^%{buildroot}||' >> ruby-sitearch.files
-done
+mv %{buildroot}%{ruby_sitearch}/%{name}/*.* %{buildroot}%{ruby_sitearch}
+rm -rf %{buildroot}%{ruby_sitearch}/%{name}
 
 # install multilib java modules in the right path
 touch -r NEWS swig/java/gdal.jar
@@ -365,8 +364,8 @@ cp -p swig/java/gdal.jar  \
 ln -s %{name}-%{version}.jar %{buildroot}%{_javadir}/%{name}.jar
 
 # add pom
-%__mkdir_p %{buildroot}%{_datadir}/maven2/poms
-%__install -m 644 %{SOURCE2} \
+mkdir -p %{buildroot}%{_datadir}/maven2/poms
+install -m 644 %{SOURCE2} \
                %{buildroot}%{_datadir}/maven2/poms/JPP-%{name}.pom
 
 # copy JNI libraries and links, non versioned link needed by JNI
@@ -382,35 +381,35 @@ rm -rf docs doc/docs-perl
 mkdir -p doc/gdal_frmts; find frmts -name "*.html" -exec install -p -m 644 '{}' doc/gdal_frmts/ \;
 mkdir -p doc/ogrsf_frmts; find ogr -name "*.html" -exec install -p -m 644 '{}' doc/ogrsf_frmts/ \;
 %if %{build_refman}
-mkdir -p docs/docs-%{cpuarch}/pdf
-pushd docs/docs-%{cpuarch}/pdf; mkdir -p apps br ru en ogr frmts/gxf frmts/sdts frmts/iso8211 frmts/vrt frmts/pcidsk; popd
-install -p -m 644 doc/latex/refman.pdf docs/docs-%{cpuarch}/pdf/en
-install -p -m 644 frmts/pcidsk/sdk/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/pcidsk
-install -p -m 644 frmts/vrt/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/vrt
-install -p -m 644 apps/latex/refman.pdf docs/docs-%{cpuarch}/pdf/apps
-install -p -m 644 doc/br/latex/refman.pdf docs/docs-%{cpuarch}/pdf/br/
-install -p -m 644 latex/refman.pdf docs/docs-%{cpuarch}/
-install -p -m 644 latex/class*.pdf docs/docs-%{cpuarch}/
-install -p -m 644 doc/ru/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ru/
-install -p -m 644 ogr/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogr/
-install -p -m 644 ogr/latex/class*.pdf docs/docs-%{cpuarch}/pdf/ogr/
-# Doesn't work at all. Complaints about different nesting level in \pdfendlink
-#%ifnarch ppc ppc64
-#install -p -m 644 ogr/ogrsf_frmts/dgn/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/dgn/
-#%endif
-%if "%{?dist}" != ".el4"
-# broken on el4
-install -p -m 644 frmts/gxf/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/gxf/
-install -p -m 644 frmts/sdts/latex/class*.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
-%endif
-# Doesn't work at all. Complaints about different nesting level in \pdfendlink
-# Working in GDAL 1.8.0, funny enough!
-#%ifnarch ppc ppc64
-#install -p -m 644 frmts/sdts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
-#%endif
-install -p -m 644 frmts/iso8211/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/iso8211/
-mkdir -p doc/docs-perl/docs-%{cpuarch}/pdf
-install -p -m 644 swig/perl/latex/refman.pdf doc/docs-perl/docs-%{cpuarch}/pdf
+  mkdir -p docs/docs-%{cpuarch}/pdf
+  pushd docs/docs-%{cpuarch}/pdf; mkdir -p apps br ru en ogr frmts/gxf frmts/sdts frmts/iso8211 frmts/vrt frmts/pcidsk; popd
+  install -p -m 644 doc/latex/refman.pdf docs/docs-%{cpuarch}/pdf/en
+  install -p -m 644 frmts/pcidsk/sdk/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/pcidsk
+  install -p -m 644 frmts/vrt/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/vrt
+  install -p -m 644 apps/latex/refman.pdf docs/docs-%{cpuarch}/pdf/apps
+  install -p -m 644 doc/br/latex/refman.pdf docs/docs-%{cpuarch}/pdf/br/
+  install -p -m 644 latex/refman.pdf docs/docs-%{cpuarch}/
+  install -p -m 644 latex/class*.pdf docs/docs-%{cpuarch}/
+  install -p -m 644 doc/ru/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ru/
+  install -p -m 644 ogr/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogr/
+  install -p -m 644 ogr/latex/class*.pdf docs/docs-%{cpuarch}/pdf/ogr/
+  # Doesn't work at all. Complaints about different nesting level in \pdfendlink
+  #%ifnarch ppc ppc64
+  #install -p -m 644 ogr/ogrsf_frmts/dgn/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/dgn/
+  #%endif
+  %if "%{?dist}" != ".el4"
+    # broken on el4
+    install -p -m 644 frmts/gxf/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/gxf/
+    install -p -m 644 frmts/sdts/latex/class*.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
+  %endif
+  # Doesn't work at all. Complaints about different nesting level in \pdfendlink
+  # Working in GDAL 1.8.0, funny enough!
+  #%ifnarch ppc ppc64
+  #install -p -m 644 frmts/sdts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
+  #%endif
+  install -p -m 644 frmts/iso8211/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/iso8211/
+  mkdir -p doc/docs-perl/docs-%{cpuarch}/pdf
+  install -p -m 644 swig/perl/latex/refman.pdf doc/docs-perl/docs-%{cpuarch}/pdf
 %endif
 mkdir -p docs/docs-%{cpuarch}
 mkdir -p doc/docs-perl/docs-%{cpuarch}
@@ -554,13 +553,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libgdal.so.*
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
-%{_bindir}/epsg_tr.py*
-%{_bindir}/esri2wkt.py*
-%{_bindir}/gcps*
-%{_bindir}/gdal*.py*
-%{_bindir}/pct2rgb.py*
-%{_bindir}/rgb2pct.py*
-%{_bindir}/mkgraticule.py*
+%{_mandir}/man1/*
 
 %files devel
 %defattr(-,root,root,-)
@@ -575,10 +568,11 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %{_libdir}/*.a
 
-%files python -f python-sitearch.files
+%files python
 %defattr(-,root,root,-)
 %doc swig/python/samples
-%attr(0755,root,root) %{_bindir}/*.py
+%{_bindir}/*.py*
+%{python_lib}/*
 
 %files perl
 %defattr(-,root,root,-)
@@ -587,8 +581,9 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %if "%{?dist}" != ".el4"
-%files ruby -f ruby-sitearch.files
+%files ruby
 %defattr(-,root,root,-)
+%{ruby_sitearch}/*
 
 %files java
 %defattr(-,root,root,-)
@@ -608,6 +603,17 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs
 
 %changelog
+* Fri Apr 22 2011 Volker Fröhlich <volker27@gmx.at> - 1.7.3-9
+- Patched spaces problem for Mapinfo files (mif)
+  (http://trac.osgeo.org/gdal/ticket/3694)
+- Replaced all define macros with global
+- Corrected ruby_sitelib to ruby_sitearch
+- Use python_lib and ruby_sitearch instead of generating lists
+- Added man-pages for binaries
+- Replaced mkdir and install macros
+- Removed Python files from main package files section, that 
+  effectively already belonged to the Python sub-package
+
 * Thu Apr 11 2011 Volker Fröhlich <volker27@gmx.at> - 1.7.3-8
 - Solved image path problem with Latex
 - Removed with-tiff and updated with-sqlite to with-sqlite3
