@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.7.3
-Release:   9%{?dist}
+Release:   10%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -603,6 +603,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs
 
 %changelog
+* Tue May 17 2011 Orion Poplawski <orion@cora.nwra.com> - 1.7.3-10
+- Rebuild for hdf5 1.8.7
+
 * Fri Apr 22 2011 Volker Fröhlich <volker27@gmx.at> - 1.7.3-9
 - Patched spaces problem for Mapinfo files (mif)
   (http://trac.osgeo.org/gdal/ticket/3694)
