@@ -1,6 +1,6 @@
 Name:      gdal
 Version:   1.7.3
-Release:   10%{?dist}
+Release:   11%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -603,6 +603,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs
 
 %changelog
+* Tue Dec 06 2011 Adam Jackson <ajax@redhat.com> - 1.7.3-11
+- Rebuild for new libpng
+
 * Tue May 17 2011 Orion Poplawski <orion@cora.nwra.com> - 1.7.3-10
 - Rebuild for hdf5 1.8.7
 
