@@ -1,6 +1,9 @@
+#TODO: Un-bundle g2clib and grib
+#TODO: Python 3 bindings possible since 1.7.0
+
 Name:      gdal
 Version:   1.7.3
-Release:   11%{?dist}
+Release:   12%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -11,7 +14,6 @@ Source0:   %{name}-%{version}-fedora.tar.gz
 Source1:   http://download.osgeo.org/gdal/gdalautotest-1.7.3.tar.gz
 # create versionless symlink
 Source2:   gdal-1.7.3.pom
-Patch0:    %{name}-libdap.patch
 Patch1:    %{name}-mysql.patch
 Patch2:    %{name}-bindir.patch
 Patch3:    %{name}-AIS.patch
@@ -31,17 +33,11 @@ BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel libgeoti
 BuildRequires: curl-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: chrpath
-# no xerces-c package available for ppc in el5, so excluding the same.
-%if "%{?dist}" == ".el6"
-ExcludeArch: ppc64
-%endif
-
-%if "%{?dist}" != ".el4"
 BuildRequires: ant swig ruby java-devel-gcj
-%endif
-# enable/disable grass support, for bootstrapping
-%global grass_support 0
-# enable/disable refman generation
+
+#TODO: Grass support will be available as a plug-in
+
+# Enable/disable refman generation
 %global build_refman  1
 
 # we have multilib triage
@@ -51,18 +47,19 @@ BuildRequires: ant swig ruby java-devel-gcj
 %global cpuarch 64
 %endif
 
-%{!?python_lib: %global python_lib %(%{__python} -c 'from distutils.sysconfig import get_python_lib; print get_python_lib(1)')}
+%if ! (0%{?fedora} > 12 || 0%{?rhel} > 5)
+%{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
+%{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
+%endif
+
+#TODO: What if you have Ruby 1.9 as well?
 %{!?ruby_sitearch: %global ruby_sitearch %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
 
-# We don't want to provide private python extension libs
+# Avoid providing private Python and Perl extension libs
 %{?filter_setup:
-%filter_provides_in %{python_lib}/.*\.so %{_libdir}/perl5/.*\.so$ 
+%filter_provides_in %{python_sitearch}/.*\.so %{_libdir}/perl5/.*\.so$ 
 %filter_setup
 }
-
-%if %{grass_support}
-BuildRequires: grass-devel
-%endif
 
 %description
 The GDAL library provides support to handle multiple GIS file formats.
@@ -72,7 +69,7 @@ Summary: Development Libraries for the GDAL file format library
 Group: Development/Libraries
 Requires: pkgconfig
 Requires: libgeotiff-devel
-Requires: %{name} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description devel
 The GDAL library provides support to handle multiple GIS file formats.
@@ -88,7 +85,7 @@ The GDAL library provides support to handle multiple GIS file formats.
 Summary: Python modules for the GDAL file format library
 Group: Development/Libraries
 Requires: numpy
-Requires: %{name} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description python
 The GDAL python modules provides support to handle multiple GIS file formats.
@@ -96,19 +93,19 @@ The GDAL python modules provides support to handle multiple GIS file formats.
 %package perl
 Summary: Perl modules for the GDAL file format library
 Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
 %description perl
 The GDAL perl modules provides support to handle multiple GIS file formats.
 
-%if "%{?dist}" != ".el4"
 %package ruby
 Summary: Ruby modules for the GDAL file format library
 Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description ruby
-The GDAL ruby  modules provides support to handle multiple GIS file formats.
+The GDAL Ruby modules provide support to handle multiple GIS file formats.
 
 %package java
 Summary: Java modules for the GDAL file format library
@@ -120,11 +117,10 @@ Requires: maven2
 Requires: jpackage-utils
 Requires(post): jpackage-utils
 Requires(postun): jpackage-utils
-Requires: %{name} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description java
 The GDAL java modules provides support to handle multiple GIS file formats.
-%endif
 
 %package doc
 Summary: Documentation for GDAL
@@ -136,9 +132,16 @@ This package contains html and pdf documentation for GDAL.
 
 %prep
 %setup -q -n %{name}-%{version}-fedora
-%if "%{?dist}" == ".fc10"
-%patch0 -p1 -b .libdap~
-%endif
+
+# Delete bundled libraries
+rm -rf frmts/zlib
+rm -rf frmts/png/libpng
+rm -rf frmts/gif/giflib
+rm -rf frmts/jpeg/libjpeg \
+    frmts/jpeg/libjpeg12
+rm -rf frmts/gtiff/libgeotiff \
+    frmts/gtiff/libtiff
+
 %patch1 -p0 -b .mysql~
 %patch2 -p1 -b .bindir~
 %patch3 -p1 -b .AIS~
@@ -174,6 +177,19 @@ find swig/python/samples -name "*.py" -exec chmod -x '{}' \;
 # It obviously slipped into the tarball and is not in Trunk (April 17th, 2011)
 rm -rf man
 
+# Repair check for dap and also Curl (although not obvious here!)
+#TODO: Better use dap-config --libs
+sed -i 's|-ldap++|-ldap -ldapclient -ldapserver|' configure configure.in
+
+# fix doxygen for multilib docs
+sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' swig/perl/Doxyfile
+sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/gxf/Doxyfile
+sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/sdts/Doxyfile
+sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/pcraster/doxygen.cfg
+sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/iso8211/Doxyfile
+
+
+
 %build
 
 # fix hardcoded issues
@@ -193,7 +209,14 @@ sed -i 's|-logdi31|-logdi|g' configure
 sed -i 's|libproj.so|libproj.so.0|g' ogr/ogrct.cpp
 
 # Fix python path for ppc64
-sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"\/usr\/lib64\"|g' configure
+#TODO: Überprüfen ob es wirkt
+sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"$libdir"|g' configure
+
+# Install Ruby bindings into the proper place
+#TODO: Upstream, as this is useful and does no harm
+sed -i -e 's|^$(INSTALL_DIR):|$(DESTDIR)$(INSTALL_DIR):|' swig/ruby/RubyMakefile.mk
+sed -i -e 's|^install: $(INSTALL_DIR)|install: $(DESTDIR)$(INSTALL_DIR)|' swig/ruby/RubyMakefile.mk
+sed -i -e 's|^INSTALL_DIR := $(RUBY_EXTENSIONS_DIR)/gdal|INSTALL_DIR = $(RUBY_EXTENSIONS_DIR)|' swig/ruby/RubyMakefile.mk
 
 # Append paths for some libs
 export CPPFLAGS="`pkg-config ogdi --cflags`"
@@ -208,11 +231,14 @@ export CPPFLAGS="$CPPFLAGS -DH5_USE_16_API"
 export CXXFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,-D_FORTIFY_SOURCE\=2 / -fPIC -DPIC /g'`
 export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -DPIC /g'`
 
+# BSB has legal claims, see PROVENANCE.TXT-fedora
+#TODO: msg needs to have PublicDecompWT.zip from EUMETSAT, which is not free
 %configure \
         --prefix=%{_prefix} \
         --includedir=%{_includedir}/%{name}/ \
         --datadir=%{_datadir}/%{name}/ \
         --with-threads      \
+        --without-bsb       \
         --with-dods-root=%{_libdir} \
         --with-ogdi               \
         --with-cfitsio=%{_prefix} \
@@ -234,19 +260,13 @@ export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -D
         --with-python             \
         --with-perl               \
         --with-pcraster           \
-%if "%{?dist}" != ".el4"
         --with-ruby               \
         --with-java               \
-%endif
         --with-xerces             \
         --with-xerces-lib='-lxerces-c' \
         --with-xerces-inc=%{_includedir} \
         --with-jpeg12=no          \
         --enable-shared           \
-%if %{grass_support}
-        --with-libgrass             \
-        --with-grass=%{_prefix}     \
-%endif
         --with-gdal-ver=%{version}-fedora
 
 # fixup hardcoded wrong compile flags.
@@ -257,16 +277,11 @@ sed -e 's/ cfitsio / /' \
 GDALmake.opt.orig > GDALmake.opt
 rm GDALmake.opt.orig
 
-# fix ruby flags
+# Build with fPIC to allow Ruby bindings
+#TODO: Ticket
 sed -i -e "s/\$(LD)/g++ -L..\/..\/.libs\/ $RPM_OPT_FLAGS/g" swig/ruby/RubyMakefile.mk
 sed -i -e "s/\$(CFLAGS)/$(CFLAGS) -fPIC/g" swig/ruby/RubyMakefile.mk
 
-# fix doxygen for multilib docs
-sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' swig/perl/Doxyfile
-sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/gxf/Doxyfile
-sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/sdts/Doxyfile
-sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/pcraster/doxygen.cfg
-sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/iso8211/Doxyfile
 
 # WARNING !!!
 # dont use {?_smp_mflags} it break compile
@@ -279,7 +294,6 @@ pushd swig/perl
   echo > Makefile.PL;
 popd
 
-%if "%{?dist}" != ".el4"
   # make java modules
   pushd swig/java
     # fix makefile
@@ -288,7 +302,6 @@ popd
     # build java module
     make
   popd
-%endif
 # remake documentation for multilib issues
 # also include many pdf documentation
 
@@ -324,14 +337,16 @@ for docdir in ./ doc doc/ru doc/br ogr frmts/gxf frmts/pcidsk/sdk frmts/sdts frm
   popd
 done
 
+
 %install
 rm -rf %{buildroot}
+
+# Fix Python installation path
+sed -i 's|setup.py install|setup.py install --root=%{buildroot}|' swig/python/GNUmakefile
 
 # fix some perl installation issue
 sed -i 's|>> $(DESTINSTALLARCHLIB)\/perllocal.pod|> \/dev\/null|g' swig/perl/Makefile_*
 
-# fix python installation path
-sed -i 's|setup.py install|setup.py install --root=%{buildroot}|' swig/python/GNUmakefile
 
 make    DESTDIR=%{buildroot} \
         install
@@ -347,12 +362,6 @@ find %{buildroot}%{perl_vendorarch} -name "*.dox" -exec rm -rf '{}' \;
 
 # fix some exec bits
 find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
-find %{buildroot}%{python_lib} -name "*.so" -exec chmod 755 '{}' \;
-
-%if "%{?dist}" != ".el4"
-# move ruby modules in the right path
-mv %{buildroot}%{ruby_sitearch}/%{name}/*.* %{buildroot}%{ruby_sitearch}
-rm -rf %{buildroot}%{ruby_sitearch}/%{name}
 
 # install multilib java modules in the right path
 touch -r NEWS swig/java/gdal.jar
@@ -363,16 +372,18 @@ cp -p swig/java/gdal.jar  \
 # create versionless symlink
 ln -s %{name}-%{version}.jar %{buildroot}%{_javadir}/%{name}.jar
 
-# add pom
-mkdir -p %{buildroot}%{_datadir}/maven2/poms
-install -m 644 %{SOURCE2} \
-               %{buildroot}%{_datadir}/maven2/poms/JPP-%{name}.pom
+# Install Maven pom
+mkdir -p %{buildroot}%{_mavenpomdir}
+install -pm 644 %{SOURCE2} \
+               %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
+
+# Create depmap fragment
+%add_to_maven_depmap org.gdal gdal-java-bindings %{version} JPP %{name}
 
 # copy JNI libraries and links, non versioned link needed by JNI
 cp -pvl swig/java/.libs/*.so*  \
       %{buildroot}%{_libdir}
 chrpath --delete %{buildroot}%{_libdir}/*jni.so*
-%endif
 
 # install and include all docs
 # due TeX-related issues some refman.pdf are not created
@@ -397,11 +408,8 @@ mkdir -p doc/ogrsf_frmts; find ogr -name "*.html" -exec install -p -m 644 '{}' d
   #%ifnarch ppc ppc64
   #install -p -m 644 ogr/ogrsf_frmts/dgn/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/dgn/
   #%endif
-  %if "%{?dist}" != ".el4"
-    # broken on el4
-    install -p -m 644 frmts/gxf/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/gxf/
-    install -p -m 644 frmts/sdts/latex/class*.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
-  %endif
+  install -p -m 644 frmts/gxf/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/gxf/
+  install -p -m 644 frmts/sdts/latex/class*.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
   # Doesn't work at all. Complaints about different nesting level in \pdfendlink
   # Working in GDAL 1.8.0, funny enough!
   #%ifnarch ppc ppc64
@@ -488,15 +496,13 @@ for junk in {*.la,*.bs,.exists,.packlist,.cvsignore} ; do
 find %{buildroot} -name "$junk" -exec rm -rf '{}' \;
 done
 
-# create depmap fragment
-%add_to_maven_depmap org.gdal gdal-java-bindings %{version} JPP %{name}
 
 %check
 
 pushd gdalautotest-1.7.3
 
 # export test enviroment
-export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python_lib}
+export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python_sitearch}
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}
 export GDAL_DATA=%{buildroot}%{_datadir}/%{name}/
 
@@ -513,6 +519,7 @@ rm -rf gcore/mask.py       # crash ugly  (mustfix)
 ./run_all.py || true
 
 popd
+
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -531,8 +538,8 @@ rm -rf $RPM_BUILD_ROOT
 # update maven2 depmap
 %update_maven_depmap
 
+
 %files
-%defattr(-,root,root,-)
 %doc NEWS PROVENANCE.TXT PROVENANCE.TXT-fedora COMMITERS
 %{_bindir}/gdal_contour
 %{_bindir}/gdal_rasterize
@@ -553,10 +560,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libgdal.so.*
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
-%{_mandir}/man1/*
+%{_mandir}/man1/*.1*
 
 %files devel
-%defattr(-,root,root,-)
 %{_bindir}/%{name}-config
 %{_bindir}/%{name}-config-%{cpuarch}
 %dir %{_includedir}/%{name}
@@ -565,44 +571,56 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/%{name}.pc
 
 %files static
-%defattr(-,root,root,-)
 %{_libdir}/*.a
 
 %files python
-%defattr(-,root,root,-)
 %doc swig/python/samples
 %{_bindir}/*.py*
-%{python_lib}/*
+%{python_sitearch}/*
 
 %files perl
-%defattr(-,root,root,-)
 %doc doc/docs-perl
 %doc swig/perl/README
 %{perl_vendorarch}/*
 
-%if "%{?dist}" != ".el4"
 %files ruby
-%defattr(-,root,root,-)
 %{ruby_sitearch}/*
 
 %files java
-%defattr(-,root,root,-)
 %doc swig/java/apps
 %{_javadir}/%{name}-%{version}.jar
 # provide versionless symlink
 %{_javadir}/%{name}.jar
 %{_libdir}/*jni.so.*
-# provide the pom
-%{_datadir}/maven2/poms/*
-# provide the depmap frag
+%{_mavenpomdir}/*
 %{_mavendepmapfragdir}/*
-%endif
 
 %files doc
-%defattr(-,root,root)
 %doc docs
 
 %changelog
+* Tue Jan 10 2012 Volker Fröhlich <volker27@gmx.at> - 1.7.3-12
+- Remove FC10 specific patch0
+- Versioned MODULE_COMPAT_ Requires for Perl (BZ 768265)
+- Add isa macro to base package Requires
+- Remove conditional for xerces_c in EL6, as EL6 has xerces_c
+  even for ppc64 via EPEL
+- Remove EL4 conditionals
+- Replace the python_lib macro definition and install Python bindings
+  to sitearch directory, where they belong
+- Use correct dap library names for linking
+- Correct Ruby installation path in the Makefile instead of moving it later
+- Use libdir variable in ppc64 Python path
+- Delete obsolete chmod for Python libraries
+- Move correction for Doxygen footer to prep section
+- Delete bundled libraries before building
+- Build without bsb and remove it from the tarball
+- Use mavenpomdir macro and be a bit more precise on manpages in
+  the files section
+- Remove elements for grass support --> Will be replaced by plug-in
+- Remove unnecessary defattr
+- Correct version number in POM
+
 * Tue Dec 06 2011 Adam Jackson <ajax@redhat.com> - 1.7.3-11
 - Rebuild for new libpng
 
