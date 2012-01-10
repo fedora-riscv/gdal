@@ -18,9 +18,16 @@ Patch1:    %{name}-mysql.patch
 Patch2:    %{name}-bindir.patch
 Patch3:    %{name}-AIS.patch
 Patch4:    %{name}-%{version}-xcompiler.patch
+
 # https://bugzilla.redhat.com/show_bug.cgi?id=693952 
 # http://trac.osgeo.org/gdal/ticket/3694 -- Still present in 1.8 tarball
 Patch5:    %{name}-1.8.0-mitab.patch
+
+# Allow to use libpng 1.5
+# http://trac.osgeo.org/gdal/changeset/21526
+# Not necessary for 1.8 and later
+Patch6:    %{name}-1.7.3-png15.patch
+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool pkgconfig
 BuildRequires: python-devel numpy xerces-c-devel
@@ -145,10 +152,15 @@ rm -rf frmts/gtiff/libgeotiff \
 %patch1 -p0 -b .mysql~
 %patch2 -p1 -b .bindir~
 %patch3 -p1 -b .AIS~
-%patch4 -p1 -b .xcompiler
-%patch5 -p3 -b .mitab
+%patch4 -p1 -b .xcompiler~
+%patch5 -p3 -b .mitab~
 
-# unpack test cases also.
+# Only F17 has libpng 1.5
+%if ! (0%{?fedora} < 17 || 0%{?rhel})
+%patch6 -p1 -b .png15~
+%endif
+
+# Unpack test cases
 tar -xzf %{SOURCE1}
 
 set +x
@@ -620,6 +632,7 @@ rm -rf $RPM_BUILD_ROOT
 - Remove elements for grass support --> Will be replaced by plug-in
 - Remove unnecessary defattr
 - Correct version number in POM
+- Allow for libpng 1.5
 
 * Tue Dec 06 2011 Adam Jackson <ajax@redhat.com> - 1.7.3-11
 - Rebuild for new libpng
