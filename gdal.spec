@@ -3,7 +3,7 @@
 
 Name:      gdal
 Version:   1.7.3
-Release:   12%{?dist}
+Release:   13%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -611,6 +611,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs
 
 %changelog
+* Thu Feb  9 2012 Volker Fröhlich <volker27@gmx.at> - 1.7.3-13
+- Rebuild for Ruby 1.9
+  http://lists.fedoraproject.org/pipermail/ruby-sig/2012-January/000805.html
+
 * Tue Jan 10 2012 Volker Fröhlich <volker27@gmx.at> - 1.7.3-12
 - Remove FC10 specific patch0
 - Versioned MODULE_COMPAT_ Requires for Perl (BZ 768265)
