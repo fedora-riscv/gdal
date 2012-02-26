@@ -1,57 +1,128 @@
-#TODO: Un-bundle g2clib and grib
-#TODO: Python 3 bindings possible since 1.7.0
+#TODO: g2clib and grib (said to be modified)
+#TODO: Python 3 modules should be possible since 1.7
+#TODO: Create script to make clean tarball
+#TODO: msg needs to have PublicDecompWT.zip from EUMETSAT, which is not free;
+#      Building without msg therefore
+#TODO: e00compr bundled?
+#TODO: There are tests for bindings -- at least for Perl
+#TODO: Java has a directory with test data and a build target called test
+#      It uses %{JAVA_RUN}; make test seems to work in the build directory
+#TODO: e00compr source is the same in the package and bundled in GDAL
+#TODO: Consider doxy patch from Suse, setting EXTRACT_LOCAL_CLASSES  = NO
+
+# Conditionals and structures for EL 5 are there
+# to make life easier for downstream ELGIS.
+# Sadly noarch doesn't work in EL 5, see
+# http://fedoraproject.org/wiki/EPEL/GuidelinesAndPolicies
+
+
+# Tests can be of a different version
+%global testversion 1.9.0
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=663938
+%ifnarch ppc
+%global spatialite "--with-spatialite"
+%endif
+
 
 Name:      gdal
-Version:   1.7.3
-Release:   13%{?dist}
+Version:   1.9.0
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
-URL:       http://www.gdal.org/
+URL:       http://www.gdal.org
 # Source0:   http://download.osgeo.org/gdal/gdal-%%{version}.tar.gz
-# see PROVENANCE.TXT-fedora for details
+# See PROVENANCE.TXT-fedora for details!
+
 Source0:   %{name}-%{version}-fedora.tar.gz
-Source1:   http://download.osgeo.org/gdal/gdalautotest-1.7.3.tar.gz
-# create versionless symlink
-Source2:   gdal-1.7.3.pom
-Patch1:    %{name}-mysql.patch
-Patch2:    %{name}-bindir.patch
-Patch3:    %{name}-AIS.patch
-Patch4:    %{name}-%{version}-xcompiler.patch
+Source1:   http://download.osgeo.org/%{name}/%{name}autotest-%{testversion}.tar.gz
+Source2:   %{name}.pom
 
-# https://bugzilla.redhat.com/show_bug.cgi?id=693952 
-# http://trac.osgeo.org/gdal/ticket/3694 -- Still present in 1.8 tarball
-Patch5:    %{name}-1.8.0-mitab.patch
+# Fedora uses Alternatives for Java
+Patch8:    %{name}-1.9.0-java.patch
 
-# Allow to use libpng 1.5
-# http://trac.osgeo.org/gdal/changeset/21526
-# Not necessary for 1.8 and later
-Patch6:    %{name}-1.7.3-png15.patch
+# Make man a phony buildtarget; the directory otherwise blocks it
+Patch9:    %{name}-1.9.0-man.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: libtool pkgconfig
-BuildRequires: python-devel numpy xerces-c-devel
-BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
-BuildRequires: doxygen tetex-latex ghostscript ruby-devel jpackage-utils
-BuildRequires: jasper-devel cfitsio-devel libdap-devel librx-devel 
-BuildRequires: hdf-static hdf-devel
-BuildRequires: unixODBC-devel mysql-devel sqlite-devel postgresql-devel zlib-devel
-BuildRequires: proj-devel geos-devel netcdf-devel hdf5-devel ogdi-devel libgeotiff-devel
-BuildRequires: curl-devel
-BuildRequires: perl(ExtUtils::MakeMaker)
+
+BuildRequires: ant 
+# No armadillo in EL5
+BuildRequires: armadillo-devel
+BuildRequires: cfitsio-devel
+# No CharLS in EL5
+BuildRequires: CharLS-devel
 BuildRequires: chrpath
-BuildRequires: ant swig ruby java-devel-gcj
+BuildRequires: curl-devel
+BuildRequires: doxygen
+BuildRequires: expat-devel
+BuildRequires: fontconfig-devel
+# No freexl in EL5
+BuildRequires: freexl-devel
+BuildRequires: geos-devel
+BuildRequires: ghostscript
+BuildRequires: hdf-devel
+BuildRequires: hdf-static
+BuildRequires: hdf5-devel
+BuildRequires: java-devel >= 1:1.6.0
+BuildRequires: jasper-devel
+BuildRequires: jpackage-utils
+BuildRequires: libgcj
+BuildRequires: libgeotiff-devel
+# No libgta in EL5
+BuildRequires: libgta-devel
 
-#TODO: Grass support will be available as a plug-in
-
-# Enable/disable refman generation
-%global build_refman  1
-
-# we have multilib triage
-%if "%{_lib}" == "lib"
-%global cpuarch 32
+%if (0%{?fedora})
+BuildRequires: libjpeg-turbo-devel
 %else
-%global cpuarch 64
+BuildRequires: libjpeg-devel
+%endif
+
+BuildRequires: libpng-devel
+
+%ifnarch ppc64
+BuildRequires: libspatialite-devel
+%endif
+
+BuildRequires: libtiff-devel
+BuildRequires: libtool
+BuildRequires: giflib-devel
+BuildRequires: netcdf-devel
+BuildRequires: libdap-devel
+BuildRequires: librx-devel
+BuildRequires: mysql-devel
+BuildRequires: numpy
+BuildRequires: ogdi-devel
+BuildRequires: perl(ExtUtils::MakeMaker)
+BuildRequires: pkgconfig
+BuildRequires: poppler-devel
+BuildRequires: postgresql-devel
+BuildRequires: proj-devel
+BuildRequires: python-devel
+BuildRequires: ruby
+BuildRequires: ruby-devel
+BuildRequires: sqlite-devel
+BuildRequires: swig
+BuildRequires: tetex-latex
+BuildRequires: unixODBC-devel
+BuildRequires: xerces-c-devel
+BuildRequires: xz-devel
+BuildRequires: zlib-devel
+
+# Run time dependency for gpsbabel driver
+Requires: gpsbabel
+
+Requires: %{name}-libs%{?_isa} = %{version}-%{release}
+
+# Enable/disable generating refmans
+%global build_refman 1
+
+# We have multilib triage
+%if "%{_lib}" == "lib"
+  %global cpuarch 32
+%else
+  %global cpuarch 64
 %endif
 
 %if ! (0%{?fedora} > 12 || 0%{?rhel} > 5)
@@ -59,86 +130,134 @@ BuildRequires: ant swig ruby java-devel-gcj
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 %endif
 
-#TODO: What if you have Ruby 1.9 as well?
+# http://fedoraproject.org/w/index.php?title=The_Road_to_Ruby_1.9
 %{!?ruby_sitearch: %global ruby_sitearch %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
 
-# Avoid providing private Python and Perl extension libs
+# Don't provide private Python and Perl extension libs
 %{?filter_setup:
 %filter_provides_in %{python_sitearch}/.*\.so %{_libdir}/perl5/.*\.so$ 
 %filter_setup
 }
 
+#TODO: Description on the lib?
 %description
-The GDAL library provides support to handle multiple GIS file formats.
+Geospatial Data Abstraction Library (GDAL/OGR) is a cross platform
+C++ translator library for raster and vector geospatial data formats.
+As a library, it presents a single abstract data model to the calling
+application for all supported formats. It also comes with a variety of 
+useful commandline utilities for data translation and processing.
+
+It provides the primary data access engine for many applications.
+GDAL/OGR is the most widely used geospatial data access library.
+
 
 %package devel
-Summary: Development Libraries for the GDAL file format library
+Summary: Development files for the GDAL file format library
 Group: Development/Libraries
+
+# Old rpm didn't figure out
+%if 0%{?rhel} < 6
 Requires: pkgconfig
-Requires: libgeotiff-devel
-Requires: %{name}%{?_isa} = %{version}-%{release}
+%endif
+
+Requires: %{name}-libs%{?_isa} = %{version}-%{release}
+Obsoletes: %{name}-static < 1.9.0-1
 
 %description devel
-The GDAL library provides support to handle multiple GIS file formats.
+This package contains development files for GDAL.
 
-%package static
-Summary: Static Development Libraries for the GDAL file format library
-Group: Development/Libraries
 
-%description static
-The GDAL library provides support to handle multiple GIS file formats.
+%package libs
+Summary: GDAL file format library
+Group: System Environment/Libraries
 
-%package python
-Summary: Python modules for the GDAL file format library
-Group: Development/Libraries
-Requires: numpy
-Requires: %{name}%{?_isa} = %{version}-%{release}
+%description libs
+This package contains the GDAL file format library.
 
-%description python
-The GDAL python modules provides support to handle multiple GIS file formats.
-
-%package perl
-Summary: Perl modules for the GDAL file format library
-Group: Development/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
-Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
-
-%description perl
-The GDAL perl modules provides support to handle multiple GIS file formats.
 
 %package ruby
 Summary: Ruby modules for the GDAL file format library
 Group: Development/Libraries
-Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: %{name}-libs%{?_isa} = %{version}-%{release}
+
+%if (0%{?fedora} < 17 || 0%{?rhel})
+Requires: ruby(abi) = 1.8
+%else
+Requires: ruby(abi) = 1.9
+%endif
 
 %description ruby
 The GDAL Ruby modules provide support to handle multiple GIS file formats.
 
+
 %package java
 Summary: Java modules for the GDAL file format library
 Group: Development/Libraries
-Requires: java
-# require maven2 for the poms and depmap frag parent dirs
-# these are provided by many JPP packages but that is wrong
+Requires: java >= 1:1.6.0
+
+# Require maven2 for the poms and depmap frag parent dirs
+# Fedora 15 has Maven3 and the package is called maven
+# Notice, maven2 is seemingly not a package in EL, but
+# directories are provided by ant
+%if (0%{?fedora})
+Requires: maven
+%else
 Requires: maven2
+%endif
+
 Requires: jpackage-utils
 Requires(post): jpackage-utils
 Requires(postun): jpackage-utils
-Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 
 %description java
-The GDAL java modules provides support to handle multiple GIS file formats.
+The GDAL Java modules provide support to handle multiple GIS file formats.
+
+
+%package javadoc
+Summary: Javadocs for %{name}
+Group: Documentation
+Requires: jpackage-utils
+BuildArch: noarch
+
+%description javadoc
+This package contains the API documentation for %{name}.
+
+
+%package perl
+Summary: Perl modules for the GDAL file format library
+Group:   Development/Libraries
+Requires: %{name}-libs%{?_isa} = %{version}-%{release}
+Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
+
+%description perl
+The GDAL Perl modules provide support to handle multiple GIS file formats.
+
+
+%package python
+Summary: Python modules for the GDAL file format library
+Group:   Development/Libraries
+Requires: numpy
+Requires: %{name}-libs%{?_isa} = %{version}-%{release}
+
+%description python
+The GDAL Python modules provide support to handle multiple GIS file formats.
+The package also includes a couple of useful utilities in Python.
+
 
 %package doc
 Summary: Documentation for GDAL
-Group: Documentation
-Requires: %{name} = %{version}-%{release}
+Group:   Documentation
+BuildArch: noarch
 
 %description doc
-This package contains html and pdf documentation for GDAL.
+This package contains HTML and PDF documentation for GDAL.
 
 %prep
 %setup -q -n %{name}-%{version}-fedora
+
+# Unpack tests to the same directory
+%setup -q -D -a 1 -n %{name}-%{version}-fedora
 
 # Delete bundled libraries
 rm -rf frmts/zlib
@@ -149,195 +268,192 @@ rm -rf frmts/jpeg/libjpeg \
 rm -rf frmts/gtiff/libgeotiff \
     frmts/gtiff/libtiff
 
-%patch1 -p0 -b .mysql~
-%patch2 -p1 -b .bindir~
-%patch3 -p1 -b .AIS~
-%patch4 -p1 -b .xcompiler~
-%patch5 -p3 -b .mitab~
+%patch8 -p1 -b .java~
+%patch9 -p1 -b .man~
 
-# Only F17 has libpng 1.5
-%if ! (0%{?fedora} < 17 || 0%{?rhel})
-%patch6 -p1 -b .png15~
-%endif
-
-# Unpack test cases
-tar -xzf %{SOURCE1}
-
+# Sanitize linebreaks and encoding
 set +x
 for f in `find . -type f` ; do
-   if file $f | grep -q ISO-8859 ; then
-      set -x
-      iconv -f ISO-8859-1 -t UTF-8 $f > ${f}.tmp && \
-         mv -f ${f}.tmp $f
-      set +x
-   fi
-   if file $f | grep -q CRLF ; then
-      set -x
-      sed -i -e 's|\r||g' $f
-      set +x
-   fi
+  if file $f | grep -q ISO-8859 ; then
+    set -x
+    iconv -f ISO-8859-1 -t UTF-8 $f > ${f}.tmp && \
+      mv -f ${f}.tmp $f
+    set +x
+  fi
+  if file $f | grep -q CRLF ; then
+    set -x
+    sed -i -e 's|\r||g' $f
+    set +x
+  fi
 done
 set -x
 
-# remove junks
-find . -name ".cvsignore" -exec rm -rf '{}' \;
+for f in ogr/ogrsf_frmts/gpsbabel ogr/ogrsf_frmts/pgdump port apps; do
+pushd $f
+  chmod 644 *.cpp *.h
+popd
+done
 
-# fix some exec bits
-find swig/python/samples -name "*.py" -exec chmod -x '{}' \;
+# Build with fPIC to allow Ruby bindings
+# Xcompiler should normally achieve that -- http://trac.osgeo.org/gdal/ticket/3978
+# http://trac.osgeo.org/gdal/ticket/1994
+sed -i -e "s/\$(CFLAGS)/$(CFLAGS) -fPIC/g" swig/ruby/RubyMakefile.mk
+
+# Replace hard-coded library- and include paths
+sed -i 's|@LIBTOOL@|%{_bindir}/libtool|g' GDALmake.opt.in
+sed -i 's|-L\$with_cfitsio -L\$with_cfitsio/lib -lcfitsio|-lcfitsio|g' configure
+sed -i 's|-I\$with_cfitsio -I\$with_cfitsio/include|-I\$with_cfitsio/include/cfitsio|g' configure
+sed -i 's|-L\$with_netcdf -L\$with_netcdf/lib -lnetcdf|-lnetcdf|g' configure
+sed -i 's|-L\$DODS_LIB -ldap++|-ldap++|g' configure
+sed -i 's|-L\$with_ogdi -L\$with_ogdi/lib -logdi|-logdi|g' configure
+sed -i 's|-L\$with_jpeg -L\$with_jpeg/lib -ljpeg|-ljpeg|g' configure
+sed -i 's|-L\$with_libtiff\/lib -ltiff|-ltiff|g' configure
+sed -i 's|-lgeotiff -L$with_geotiff $LIBS|-lgeotiff $LIBS|g' configure
+sed -i 's|-L\$with_geotiff\/lib -lgeotiff $LIBS|-lgeotiff $LIBS|g' configure
+
+# libproj is dlopened; upstream sources point to .so, which is usually not present
+# http://trac.osgeo.org/gdal/ticket/3602
+sed -i 's|libproj.so|libproj.so.0|g' ogr/ogrct.cpp
+
+# Fix Python installation path
+sed -i 's|setup.py install|setup.py install --root=%{buildroot}|' swig/python/GNUmakefile
+
+# Must be corrected for 64 bit architectures other than Intel
+#TODO: Query Python? Ticket
+sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"/usr/lib64\"|g' configure
+
+# Install Ruby bindings into the proper place
+#TODO: Ticket
+sed -i -e 's|^$(INSTALL_DIR):|$(DESTDIR)$(INSTALL_DIR):|' swig/ruby/RubyMakefile.mk
+sed -i -e 's|^install: $(INSTALL_DIR)|install: $(DESTDIR)$(INSTALL_DIR)|' swig/ruby/RubyMakefile.mk
+
+# Adjust check for LibDAP version
+#TODO: Ticket
+%if %cpuarch == 64
+  sed -i 's|with_dods_root/lib|with_dods_root/lib64|' configure
+%endif
+
+# Activate support for JPEGLS
+sed -i 's|^#HAVE_CHARLS|HAVE_CHARLS|' GDALmake.opt.in
+sed -i 's|#CHARLS_INC = -I/path/to/charls_include|CHARLS_INC = -I%{_includedir}/CharLS|' GDALmake.opt.in
+sed -i 's|#CHARLS_LIB = -L/path/to/charls_lib -lCharLS|CHARLS_LIB = -lCharLS|' GDALmake.opt.in
+
+# Replace default plug-in dir
+# http://trac.osgeo.org/gdal/ticket/4444
+%if %cpuarch == 64
+  sed -i 's|GDAL_PREFIX "/lib/gdalplugins"|GDAL_PREFIX "/lib64/gdalplugins"|' \
+    gcore/gdaldrivermanager.cpp \
+    ogr/ogrsf_frmts/generic/ogrsfdriverregistrar.cpp
+%endif
 
 # Remove man dir, as it blocks a build target.
 # It obviously slipped into the tarball and is not in Trunk (April 17th, 2011)
-rm -rf man
-
-# Repair check for dap and also Curl (although not obvious here!)
-#TODO: Better use dap-config --libs
-sed -i 's|-ldap++|-ldap -ldapclient -ldapserver|' configure configure.in
-
-# fix doxygen for multilib docs
-sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' swig/perl/Doxyfile
-sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/gxf/Doxyfile
-sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/sdts/Doxyfile
-sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/pcraster/doxygen.cfg
-sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = ../../doc/gdal_footer.html\n#HTML_FOOTER = |' frmts/iso8211/Doxyfile
-
+#rm -rf man
 
 
 %build
-
-# fix hardcoded issues
-sed -i 's|@LIBTOOL@|%{_bindir}/libtool|g' GDALmake.opt.in
-sed -i 's|-L\$with_cfitsio -L\$with_cfitsio\/lib -lcfitsio|-lcfitsio|g' configure
-sed -i 's|-I\$with_cfitsio|-I\$with_cfitsio\/include\/cfitsio|g' configure
-sed -i 's|-L\$with_netcdf -L\$with_netcdf\/lib -lnetcdf|-lnetcdf|g' configure
-sed -i 's|-L\$DODS_LIB -ldap++|-ldap++|g' configure
-sed -i 's|-L\$with_ogdi -L\$with_ogdi\/lib -logdi|-logdi|g' configure
-sed -i 's|-L\$with_jpeg -L\$with_jpeg\/lib -ljpeg|-ljpeg|g' configure
-sed -i 's|-L\$with_libtiff\/lib -ltiff|-ltiff|g' configure
-sed -i 's|-L\$with_grass\/lib||g' configure
-sed -i 's|-lgeotiff -L$with_geotiff $LIBS|-lgeotiff $LIBS|g' configure
-sed -i 's|-L\$with_geotiff\/lib -lgeotiff $LIBS|-lgeotiff $LIBS|g' configure
-sed -i 's|-lmfhdf -ldf|-L$libdir/hdf -lmfhdf -ldf|g' configure
-sed -i 's|-logdi31|-logdi|g' configure
-sed -i 's|libproj.so|libproj.so.0|g' ogr/ogrct.cpp
-
-# Fix python path for ppc64
-#TODO: Überprüfen ob es wirkt
-sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"$libdir"|g' configure
-
-# Install Ruby bindings into the proper place
-#TODO: Upstream, as this is useful and does no harm
-sed -i -e 's|^$(INSTALL_DIR):|$(DESTDIR)$(INSTALL_DIR):|' swig/ruby/RubyMakefile.mk
-sed -i -e 's|^install: $(INSTALL_DIR)|install: $(DESTDIR)$(INSTALL_DIR)|' swig/ruby/RubyMakefile.mk
-sed -i -e 's|^INSTALL_DIR := $(RUBY_EXTENSIONS_DIR)/gdal|INSTALL_DIR = $(RUBY_EXTENSIONS_DIR)|' swig/ruby/RubyMakefile.mk
-
-# Append paths for some libs
-export CPPFLAGS="`pkg-config ogdi --cflags`"
-export CPPFLAGS="$CPPFLAGS -I%{_includedir}/netcdf-3"
-export CPPFLAGS="$CPPFLAGS -I%{_includedir}/netcdf"
-export CPPFLAGS="$CPPFLAGS -I%{_includedir}/hdf"
+#TODO: Couldn't I have modified that in the prep section?
 export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
-export CPPFLAGS="$CPPFLAGS `dap-config --cflags`"
-export CPPFLAGS="$CPPFLAGS -DH5_USE_16_API"
 
-# code may contain sensible buffer overflows triggered by gcc ssp flag (mustfixupstream).
-export CXXFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,-D_FORTIFY_SOURCE\=2 / -fPIC -DPIC /g'`
-export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -DPIC /g'`
+# For future reference:
+# epsilon: Stalled review -- https://bugzilla.redhat.com/show_bug.cgi?id=660024
+# webp: Stalled review, some movement lately -- https://bugzilla.redhat.com/show_bug.cgi?id=707389
+# libgta https://bugzilla.redhat.com/show_bug.cgi?id=783778
+# openjpeg 2.0 necessary, 1.4 is in Fedora
+# Building without pgeo driver, because it drags in Java
 
-# BSB has legal claims, see PROVENANCE.TXT-fedora
-#TODO: msg needs to have PublicDecompWT.zip from EUMETSAT, which is not free
 %configure \
-        --prefix=%{_prefix} \
-        --includedir=%{_includedir}/%{name}/ \
+        --with-autoload=%{_libdir}/%{name}plugins \
         --datadir=%{_datadir}/%{name}/ \
-        --with-threads      \
-        --without-bsb       \
-        --with-dods-root=%{_libdir} \
-        --with-ogdi               \
+        --includedir=%{_includedir}/%{name}/ \
+        --prefix=%{_prefix} \
+        --without-bsb \
+        --with-armadillo          \
+        --with-curl               \
         --with-cfitsio=%{_prefix} \
+        --with-dods-root=%{_prefix} \
+        --with-expat              \
+        --with-freexl             \
+        --with-geos               \
         --with-geotiff=external   \
-        --with-libtiff=external   \
-        --with-libz               \
-        --with-netcdf             \
+        --with-gif                \
+        --with-gta                \
         --with-hdf4               \
         --with-hdf5               \
-        --with-geos               \
         --with-jasper             \
-        --with-png                \
-        --with-gif                \
-        --with-jpeg               \
-        --with-odbc               \
-        --with-sqlite3            \
-        --with-mysql              \
-        --with-curl               \
-        --with-python             \
-        --with-perl               \
-        --with-pcraster           \
-        --with-ruby               \
         --with-java               \
+        --with-jpeg               \
+        --without-jpeg12          \
+        --with-liblzma            \
+        --with-libtiff=external   \
+        --with-libz               \
+        --without-mdb                \
+        --with-mysql              \
+        --with-netcdf             \
+        --with-odbc               \
+        --with-ogdi               \
+        --without-msg             \
+        --without-openjpeg        \
+        --with-pcraster           \
+        --with-pg                 \
+        --with-png                \
+        --with-poppler            \
+        %{spatialite}             \
+        --with-sqlite3            \
+        --with-threads            \
         --with-xerces             \
-        --with-xerces-lib='-lxerces-c' \
-        --with-xerces-inc=%{_includedir} \
-        --with-jpeg12=no          \
         --enable-shared           \
-        --with-gdal-ver=%{version}-fedora
+        --with-ruby               \
+        --with-perl               \
+        --with-python
 
-# fixup hardcoded wrong compile flags.
-cp GDALmake.opt GDALmake.opt.orig
-sed -e 's/ cfitsio / /' \
--e 's/-ldap++/-ldap -ldapclient -ldapserver/' \
--e 's/-L\$(INST_LIB) -lgdal/-lgdal/' \
-GDALmake.opt.orig > GDALmake.opt
-rm GDALmake.opt.orig
+        #--with-rasdaman           # 8.3 rasdaman has no -lcompression; doesn't work
 
-# Build with fPIC to allow Ruby bindings
-#TODO: Ticket
-sed -i -e "s/\$(LD)/g++ -L..\/..\/.libs\/ $RPM_OPT_FLAGS/g" swig/ruby/RubyMakefile.mk
-sed -i -e "s/\$(CFLAGS)/$(CFLAGS) -fPIC/g" swig/ruby/RubyMakefile.mk
-
-
-# WARNING !!!
-# dont use {?_smp_mflags} it break compile
-make
+# {?_smp_mflags} doesn't work; Or it does -- who knows!
+make %{?_smp_mflags}
 make man
+make docs
 
-# make perl modules, disable makefile generate
+# Make Perl modules
 pushd swig/perl
   perl Makefile.PL;  make;
   echo > Makefile.PL;
 popd
 
-  # make java modules
-  pushd swig/java
-    # fix makefile
-    sed -i -e 's|include java.opt|\#include java.opt|' GNUmakefile
-    sed -i -e 's|\$(LD) -shared \$(LDFLAGS) \$(CONFIG_LIBS)|g++ -shared -lgdal -L..\/..\/.libs|g' GNUmakefile
-    # build java module
-    make
-  popd
-# remake documentation for multilib issues
-# also include many pdf documentation
+# Install the Perl modules in the right place
+sed -i 's|INSTALLDIRS = site|INSTALLDIRS = vendor|' swig/perl/Makefile_*
 
-for docdir in ./ doc doc/ru doc/br ogr frmts/gxf frmts/pcidsk/sdk frmts/sdts frmts/iso8211 frmts/vrt swig/perl swig/python apps; do
-  cp -p doc/gdal_footer.html $docdir/footer_local.html
+# Don't append installation info to pod
+#TODO: What about the pod?
+sed -i 's|>> $(DESTINSTALLARCHLIB)\/perllocal.pod|> \/dev\/null|g' swig/perl/Makefile_*
+
+# Make Java module and documentation
+pushd swig/java
+  make
+  ./make_doc.sh
+popd
+
+# --------- Documentation ----------
+
+# No useful documentation in swig
+%global docdirs apps doc doc/br doc/ru ogr ogr/ogrsf_frmts frmts/gxf frmts/iso8211 frmts/pcidsk frmts/sdts frmts/vrt ogr/ogrsf_frmts/dgn/
+for docdir in %{docdirs}; do
+  # CreateHTML and PDF documentation, if specified
   pushd $docdir
     if [ ! -f Doxyfile ]; then
       doxygen -g
     else
       doxygen -u
     fi
-    #if [ $docdir == "doc" ]; then
-      #TODO: Get that working
-      #sed -i -e 's|^IMAGE_PATH|IMAGE_PATH = doc\n#IMAGE_PATH|' Doxyfile
-    #fi
-    sed -i -e 's|^HTML_FOOTER|HTML_FOOTER = footer_local.html\n#HTML_FOOTER |' Doxyfile
     sed -i -e 's|^GENERATE_LATEX|GENERATE_LATEX = YES\n#GENERATE_LATEX |' Doxyfile
     sed -i -e 's|^USE_PDFLATEX|USE_PDFLATEX = YES\n#USE_PDFLATEX |' Doxyfile
+
     if [ $docdir == "doc/ru" ]; then
       sed -i -e 's|^OUTPUT_LANGUAGE|OUTPUT_LANGUAGE = Russian\n#OUTPUT_LANGUAGE |' Doxyfile
     fi
     rm -rf latex html
     doxygen
-    rm -rf footer_local.html
+
     %if %{build_refman}
       pushd latex
         sed -i -e '/rfoot\[/d' -e '/lfoot\[/d' doxygen.sty
@@ -353,102 +469,79 @@ done
 %install
 rm -rf %{buildroot}
 
-# Fix Python installation path
-sed -i 's|setup.py install|setup.py install --root=%{buildroot}|' swig/python/GNUmakefile
-
-# fix some perl installation issue
-sed -i 's|>> $(DESTINSTALLARCHLIB)\/perllocal.pod|> \/dev\/null|g' swig/perl/Makefile_*
-
-
 make    DESTDIR=%{buildroot} \
-        install
+        install \
+        install-man 
 
-make    DESTDIR=%{buildroot} \
-        INST_MAN=%{_mandir} \
-        install-man
+# Directory for auto-loading plugins
+mkdir -p %{buildroot}%{_libdir}/%{name}plugins
 
-# move perl modules in the right path
-mkdir -p %{buildroot}%{perl_vendorarch}
-mv %{buildroot}%{perl_sitearch}/* %{buildroot}%{perl_vendorarch}/
+#TODO: Don't do that?
 find %{buildroot}%{perl_vendorarch} -name "*.dox" -exec rm -rf '{}' \;
 
-# fix some exec bits
+# Correct permissions
+#TODO and potential ticket: Why are the permissions not correct?
 find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
+find %{buildroot}%{perl_vendorarch} -name "*.pm" -exec chmod 644 '{}' \;
 
-# install multilib java modules in the right path
+#TODO: JAR files that require JNI shared objects MUST be installed in %{_libdir}/%{name}. The JNI shared objects themselves must also be installed in %{_libdir}/%{name}.
+#Java programs that wish to make calls into native libraries do so via the Java Native Interface (JNI). A Java package uses JNI if it contains a .so 
+#If the JNI-using code calls System.loadLibrary you'll have to patch it to use System.load, passing it the full path to the dynamic shared object. If the package installs a wrapper script you'll need to manually add %{_libdir}/%{name}/<jar filename> to CLASSPATH. If you are depending on a JNI-using JAR file, you'll need to add it manually -- build-classpath will not find it. 
 touch -r NEWS swig/java/gdal.jar
 mkdir -p %{buildroot}%{_javadir}
 cp -p swig/java/gdal.jar  \
-      %{buildroot}%{_javadir}/%{name}-%{version}.jar
+    %{buildroot}%{_javadir}/%{name}.jar
 
-# create versionless symlink
-ln -s %{name}-%{version}.jar %{buildroot}%{_javadir}/%{name}.jar
-
-# Install Maven pom
-mkdir -p %{buildroot}%{_mavenpomdir}
-install -pm 644 %{SOURCE2} \
-               %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
+# Install Maven pom and update version number
+install -dm 755 %{buildroot}%{_mavenpomdir}
+install -pm 644 %{SOURCE2} %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
+sed -i 's|<version></version>|<version>%{version}</version>|' %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
 
 # Create depmap fragment
 %add_to_maven_depmap org.gdal gdal-java-bindings %{version} JPP %{name}
 
+# 775 on the .so?
 # copy JNI libraries and links, non versioned link needed by JNI
-cp -pvl swig/java/.libs/*.so*  \
-      %{buildroot}%{_libdir}
+# What is linked here?
+cp -pl swig/java/.libs/*.so*  \
+    %{buildroot}%{_libdir}
 chrpath --delete %{buildroot}%{_libdir}/*jni.so*
 
-# install and include all docs
-# due TeX-related issues some refman.pdf are not created
-rm -rf docs doc/docs-perl
+# Install Java API documentation in the designated place
+mkdir -p %{buildroot}%{_javadocdir}/%{name}
+cp -pr swig/java/java/org %{buildroot}%{_javadocdir}/%{name}
 
-mkdir -p doc/gdal_frmts; find frmts -name "*.html" -exec install -p -m 644 '{}' doc/gdal_frmts/ \;
-mkdir -p doc/ogrsf_frmts; find ogr -name "*.html" -exec install -p -m 644 '{}' doc/ogrsf_frmts/ \;
-%if %{build_refman}
-  mkdir -p docs/docs-%{cpuarch}/pdf
-  pushd docs/docs-%{cpuarch}/pdf; mkdir -p apps br ru en ogr frmts/gxf frmts/sdts frmts/iso8211 frmts/vrt frmts/pcidsk; popd
-  install -p -m 644 doc/latex/refman.pdf docs/docs-%{cpuarch}/pdf/en
-  install -p -m 644 frmts/pcidsk/sdk/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/pcidsk
-  install -p -m 644 frmts/vrt/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/vrt
-  install -p -m 644 apps/latex/refman.pdf docs/docs-%{cpuarch}/pdf/apps
-  install -p -m 644 doc/br/latex/refman.pdf docs/docs-%{cpuarch}/pdf/br/
-  install -p -m 644 latex/refman.pdf docs/docs-%{cpuarch}/
-  install -p -m 644 latex/class*.pdf docs/docs-%{cpuarch}/
-  install -p -m 644 doc/ru/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ru/
-  install -p -m 644 ogr/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogr/
-  install -p -m 644 ogr/latex/class*.pdf docs/docs-%{cpuarch}/pdf/ogr/
-  # Doesn't work at all. Complaints about different nesting level in \pdfendlink
-  #%ifnarch ppc ppc64
-  #install -p -m 644 ogr/ogrsf_frmts/dgn/latex/refman.pdf docs/docs-%{cpuarch}/pdf/ogrsf_frmts/dgn/
-  #%endif
-  install -p -m 644 frmts/gxf/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/gxf/
-  install -p -m 644 frmts/sdts/latex/class*.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
-  # Doesn't work at all. Complaints about different nesting level in \pdfendlink
-  # Working in GDAL 1.8.0, funny enough!
-  #%ifnarch ppc ppc64
-  #install -p -m 644 frmts/sdts/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/sdts/
-  #%endif
-  install -p -m 644 frmts/iso8211/latex/refman.pdf docs/docs-%{cpuarch}/pdf/frmts/iso8211/
-  mkdir -p doc/docs-perl/docs-%{cpuarch}/pdf
-  install -p -m 644 swig/perl/latex/refman.pdf doc/docs-perl/docs-%{cpuarch}/pdf
-%endif
-mkdir -p docs/docs-%{cpuarch}
-mkdir -p doc/docs-perl/docs-%{cpuarch}
-pushd docs/docs-%{cpuarch}/; mkdir -p en/html gdal_frmts ogrsf_frmts br ru; popd
-cp -pr html/* docs/docs-%{cpuarch}/
-cp -pr doc/html/* docs/docs-%{cpuarch}/en/html
-cp -pr doc/gdal_frmts/* docs/docs-%{cpuarch}/gdal_frmts
-cp -pr doc/ogrsf_frmts/* docs/docs-%{cpuarch}/ogrsf_frmts
-cp -pr doc/br/html/* docs/docs-%{cpuarch}/br
-cp -pr doc/ru/html/* docs/docs-%{cpuarch}/ru
-cp -pr swig/perl/html/* doc/docs-perl/docs-%{cpuarch}/
+# Install refmans
+for docdir in %{docdirs}; do
+  pushd $docdir
+    path=%{_builddir}/%{name}-%{version}-fedora/refman
+    mkdir -p $path/html/$docdir
+    cp -r html $path/html/$docdir 
+  
+    # Install all Refmans
+    %if %{build_refman}
+        if [ -f latex/refman.pdf ]; then
+          mkdir -p $path/pdf/$docdir
+          cp latex/refman.pdf $path/pdf/$docdir
+        fi
+    %endif
+  popd
+done
 
-# Remove installation shell script
-rm -rf docs/docs-%{cpuarch}/ru/installdox
-rm -rf docs/docs-%{cpuarch}/en/html/installdox
+# Install formats documentation
+for dir in gdal_frmts ogrsf_frmts; do
+  mkdir -p $dir
+  find frmts -name "*.html" -exec install -p -m 644 '{}' $dir \;
+done
 
-# install multilib cpl_config.h bz#430894
+#TODO: Header date lost during installation
+# Install multilib cpl_config.h bz#430894
 install -p -D -m 644 port/cpl_config.h %{buildroot}%{_includedir}/%{name}/cpl_config-%{cpuarch}.h
-# create universal multilib cpl_config.h bz#341231
+# Create universal multilib cpl_config.h bz#341231
+# The problem is still there in 1.9.
+#TODO: Ticket?
+
+#>>>>>>>>>>>>>
 cat > %{buildroot}%{_includedir}/%{name}/cpl_config.h <<EOF
 #include <bits/wordsize.h>
 
@@ -462,9 +555,13 @@ cat > %{buildroot}%{_includedir}/%{name}/cpl_config.h <<EOF
 #endif
 #endif
 EOF
+#<<<<<<<<<<<<<
 touch -r NEWS port/cpl_config.h
 
-# install pkgconfig file
+# Create and install pkgconfig file
+#TODO: Why does that exist? Does Grass really use it? I don't think so.
+# http://trac.osgeo.org/gdal/ticket/3470
+#>>>>>>>>>>>>>
 cat > %{name}.pc <<EOF
 prefix=%{_prefix}
 exec_prefix=%{_prefix}
@@ -477,13 +574,18 @@ Version: %{version}
 Libs: -L\${libdir} -lgdal
 Cflags: -I\${includedir}/%{name}
 EOF
-
+#<<<<<<<<<<<<<
 mkdir -p %{buildroot}%{_libdir}/pkgconfig/
-install -p -m 644 %{name}.pc %{buildroot}%{_libdir}/pkgconfig/
-touch -r NEWS %{buildroot}%{_libdir}/pkgconfig/
+install -m 644 %{name}.pc %{buildroot}%{_libdir}/pkgconfig/
+touch -r NEWS %{buildroot}%{_libdir}/pkgconfig/%{name}.pc
 
-# multilib gdal-config
+# Multilib gdal-config
+# Rename the original script to gdal-config-$arch (stores arch-specific information)
+# and create a script to call one or the other -- depending on detected architecture
+# TODO: The extra script will direct you to 64 bit libs on
+# 64 bit systems -- whether you like that or not 
 mv %{buildroot}%{_bindir}/%{name}-config %{buildroot}%{_bindir}/%{name}-config-%{cpuarch}
+#>>>>>>>>>>>>>
 cat > %{buildroot}%{_bindir}/%{name}-config <<EOF
 #!/bin/bash
 
@@ -497,62 +599,76 @@ x86_64 | ppc64 | ia64 | s390x | sparc64 | alpha | alphaev6 )
 ;;
 esac
 EOF
-chmod 755 %{buildroot}%{_bindir}/%{name}-config
+#<<<<<<<<<<<<<
 touch -r NEWS %{buildroot}%{_bindir}/%{name}-config
+chmod 755 %{buildroot}%{_bindir}/%{name}-config
 
-# cleanup junks
-rm -rf %{buildroot}%{_includedir}/%{name}/%{name}
-rm -rf %{buildroot}%{_bindir}/gdal_sieve.dox
-rm -rf %{buildroot}%{_bindir}/gdal_fillnodata.dox
-for junk in {*.la,*.bs,.exists,.packlist,.cvsignore} ; do
-find %{buildroot} -name "$junk" -exec rm -rf '{}' \;
+# Clean up junk
+rm -f %{buildroot}%{_bindir}/gdal_sieve.dox
+rm -f %{buildroot}%{_bindir}/gdal_fillnodata.dox
+
+#jni-libs and libgdal are also built static (*.a)
+#.exists and .packlist stem from Perl
+for junk in {*.a,*.la,*.bs,.exists,.packlist} ; do
+  find %{buildroot} -name "$junk" -exec rm -rf '{}' \;
 done
 
+# Don't duplicate license files
+rm -f %{buildroot}%{_datadir}/%{name}/LICENSE.TXT
+
+# Throw away random API man mages
+for f in 'GDAL*' BandProperty ColorAssociation CutlineTransformer DatasetProperty EnhanceCBInfo ListFieldDesc NamedColor OGRSplitListFieldLayer VRTBuilder; do
+  rm -rf %{buildroot}%{_mandir}/man1/$f.1*
+done
 
 %check
+#for i in -I/usr/lib/jvm/java/include{,/linux}; do
+#    java_inc="$java_inc $i"
+#done
 
-pushd gdalautotest-1.7.3
 
-# export test enviroment
-export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python_sitearch}
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}
-export GDAL_DATA=%{buildroot}%{_datadir}/%{name}/
+pushd %{name}autotest-%{testversion}
+  # Export test enviroment
+  export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python_sitearch}
+  #TODO: Nötig?
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}
+#  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}:$java_inc
 
-# remove some testcases for now due to build failure
-rm -rf ogr/ogr_pg.py        # no pgsql during test (disabled)
-rm -rf ogr/ogr_mysql.py     # no mysql during test (disabled)
-rm -rf ogr/ogr_dods.py      # no DODS  during test (disabled)
-rm -rf gdrivers/dods.py     # no DODS  during test (disabled)
-rm -rf osr/osr_esri.py        # ESRI datum absent  (disabled)
-rm -rf ogr/ogr_sql_test.py    # no SQL during tests
-rm -rf gcore/mask.py       # crash ugly  (mustfix)
+  export GDAL_DATA=%{buildroot}%{_datadir}/%{name}/
+  
+  # Enable these tests on demand
+  #export GDAL_RUN_SLOW_TESTS=1
+  #export GDAL_DOWNLOAD_TEST_DATA=1
 
-# run tests but force than normal exit
-./run_all.py || true
-
+  # Remove some test cases that would require special preparation
+  rm -rf ogr/ogr_pg.py        # No database available
+  rm -rf ogr/ogr_mysql.py     # No database available
+  rm -rf osr/osr_esri.py      # ESRI datum absent
+  rm -rf osr/osr_erm.py       # File from ECW absent
+  
+  # Run tests but force normal exit in the end
+  ./run_all.py || true
 popd
 
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
-%post -p /sbin/ldconfig
+%post libs -p /sbin/ldconfig
 
-%postun -p /sbin/ldconfig
+%postun libs -p /sbin/ldconfig
 
 %post java
 /sbin/ldconfig
-# update maven2 depmap
 %update_maven_depmap
 
 %postun java
 /sbin/ldconfig
-# update maven2 depmap
 %update_maven_depmap
 
 
 %files
-%doc NEWS PROVENANCE.TXT PROVENANCE.TXT-fedora COMMITERS
+%{_bindir}/gdallocationinfo
 %{_bindir}/gdal_contour
 %{_bindir}/gdal_rasterize
 %{_bindir}/gdal_translate
@@ -565,52 +681,110 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/gdal_grid
 %{_bindir}/gdalenhance
 %{_bindir}/gdalmanage
+%{_bindir}/gdalsrsinfo
 %{_bindir}/gdaltransform
 %{_bindir}/nearblack
 %{_bindir}/ogr*
 %{_bindir}/testepsg
+%{_mandir}/man1/gdal*.1*
+%exclude %{_mandir}/man1/gdal-config.1*
+%exclude %{_mandir}/man1/gdal2tiles.1*
+%exclude %{_mandir}/man1/gdal_fillnodata.1*
+%exclude %{_mandir}/man1/gdal_merge.1*
+%exclude %{_mandir}/man1/gdal_retile.1*
+%exclude %{_mandir}/man1/gdal_sieve.1*
+%{_mandir}/man1/nearblack.1*
+%{_mandir}/man1/ogr*.1*
+
+%files libs
+%doc LICENSE.TXT NEWS PROVENANCE.TXT COMMITERS PROVENANCE.TXT-fedora
 %{_libdir}/libgdal.so.*
-%dir %{_datadir}/%{name}
-%{_datadir}/%{name}/*
-%{_mandir}/man1/*.1*
+%{_datadir}/%{name}
+#TODO: Possibly remove files like .dxf, .dgn, ...
+%dir %{_libdir}/%{name}plugins
 
 %files devel
 %{_bindir}/%{name}-config
 %{_bindir}/%{name}-config-%{cpuarch}
+%{_mandir}/man1/gdal-config.1*
 %dir %{_includedir}/%{name}
 %{_includedir}/%{name}/*.h
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/%{name}.pc
 
-%files static
-%{_libdir}/*.a
-
-%files python
-%doc swig/python/samples
-%{_bindir}/*.py*
-%{python_sitearch}/*
-
-%files perl
-%doc doc/docs-perl
-%doc swig/perl/README
-%{perl_vendorarch}/*
-
 %files ruby
-%{ruby_sitearch}/*
-
+%{ruby_sitearch}/%{name}
+  
+# Can I even have a separate Java package anymore?
 %files java
 %doc swig/java/apps
-%{_javadir}/%{name}-%{version}.jar
-# provide versionless symlink
 %{_javadir}/%{name}.jar
 %{_libdir}/*jni.so.*
 %{_mavenpomdir}/*
 %{_mavendepmapfragdir}/*
 
+%files javadoc
+%{_javadocdir}/%{name}
+
+%files perl
+%doc swig/perl/README
+%{perl_vendorarch}/*
+
+%files python
+%doc swig/python/README.txt
+%doc swig/python/samples
+#TODO: Bug with .py files in EPEL 5 bindir, see http://fedoraproject.org/wiki/EPEL/GuidelinesAndPolicies
+%{_bindir}/*.py
+%{_mandir}/man1/pct2rgb.1*
+%{_mandir}/man1/rgb2pct.1*
+%{_mandir}/man1/gdal2tiles.1*
+%{_mandir}/man1/gdal_fillnodata.1*
+%{_mandir}/man1/gdal_merge.1*
+%{_mandir}/man1/gdal_retile.1*
+%{_mandir}/man1/gdal_sieve.1*
+%{python_sitearch}/osgeo
+%{python_sitearch}/GDAL-%{version}-py*.egg-info
+%{python_sitearch}/osr.py*
+%{python_sitearch}/ogr.py*
+%{python_sitearch}/gdal*.py*
+
 %files doc
-%doc docs
+%doc gdal_frmts ogrsf_frmts refman
+
+#TODO: jvm
+#Should be managed by the Alternatives system and not via ldconfig
+#The MDB driver is said to require:
+#Download jackcess-1.2.2.jar, commons-lang-2.4.jar and
+#commons-logging-1.1.1.jar (other versions might work)
+#If you didn't specify --with-jvm-lib-add-rpath at
+#oder, wie gehabt mit ldconfig
 
 %changelog
+* Sun Feb 26 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.0-1
+- Completely re-work the original spec-file
+  The major changes are:
+- Add a libs sub-package
+- Move Python scripts to python sub-package
+- Install the documentation in a better way and with less slack
+- jar's filename is versionless
+- Update the version in the Maven pom automatically
+- Add a plugins directory
+- Add javadoc package and make the man sub-package noarch
+- Support many additional formats
+- Drop static sub-package as no other package uses it as BR
+- Delete included libs before building
+- Drop all patches, switch to a patch for the manpages, patch for JAVA path
+- Harmonize the use of buildroot and RPM_BUILD_ROOT
+- Introduce testversion macro
+
+* Thu Feb 19 2012 Volker Fröhlich <volker27@gmx.at> - 1.7.3-14
+- Require Ruby abi
+- Add patch for Ruby 1.9 include dir, back-ported from GDAL 1.9
+- Change version string for gdal-config from <version>-fedora to
+  <version>
+- Revert installation path for Ruby modules, as it proofed wrong
+- Use libjpeg-turbo
+
 * Thu Feb  9 2012 Volker Fröhlich <volker27@gmx.at> - 1.7.3-13
 - Rebuild for Ruby 1.9
   http://lists.fedoraproject.org/pipermail/ruby-sig/2012-January/000805.html
@@ -620,13 +794,13 @@ rm -rf $RPM_BUILD_ROOT
 - Versioned MODULE_COMPAT_ Requires for Perl (BZ 768265)
 - Add isa macro to base package Requires
 - Remove conditional for xerces_c in EL6, as EL6 has xerces_c
-  even for ppc64 via EPEL
+  even for ppc64 via EPEL 
 - Remove EL4 conditionals
 - Replace the python_lib macro definition and install Python bindings
   to sitearch directory, where they belong
 - Use correct dap library names for linking
 - Correct Ruby installation path in the Makefile instead of moving it later
-- Use libdir variable in ppc64 Python path
+- Use libdir variable in ppc64 Python path 
 - Delete obsolete chmod for Python libraries
 - Move correction for Doxygen footer to prep section
 - Delete bundled libraries before building
@@ -637,7 +811,7 @@ rm -rf $RPM_BUILD_ROOT
 - Remove unnecessary defattr
 - Correct version number in POM
 - Allow for libpng 1.5
-
+                                      
 * Tue Dec 06 2011 Adam Jackson <ajax@redhat.com> - 1.7.3-11
 - Rebuild for new libpng
 
@@ -652,7 +826,7 @@ rm -rf $RPM_BUILD_ROOT
 - Use python_lib and ruby_sitearch instead of generating lists
 - Added man-pages for binaries
 - Replaced mkdir and install macros
-- Removed Python files from main package files section, that 
+- Removed Python files from main package files section, that
   effectively already belonged to the Python sub-package
 
 * Thu Apr 11 2011 Volker Fröhlich <volker27@gmx.at> - 1.7.3-8
@@ -675,7 +849,7 @@ rm -rf $RPM_BUILD_ROOT
 - Added -p to post and postun
 - Remove private-shared-object-provides for Python and Perl
 - Remove installdox scripts
-- gcc 4.6 doesn't accept -Xcompiler 
+- gcc 4.6 doesn't accept -Xcompiler
 
 * Thu Mar 10 2011 Kalev Lember <kalev@smartlink.ee> - 1.7.3-4
 - Rebuilt with xerces-c 3.1
@@ -707,7 +881,7 @@ rm -rf $RPM_BUILD_ROOT
 - Add Java JNI libraries
 
 * Sat Aug 14 2010 Mathieu Baudier <mbaudier@argeo.org> - 1.7.2-5_0
-- Rebuild for EL GIS, based on work contributed by Nikolaos Hatzopoulos and Peter Hopfgartner 
+- Rebuild for EL GIS, based on work contributed by Nikolaos Hatzopoulos and Peter Hopfgartner
 - Use vanilla sources
 
 * Wed Jul 21 2010 David Malcolm <dmalcolm@redhat.com> - 1.7.2-5
@@ -986,7 +1160,7 @@ rm -rf $RPM_BUILD_ROOT
 * Tue Feb 27 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-9
 - repack tarball for fedora, explain changes in PROVENANCE-fedora,
   license should be clean now according to PROVENANCE-* files
-- require ogdi since is aviable now
+- require ogdi since is available now
 - drop nogeotiff patch, in -fedora tarball geotiff is removed
 - man page triage over subpackages
 - exclude python byte compiled objects
