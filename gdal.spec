@@ -3,7 +3,7 @@
 
 Name:      gdal
 Version:   1.7.3
-Release:   12%{?dist}
+Release:   14%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -17,7 +17,6 @@ Source2:   gdal-1.7.3.pom
 Patch1:    %{name}-mysql.patch
 Patch2:    %{name}-bindir.patch
 Patch3:    %{name}-AIS.patch
-Patch4:    %{name}-%{version}-xcompiler.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=693952 
 # http://trac.osgeo.org/gdal/ticket/3694 -- Still present in 1.8 tarball
@@ -28,10 +27,22 @@ Patch5:    %{name}-1.8.0-mitab.patch
 # Not necessary for 1.8 and later
 Patch6:    %{name}-1.7.3-png15.patch
 
+# Ruby headers are stored in a different place in 1.9
+# Don't use Xcompiler, as GCC doesn't like it anymore
+Patch7:    %{name}-1.7.3-ruby-1.9.patch
+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: libtool pkgconfig
 BuildRequires: python-devel numpy xerces-c-devel
-BuildRequires: libpng-devel libungif-devel libjpeg-devel libtiff-devel
+BuildRequires: libpng-devel libungif-devel
+
+%if (0%{?fedora})
+BuildRequires: libjpeg-turbo-devel
+%else
+BuildRequires: libjpeg-devel
+%endif
+
+BuildRequires: libtiff-devel
 BuildRequires: doxygen tetex-latex ghostscript ruby-devel jpackage-utils
 BuildRequires: jasper-devel cfitsio-devel libdap-devel librx-devel 
 BuildRequires: hdf-static hdf-devel
@@ -59,7 +70,6 @@ BuildRequires: ant swig ruby java-devel-gcj
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 %endif
 
-#TODO: What if you have Ruby 1.9 as well?
 %{!?ruby_sitearch: %global ruby_sitearch %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
 
 # Avoid providing private Python and Perl extension libs
@@ -111,6 +121,12 @@ Summary: Ruby modules for the GDAL file format library
 Group: Development/Libraries
 Requires: %{name}%{?_isa} = %{version}-%{release}
 
+%if (0%{?fedora} < 17 || 0%{?rhel})
+Requires: ruby(abi) = 1.8
+%else
+Requires: ruby(abi) = 1.9
+%endif
+
 %description ruby
 The GDAL Ruby modules provide support to handle multiple GIS file formats.
 
@@ -152,13 +168,13 @@ rm -rf frmts/gtiff/libgeotiff \
 %patch1 -p0 -b .mysql~
 %patch2 -p1 -b .bindir~
 %patch3 -p1 -b .AIS~
-%patch4 -p1 -b .xcompiler~
 %patch5 -p3 -b .mitab~
 
 # Only F17 has libpng 1.5
 %if ! (0%{?fedora} < 17 || 0%{?rhel})
 %patch6 -p1 -b .png15~
 %endif
+%patch7 -p1 -b .ruby19~
 
 # Unpack test cases
 tar -xzf %{SOURCE1}
@@ -218,17 +234,19 @@ sed -i 's|-lgeotiff -L$with_geotiff $LIBS|-lgeotiff $LIBS|g' configure
 sed -i 's|-L\$with_geotiff\/lib -lgeotiff $LIBS|-lgeotiff $LIBS|g' configure
 sed -i 's|-lmfhdf -ldf|-L$libdir/hdf -lmfhdf -ldf|g' configure
 sed -i 's|-logdi31|-logdi|g' configure
+
+# libproj is dlopened; upstream sources point to .so, which is usually not present
+# http://trac.osgeo.org/gdal/ticket/3602
 sed -i 's|libproj.so|libproj.so.0|g' ogr/ogrct.cpp
 
 # Fix python path for ppc64
-#TODO: Überprüfen ob es wirkt
+#TODO: Ticket? Must be corrected for 64 bit architectures other than Intel; Query Python?
 sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"$libdir"|g' configure
 
 # Install Ruby bindings into the proper place
-#TODO: Upstream, as this is useful and does no harm
+#TODO: Ticket
 sed -i -e 's|^$(INSTALL_DIR):|$(DESTDIR)$(INSTALL_DIR):|' swig/ruby/RubyMakefile.mk
 sed -i -e 's|^install: $(INSTALL_DIR)|install: $(DESTDIR)$(INSTALL_DIR)|' swig/ruby/RubyMakefile.mk
-sed -i -e 's|^INSTALL_DIR := $(RUBY_EXTENSIONS_DIR)/gdal|INSTALL_DIR = $(RUBY_EXTENSIONS_DIR)|' swig/ruby/RubyMakefile.mk
 
 # Append paths for some libs
 export CPPFLAGS="`pkg-config ogdi --cflags`"
@@ -279,7 +297,7 @@ export CFLAGS=`echo %{optflags}|sed -e 's/\-Wp\,\-D_FORTIFY_SOURCE\=2 / -fPIC -D
         --with-xerces-inc=%{_includedir} \
         --with-jpeg12=no          \
         --enable-shared           \
-        --with-gdal-ver=%{version}-fedora
+        --with-gdal-ver=%{version}
 
 # fixup hardcoded wrong compile flags.
 cp GDALmake.opt GDALmake.opt.orig
@@ -596,7 +614,7 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %files ruby
-%{ruby_sitearch}/*
+%{ruby_sitearch}/%{name}
 
 %files java
 %doc swig/java/apps
@@ -611,6 +629,18 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs
 
 %changelog
+* Thu Feb 19 2012 Volker Fröhlich <volker27@gmx.at> - 1.7.3-14
+- Require Ruby abi
+- Add patch for Ruby 1.9 include dir, back-ported from GDAL 1.9
+- Change version string for gdal-config from <version>-fedora to
+  <version>
+- Revert installation path for Ruby modules, as it proofed wrong
+- Use libjpeg-turbo
+
+* Thu Feb  9 2012 Volker Fröhlich <volker27@gmx.at> - 1.7.3-13
+- Rebuild for Ruby 1.9
+  http://lists.fedoraproject.org/pipermail/ruby-sig/2012-January/000805.html
+
 * Tue Jan 10 2012 Volker Fröhlich <volker27@gmx.at> - 1.7.3-12
 - Remove FC10 specific patch0
 - Versioned MODULE_COMPAT_ Requires for Perl (BZ 768265)
