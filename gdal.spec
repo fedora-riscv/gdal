@@ -634,7 +634,7 @@ rm -rf $RPM_BUILD_ROOT
 - Add patch for Ruby 1.9 include dir, back-ported from GDAL 1.9
 - Change version string for gdal-config from <version>-fedora to
   <version>
-- Revert installation path for Ruby modules, as it proofed wrong
+- Revert installation path for Ruby modules, as it proved wrong
 - Use libjpeg-turbo
 
 * Thu Feb  9 2012 Volker Fröhlich <volker27@gmx.at> - 1.7.3-13
