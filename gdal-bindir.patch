@@ -2,9 +2,9 @@ Create /usr/bin before attempting to compy anything there.
 
 Lubomir Rintel <lkundrak@v3.sk>
 
-diff -up gdal-1.6.0-fedora/swig/python/GNUmakefile.bindir gdal-1.6.0-fedora/swig/python/GNUmakefile
---- gdal-1.6.0-fedora/swig/python/GNUmakefile.bindir	2009-03-22 23:25:47.582438890 +0100
-+++ gdal-1.6.0-fedora/swig/python/GNUmakefile	2009-03-22 23:26:10.465436318 +0100
+diff -up gdal-1.7.3-fedora/swig/python/GNUmakefile.bindir gdal-1.7.3-fedora/swig/python/GNUmakefile
+--- gdal-1.7.3-fedora/swig/python/GNUmakefile.bindir	2009-03-22 23:25:47.582438890 +0100
++++ gdal-1.7.3-fedora/swig/python/GNUmakefile	2009-03-22 23:26:10.465436318 +0100
 @@ -60,6 +60,7 @@ else
  	$(PYTHON) setup.py install --prefix=$(DESTDIR)$(prefix)
  endif

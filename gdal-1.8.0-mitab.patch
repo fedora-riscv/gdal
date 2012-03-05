@@ -1,0 +1,81 @@
+Index: /trunk/gdal/ogr/ogrsf_frmts/mitab/mitab_middatafile.cpp
+===================================================================
+--- /trunk/gdal/ogr/ogrsf_frmts/mitab/mitab_middatafile.cpp	(revision 20796)
++++ /trunk/gdal/ogr/ogrsf_frmts/mitab/mitab_middatafile.cpp	(revision 20818)
+@@ -212,4 +212,8 @@
+         else
+         {
++            // skip leading spaces
++            while(pszLine && (*pszLine == ' ' || *pszLine == '\t') )
++                pszLine++;
++
+             strncpy(m_szLastRead,pszLine,MIDMAXCHAR);
+         }
+Index: /trunk/gdal/ogr/ogrsf_frmts/mitab/mitab_miffile.cpp
+===================================================================
+--- /trunk/gdal/ogr/ogrsf_frmts/mitab/mitab_miffile.cpp	(revision 20797)
++++ /trunk/gdal/ogr/ogrsf_frmts/mitab/mitab_miffile.cpp	(revision 20818)
+@@ -471,5 +471,5 @@
+ int MIFFile::ParseMIFHeader()
+ {  
+-    GBool  bColumns = FALSE, bDataFound = FALSE;
++    GBool  bColumns = FALSE, bAllColumnsRead =  FALSE;
+     int    nColumns = 0;
+     GBool  bCoordSys = FALSE;
+@@ -498,15 +498,7 @@
+      * Parse header until we find the "Data" line
+      *----------------------------------------------------------------*/
+-    while (((pszLine = m_poMIFFile->GetLine()) != NULL))
+-    {
+-        while(pszLine && (*pszLine == ' ' || *pszLine == '\t') )
+-            pszLine++;  // skip leading spaces
+-
+-        if( EQUALN(pszLine,"Data",4) && !bColumns )
+-        {
+-            bDataFound = TRUE;
+-            break;
+-        }
+-
++    while (((pszLine = m_poMIFFile->GetLine()) != NULL) &&
++           ((bAllColumnsRead == FALSE) || !EQUALN(pszLine,"Data",4)))
++    {       
+         if (bColumns == TRUE && nColumns >0)
+         {
+@@ -514,6 +506,9 @@
+             {
+                 nColumns--;
+-                if (nColumns == 0)
++                if (nColumns == 0) 
++                {
++                  bAllColumnsRead = TRUE;
+                   bColumns = FALSE;
++                }
+             }
+             else
+@@ -618,4 +613,10 @@
+                 nColumns = atoi(papszToken[1]);
+                 m_nAttribut = nColumns;
++                if (nColumns == 0)
++                {
++                    // Permit to 0 columns
++                    bAllColumnsRead = TRUE;
++                    bColumns = FALSE;
++                }            
+             }
+             else
+@@ -638,5 +639,14 @@
+     }
+     
+-    if ( !bDataFound )
++    if (!bAllColumnsRead) 
++    {
++        CPLError(CE_Failure, CPLE_NotSupported,
++                 "COLUMNS keyword not found or invalid number of columns read in %s.  File may be corrupt.",
++                 m_pszFname);
++        return -1;
++    }
++
++    if ((pszLine = m_poMIFFile->GetLastLine()) == NULL || 
++        EQUALN(m_poMIFFile->GetLastLine(),"DATA",4) == FALSE)
+     {
+         CPLError(CE_Failure, CPLE_NotSupported,

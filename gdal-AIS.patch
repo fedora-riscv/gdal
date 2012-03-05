@@ -1,6 +1,6 @@
-diff -up gdal-1.7.2-fedora/frmts/dods/dodsdataset2.cpp.AIS gdal-1.7.2-fedora/frmts/dods/dodsdataset2.cpp
---- gdal-1.7.2-fedora/frmts/dods/dodsdataset2.cpp.AIS	2010-04-23 17:21:55.000000000 -0600
-+++ gdal-1.7.2-fedora/frmts/dods/dodsdataset2.cpp	2010-07-15 11:32:41.144005186 -0600
+diff -up gdal-1.7.3-fedora/frmts/dods/dodsdataset2.cpp.AIS gdal-1.7.3-fedora/frmts/dods/dodsdataset2.cpp
+--- gdal-1.7.3-fedora/frmts/dods/dodsdataset2.cpp.AIS	2010-04-23 17:21:55.000000000 -0600
++++ gdal-1.7.3-fedora/frmts/dods/dodsdataset2.cpp	2010-07-15 11:32:41.144005186 -0600
 @@ -50,7 +50,7 @@
  #include <Sequence.h>
  #include <Grid.h>
@@ -64,9 +64,9 @@ diff -up gdal-1.7.2-fedora/frmts/dods/dodsdataset2.cpp.AIS gdal-1.7.2-fedora/frm
  /*      server.                                                         */
  /* -------------------------------------------------------------------- */
  	poDS->poConnect = poDS->connect_to_server();
-diff -up gdal-1.7.2-fedora/ogr/ogrsf_frmts/dods/ogrdodsdatasource.cpp.AIS gdal-1.7.2-fedora/ogr/ogrsf_frmts/dods/ogrdodsdatasource.cpp
---- gdal-1.7.2-fedora/ogr/ogrsf_frmts/dods/ogrdodsdatasource.cpp.AIS	2010-04-23 17:21:25.000000000 -0600
-+++ gdal-1.7.2-fedora/ogr/ogrsf_frmts/dods/ogrdodsdatasource.cpp	2010-07-15 11:31:33.814943203 -0600
+diff -up gdal-1.7.3-fedora/ogr/ogrsf_frmts/dods/ogrdodsdatasource.cpp.AIS gdal-1.7.3-fedora/ogr/ogrsf_frmts/dods/ogrdodsdatasource.cpp
+--- gdal-1.7.3-fedora/ogr/ogrsf_frmts/dods/ogrdodsdatasource.cpp.AIS	2010-04-23 17:21:25.000000000 -0600
++++ gdal-1.7.3-fedora/ogr/ogrsf_frmts/dods/ogrdodsdatasource.cpp	2010-07-15 11:31:33.814943203 -0600
 @@ -150,7 +150,7 @@ int OGRDODSDataSource::Open( const char 
  
      try 
@@ -76,9 +76,9 @@ diff -up gdal-1.7.2-fedora/ogr/ogrsf_frmts/dods/ogrdodsdatasource.cpp.AIS gdal-1
          version = poConnection->request_version();
      } 
      catch (Error &e) 
-diff -up gdal-1.7.2-fedora/ogr/ogrsf_frmts/dods/ogr_dods.h.AIS gdal-1.7.2-fedora/ogr/ogrsf_frmts/dods/ogr_dods.h
---- gdal-1.7.2-fedora/ogr/ogrsf_frmts/dods/ogr_dods.h.AIS	2010-04-23 17:21:25.000000000 -0600
-+++ gdal-1.7.2-fedora/ogr/ogrsf_frmts/dods/ogr_dods.h	2010-07-15 11:31:52.649942228 -0600
+diff -up gdal-1.7.3-fedora/ogr/ogrsf_frmts/dods/ogr_dods.h.AIS gdal-1.7.3-fedora/ogr/ogrsf_frmts/dods/ogr_dods.h
+--- gdal-1.7.3-fedora/ogr/ogrsf_frmts/dods/ogr_dods.h.AIS	2010-04-23 17:21:25.000000000 -0600
++++ gdal-1.7.3-fedora/ogr/ogrsf_frmts/dods/ogr_dods.h	2010-07-15 11:31:52.649942228 -0600
 @@ -61,7 +61,7 @@
  #include <Sequence.h>
  #include <Grid.h>
@@ -106,9 +106,9 @@ diff -up gdal-1.7.2-fedora/ogr/ogrsf_frmts/dods/ogr_dods.h.AIS gdal-1.7.2-fedora
  
      DAS                 oDAS;
      DDS                 *poDDS;
-diff -up gdal-1.7.2-fedora/ogr/ogrsf_frmts/dods/ogrdodslayer.cpp.AIS gdal-1.7.2-fedora/ogr/ogrsf_frmts/dods/ogrdodslayer.cpp
---- gdal-1.7.2-fedora/ogr/ogrsf_frmts/dods/ogrdodslayer.cpp.AIS	2010-04-23 17:21:25.000000000 -0600
-+++ gdal-1.7.2-fedora/ogr/ogrsf_frmts/dods/ogrdodslayer.cpp	2010-07-15 11:32:06.467945352 -0600
+diff -up gdal-1.7.3-fedora/ogr/ogrsf_frmts/dods/ogrdodslayer.cpp.AIS gdal-1.7.3-fedora/ogr/ogrsf_frmts/dods/ogrdodslayer.cpp
+--- gdal-1.7.3-fedora/ogr/ogrsf_frmts/dods/ogrdodslayer.cpp.AIS	2010-04-23 17:21:25.000000000 -0600
++++ gdal-1.7.3-fedora/ogr/ogrsf_frmts/dods/ogrdodslayer.cpp	2010-07-15 11:32:06.467945352 -0600
 @@ -213,7 +213,7 @@ int OGRDODSLayer::ProvideDataDDS()
      bDataLoaded = TRUE;
      try
