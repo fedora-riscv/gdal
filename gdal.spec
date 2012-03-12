@@ -10,6 +10,9 @@
 #TODO: e00compr source is the same in the package and bundled in GDAL
 #TODO: Consider doxy patch from Suse, setting EXTRACT_LOCAL_CLASSES  = NO
 
+# Soname should be bumped on API/ABI break
+# http://trac.osgeo.org/gdal/ticket/4543
+
 # Conditionals and structures for EL 5 are there
 # to make life easier for downstream ELGIS.
 # Sadly noarch doesn't work in EL 5, see
@@ -27,7 +30,7 @@
 
 Name:      gdal
 Version:   1.9.0
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -73,12 +76,7 @@ BuildRequires: libgeotiff-devel
 # No libgta in EL5
 BuildRequires: libgta-devel
 
-%if (0%{?fedora})
-BuildRequires: libjpeg-turbo-devel
-%else
 BuildRequires: libjpeg-devel
-%endif
-
 BuildRequires: libpng-devel
 
 %ifnarch ppc64
@@ -130,8 +128,10 @@ Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 %endif
 
-# http://fedoraproject.org/w/index.php?title=The_Road_to_Ruby_1.9
+%if (0%{?fedora} < 17 || 0%{?rhel})
+# https://fedoraproject.org/wiki/PackagingDrafts/Ruby
 %{!?ruby_sitearch: %global ruby_sitearch %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
+%endif
 
 # Don't provide private Python and Perl extension libs
 %{?filter_setup:
@@ -183,7 +183,7 @@ Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 %if (0%{?fedora} < 17 || 0%{?rhel})
 Requires: ruby(abi) = 1.8
 %else
-Requires: ruby(abi) = 1.9
+Requires: ruby(abi) = 1.9.1
 %endif
 
 %description ruby
@@ -297,7 +297,17 @@ done
 # Build with fPIC to allow Ruby bindings
 # Xcompiler should normally achieve that -- http://trac.osgeo.org/gdal/ticket/3978
 # http://trac.osgeo.org/gdal/ticket/1994
-sed -i -e "s/\$(CFLAGS)/$(CFLAGS) -fPIC/g" swig/ruby/RubyMakefile.mk
+sed -i 's|\$(CFLAGS)|$(CFLAGS) -fPIC|g' swig/ruby/RubyMakefile.mk
+
+%if !(0%{?fedora} < 17 || 0%{?rhel})
+# Install Ruby bindings to distribution specific directory
+sed -i 's|RUBY_EXTENSIONS_DIR :=.*|RUBY_EXTENSIONS_DIR := %{ruby_vendorarchdir}|' swig/ruby/RubyMakefile.mk
+%endif
+
+# Install Ruby bindings into the proper place
+#TODO: Ticket
+sed -i -e 's|^$(INSTALL_DIR):|$(DESTDIR)$(INSTALL_DIR):|' swig/ruby/RubyMakefile.mk
+sed -i -e 's|^install: $(INSTALL_DIR)|install: $(DESTDIR)$(INSTALL_DIR)|' swig/ruby/RubyMakefile.mk
 
 # Replace hard-coded library- and include paths
 sed -i 's|@LIBTOOL@|%{_bindir}/libtool|g' GDALmake.opt.in
@@ -319,16 +329,11 @@ sed -i 's|libproj.so|libproj.so.0|g' ogr/ogrct.cpp
 sed -i 's|setup.py install|setup.py install --root=%{buildroot}|' swig/python/GNUmakefile
 
 # Must be corrected for 64 bit architectures other than Intel
-#TODO: Query Python? Ticket
+# http://trac.osgeo.org/gdal/ticket/4544
 sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"/usr/lib64\"|g' configure
 
-# Install Ruby bindings into the proper place
-#TODO: Ticket
-sed -i -e 's|^$(INSTALL_DIR):|$(DESTDIR)$(INSTALL_DIR):|' swig/ruby/RubyMakefile.mk
-sed -i -e 's|^install: $(INSTALL_DIR)|install: $(DESTDIR)$(INSTALL_DIR)|' swig/ruby/RubyMakefile.mk
-
 # Adjust check for LibDAP version
-#TODO: Ticket
+# http://trac.osgeo.org/gdal/ticket/4545
 %if %cpuarch == 64
   sed -i 's|with_dods_root/lib|with_dods_root/lib64|' configure
 %endif
@@ -713,7 +718,11 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/%{name}.pc
 
 %files ruby
+%if (0%{?fedora} < 17 || 0%{?rhel})
 %{ruby_sitearch}/%{name}
+%else
+%{ruby_vendorarchdir}/%{name}
+%endif
   
 # Can I even have a separate Java package anymore?
 %files java
@@ -760,6 +769,13 @@ rm -rf %{buildroot}
 #oder, wie gehabt mit ldconfig
 
 %changelog
+* Sun Feb 26 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.0-1
+- Remove bogus libjpeg-turbo conditional
+- Update Ruby ABI version to 1.9.1
+- Install Ruby bindings to vendorarchdir on F17 and later
+- Conditionals for Ruby specific elements for versions prior F17 and for EPEL
+- Correct quotes for CFLAGS and Ruby
+
 * Sun Feb 26 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.0-1
 - Completely re-work the original spec-file
   The major changes are:
