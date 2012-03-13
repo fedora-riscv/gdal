@@ -39,6 +39,9 @@ Source0:   %{name}-%{version}-fedora.tar.gz
 Source1:   http://download.osgeo.org/%{name}/%{name}autotest-%{testversion}.tar.gz
 Source2:   %{name}.pom
 
+# Patch to use system g2clib
+Patch1:    %{name}-g2clib.patch
+
 # Fedora uses Alternatives for Java
 Patch8:    %{name}-1.9.0-java.patch
 
@@ -60,6 +63,7 @@ BuildRequires: expat-devel
 BuildRequires: fontconfig-devel
 # No freexl in EL5
 BuildRequires: freexl-devel
+BuildRequires: g2clib-static
 BuildRequires: geos-devel
 BuildRequires: ghostscript
 BuildRequires: hdf-devel
@@ -267,7 +271,9 @@ rm -rf frmts/jpeg/libjpeg \
     frmts/jpeg/libjpeg12
 rm -rf frmts/gtiff/libgeotiff \
     frmts/gtiff/libtiff
+rm -r frmts/grib/degrib18/g2clib-1.0.4
 
+%patch1 -p1 -b .g2clib~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .man~
 
@@ -363,6 +369,7 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 # Building without pgeo driver, because it drags in Java
 
 %configure \
+        LIBS=-lgrib2c \
         --with-autoload=%{_libdir}/%{name}plugins \
         --datadir=%{_datadir}/%{name}/ \
         --includedir=%{_includedir}/%{name}/ \
