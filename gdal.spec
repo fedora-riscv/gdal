@@ -776,7 +776,7 @@ rm -rf %{buildroot}
 #oder, wie gehabt mit ldconfig
 
 %changelog
-* Wed Apr 25 2011 Orion Poplawski <orion@cora.nwra.com> - 1.9.0-2
+* Wed Apr 25 2012 Orion Poplawski <orion@cora.nwra.com> - 1.9.0-2
 - Rebuild for cfitsio 3.300
 
 * Sun Feb 26 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.0-1
