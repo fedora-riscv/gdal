@@ -30,7 +30,7 @@
 
 Name:      gdal
 Version:   1.9.0
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -776,6 +776,9 @@ rm -rf %{buildroot}
 #oder, wie gehabt mit ldconfig
 
 %changelog
+* Wed Apr 25 2011 Orion Poplawski <orion@cora.nwra.com> - 1.9.0-2
+- Rebuild for cfitsio 3.300
+
 * Sun Feb 26 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.0-1
 - Remove bogus libjpeg-turbo conditional
 - Update Ruby ABI version to 1.9.1
