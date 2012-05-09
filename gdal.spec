@@ -88,6 +88,7 @@ BuildRequires: libspatialite-devel
 %endif
 
 BuildRequires: libtiff-devel
+BuildRequires: libwebp-devel
 BuildRequires: libtool
 BuildRequires: giflib-devel
 BuildRequires: netcdf-devel
@@ -136,12 +137,6 @@ Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 # https://fedoraproject.org/wiki/PackagingDrafts/Ruby
 %{!?ruby_sitearch: %global ruby_sitearch %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
 %endif
-
-# Don't provide private Python and Perl extension libs
-%{?filter_setup:
-%filter_provides_in %{python_sitearch}/.*\.so %{_libdir}/perl5/.*\.so$ 
-%filter_setup
-}
 
 #TODO: Description on the lib?
 %description
@@ -257,6 +252,9 @@ BuildArch: noarch
 %description doc
 This package contains HTML and PDF documentation for GDAL.
 
+# We don't want to provide private Python extension libs
+%global __provides_exclude_from ^%{python_sitearch}/.*\.so$
+
 %prep
 %setup -q -n %{name}-%{version}-fedora
 
@@ -368,8 +366,6 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 
 # For future reference:
 # epsilon: Stalled review -- https://bugzilla.redhat.com/show_bug.cgi?id=660024
-# webp: Stalled review, some movement lately -- https://bugzilla.redhat.com/show_bug.cgi?id=707389
-# libgta https://bugzilla.redhat.com/show_bug.cgi?id=783778
 # openjpeg 2.0 necessary, 1.4 is in Fedora
 # Building without pgeo driver, because it drags in Java
 
@@ -399,7 +395,7 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
         --with-liblzma            \
         --with-libtiff=external   \
         --with-libz               \
-        --without-mdb                \
+        --without-mdb             \
         --with-mysql              \
         --with-netcdf             \
         --with-odbc               \
@@ -413,6 +409,7 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
         %{spatialite}             \
         --with-sqlite3            \
         --with-threads            \
+        --with-webp               \
         --with-xerces             \
         --enable-shared           \
         --with-ruby               \
@@ -773,18 +770,20 @@ rm -rf %{buildroot}
 #Download jackcess-1.2.2.jar, commons-lang-2.4.jar and
 #commons-logging-1.1.1.jar (other versions might work)
 #If you didn't specify --with-jvm-lib-add-rpath at
-#oder, wie gehabt mit ldconfig
+#Or as before, using ldconfig
 
 %changelog
-* Wed Apr 25 2012 Orion Poplawski <orion@cora.nwra.com> - 1.9.0-2
-- Rebuild for cfitsio 3.300
-
-* Sun Feb 26 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.0-1
+* Thu May 10 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.0-3
+- Correct provides-filtering as of https://fedoraproject.org/wiki/Packaging:AutoProvidesAndRequiresFiltering#Usage
+- Support webp
 - Remove bogus libjpeg-turbo conditional
 - Update Ruby ABI version to 1.9.1
 - Install Ruby bindings to vendorarchdir on F17 and later
 - Conditionals for Ruby specific elements for versions prior F17 and for EPEL
 - Correct quotes for CFLAGS and Ruby
+
+* Wed Apr 25 2012 Orion Poplawski <orion@cora.nwra.com> - 1.9.0-2
+- Rebuild for cfitsio 3.300
 
 * Sun Feb 26 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.0-1
 - Completely re-work the original spec-file
