@@ -30,7 +30,7 @@
 
 Name:      gdal
 Version:   1.9.0
-Release:   3%{?dist}
+Release:   5%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -44,6 +44,15 @@ Source2:   %{name}.pom
 
 # Patch to use system g2clib
 Patch1:    %{name}-g2clib.patch
+
+# Support poppler 0.20
+# http://trac.osgeo.org/gdal/ticket/4668
+Patch2:    %{name}-1.9.0-poppler020.patch
+
+# http://trac.osgeo.org/gdal/changeset/24440#file0
+Patch3:    %{name}-1.9.1-java-swig.patch
+
+Patch4:    %{name}-1.9.1-dods-3.11.3.patch
 
 # Fedora uses Alternatives for Java
 Patch8:    %{name}-1.9.0-java.patch
@@ -96,7 +105,7 @@ BuildRequires: libdap-devel
 BuildRequires: librx-devel
 BuildRequires: mysql-devel
 BuildRequires: numpy
-BuildRequires: ogdi-devel
+#BuildRequires: ogdi-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: pkgconfig
 BuildRequires: poppler-devel
@@ -272,6 +281,9 @@ rm -rf frmts/gtiff/libgeotiff \
 rm -r frmts/grib/degrib18/g2clib-1.0.4
 
 %patch1 -p1 -b .g2clib~
+%patch2 -p4 -b .poppler~
+%patch3 -p4 -b .java-swig~
+%patch4 -p1 -b .dods~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .man~
 
@@ -399,7 +411,7 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
         --with-mysql              \
         --with-netcdf             \
         --with-odbc               \
-        --with-ogdi               \
+        --without-ogdi               \
         --without-msg             \
         --without-openjpeg        \
         --with-pcraster           \
@@ -773,7 +785,10 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
-* Thu May 10 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.0-3
+* Sun May 20 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.0-5
+- Patches for libpoppler 0.20, libdap 3.11.3 and swig 2.0.6
+
+* Thu May 10 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.0-4
 - Correct provides-filtering as of https://fedoraproject.org/wiki/Packaging:AutoProvidesAndRequiresFiltering#Usage
 - Support webp
 - Remove bogus libjpeg-turbo conditional
@@ -781,6 +796,7 @@ rm -rf %{buildroot}
 - Install Ruby bindings to vendorarchdir on F17 and later
 - Conditionals for Ruby specific elements for versions prior F17 and for EPEL
 - Correct quotes for CFLAGS and Ruby
+- Disable ogdi, until BZ#816282 is resolved
 
 * Wed Apr 25 2012 Orion Poplawski <orion@cora.nwra.com> - 1.9.0-2
 - Rebuild for cfitsio 3.300
