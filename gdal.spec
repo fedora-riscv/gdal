@@ -29,25 +29,28 @@
 
 
 Name:      gdal
-Version:   1.9.0
-Release:   5%{?dist}
+Version:   1.9.1
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
 URL:       http://www.gdal.org
 # Source0:   http://download.osgeo.org/gdal/gdal-%%{version}.tar.gz
-# See PROVENANCE.TXT-fedora for details!
+# See PROVENANCE.TXT-fedora and the cleaner script for details!
 
 Source0:   %{name}-%{version}-fedora.tar.gz
 Source1:   http://download.osgeo.org/%{name}/%{name}autotest-%{testversion}.tar.gz
 Source2:   %{name}.pom
+
+# Cleaner script for the tarball
+Source3:   %{name}-cleaner.sh
 
 # Patch to use system g2clib
 Patch1:    %{name}-g2clib.patch
 
 # Support poppler 0.20
 # http://trac.osgeo.org/gdal/ticket/4668
-Patch2:    %{name}-1.9.0-poppler020.patch
+Patch2:    %{name}-1.9.1-poppler020.patch
 
 # http://trac.osgeo.org/gdal/changeset/24440#file0
 Patch3:    %{name}-1.9.1-java-swig.patch
@@ -785,6 +788,11 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Wed May 23 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.1-1
+- New upstream release
+- Update poppler patch
+- Add cleaner script
+
 * Sun May 20 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.0-5
 - Patches for libpoppler 0.20, libdap 3.11.3 and swig 2.0.6
 

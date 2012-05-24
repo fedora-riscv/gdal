@@ -131,8 +131,7 @@ Index: /branches/1.9/gdal/frmts/pdf/pdfdataset.cpp
 +#endif
  #endif
  
-@@ -570,7 +590,11 @@
-     GooString* poUserPwd = NULL;
+@@ -567,5 +587,9 @@
  
      /* Set custom error handler for poppler errors */
 +#ifdef POPPLER_0_20_OR_LATER
@@ -141,9 +140,7 @@ Index: /branches/1.9/gdal/frmts/pdf/pdfdataset.cpp
      setErrorFunction(PDFDatasetErrorFunction);
 +#endif
  
-     PDFDoc* poDoc = NULL;
-     ObjectAutoFree oObj;
-
+     /* poppler global variable */
 Index: /branches/1.9/gdal/frmts/pdf/makefile.vc
 ===================================================================
 --- /branches/1.9/gdal/frmts/pdf/makefile.vc	(revision 22493)
