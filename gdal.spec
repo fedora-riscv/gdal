@@ -30,7 +30,7 @@
 
 Name:      gdal
 Version:   1.9.1
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -788,6 +788,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Mon Jul  2 2012 Marek Kasik <mkasik@redhat.com> - 1.9.1-3
+- Rebuild (poppler-0.20.1)
+
 * Mon Jun 11 2012 Petr Pisar <ppisar@redhat.com> - 1.9.1-2
 - Perl 5.16 rebuild
 
