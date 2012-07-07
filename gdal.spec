@@ -30,7 +30,7 @@
 
 Name:      gdal
 Version:   1.9.1
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -640,8 +640,8 @@ done
 # Don't duplicate license files
 rm -f %{buildroot}%{_datadir}/%{name}/LICENSE.TXT
 
-# Throw away random API man mages
-for f in 'GDAL*' BandProperty ColorAssociation CutlineTransformer DatasetProperty EnhanceCBInfo ListFieldDesc NamedColor OGRSplitListFieldLayer VRTBuilder; do
+# Throw away random API man mages plus artefact seemingly caused by Doxygen 1.8.1 or 1.8.1.1
+for f in 'GDAL*' BandProperty ColorAssociation CutlineTransformer DatasetProperty EnhanceCBInfo ListFieldDesc NamedColor OGRSplitListFieldLayer VRTBuilder _builddir_build_BUILD_%{name}-%{version}-fedora_apps_; do
   rm -rf %{buildroot}%{_mandir}/man1/$f.1*
 done
 
@@ -788,6 +788,10 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Sat Jul  7 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.1-4
+- Delete unnecessary manpage, that seems to be created with
+  new Doxygen (1.8.1 or 1.8.1.1)
+
 * Mon Jul  2 2012 Marek Kasik <mkasik@redhat.com> - 1.9.1-3
 - Rebuild (poppler-0.20.1)
 
