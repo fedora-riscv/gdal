@@ -30,7 +30,7 @@
 
 Name:      gdal
 Version:   1.9.1
-Release:   4%{?dist}
+Release:   5%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -788,6 +788,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Tue Jul 10 2012 Petr Pisar <ppisar@redhat.com> - 1.9.1-5
+- Perl 5.16 rebuild
+
 * Sat Jul  7 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.1-4
 - Delete unnecessary manpage, that seems to be created with
   new Doxygen (1.8.1 or 1.8.1.1)
