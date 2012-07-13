@@ -3,7 +3,7 @@
 
 Name:      gdal
 Version:   1.7.3
-Release:   14%{?dist}
+Release:   15%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -134,9 +134,6 @@ The GDAL Ruby modules provide support to handle multiple GIS file formats.
 Summary: Java modules for the GDAL file format library
 Group: Development/Libraries
 Requires: java
-# require maven2 for the poms and depmap frag parent dirs
-# these are provided by many JPP packages but that is wrong
-Requires: maven2
 Requires: jpackage-utils
 Requires(post): jpackage-utils
 Requires(postun): jpackage-utils
@@ -629,6 +626,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs
 
 %changelog
+* Fri Jul 13 2012 Orion Poplawski <orion@nwra.com> - 1.7.3-15
+- Don't require maven2 in java package, not needed and not
+  available on EL6
+
 * Thu Feb 19 2012 Volker Fröhlich <volker27@gmx.at> - 1.7.3-14
 - Require Ruby abi
 - Add patch for Ruby 1.9 include dir, back-ported from GDAL 1.9
