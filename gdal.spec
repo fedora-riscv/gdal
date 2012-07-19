@@ -30,7 +30,7 @@
 
 Name:      gdal
 Version:   1.9.1
-Release:   5%{?dist}
+Release:   6%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -788,6 +788,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.9.1-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Tue Jul 10 2012 Petr Pisar <ppisar@redhat.com> - 1.9.1-5
 - Perl 5.16 rebuild
 
