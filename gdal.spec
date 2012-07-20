@@ -30,7 +30,7 @@
 
 Name:      gdal
 Version:   1.9.1
-Release:   6%{?dist}
+Release:   7%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -377,7 +377,7 @@ sed -i 's|#CHARLS_LIB = -L/path/to/charls_lib -lCharLS|CHARLS_LIB = -lCharLS|' G
 
 %build
 #TODO: Couldn't I have modified that in the prep section?
-export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
+export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff -fPIC"
 
 # For future reference:
 # epsilon: Stalled review -- https://bugzilla.redhat.com/show_bug.cgi?id=660024
@@ -788,6 +788,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Fri Jul 20 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.9.1-7
+- Build with PIC
+
 * Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.9.1-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
