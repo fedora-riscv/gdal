@@ -30,7 +30,7 @@
 
 Name:      gdal
 Version:   1.9.1
-Release:   7%{?dist}
+Release:   8%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -65,7 +65,7 @@ Patch9:    %{name}-1.9.0-man.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires: ant 
+BuildRequires: ant
 # No armadillo in EL5
 BuildRequires: armadillo-devel
 BuildRequires: cfitsio-devel
@@ -155,7 +155,7 @@ Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Geospatial Data Abstraction Library (GDAL/OGR) is a cross platform
 C++ translator library for raster and vector geospatial data formats.
 As a library, it presents a single abstract data model to the calling
-application for all supported formats. It also comes with a variety of 
+application for all supported formats. It also comes with a variety of
 useful commandline utilities for data translation and processing.
 
 It provides the primary data access engine for many applications.
@@ -495,7 +495,7 @@ rm -rf %{buildroot}
 
 make    DESTDIR=%{buildroot} \
         install \
-        install-man 
+        install-man
 
 # Directory for auto-loading plugins
 mkdir -p %{buildroot}%{_libdir}/%{name}plugins
@@ -509,8 +509,8 @@ find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
 find %{buildroot}%{perl_vendorarch} -name "*.pm" -exec chmod 644 '{}' \;
 
 #TODO: JAR files that require JNI shared objects MUST be installed in %{_libdir}/%{name}. The JNI shared objects themselves must also be installed in %{_libdir}/%{name}.
-#Java programs that wish to make calls into native libraries do so via the Java Native Interface (JNI). A Java package uses JNI if it contains a .so 
-#If the JNI-using code calls System.loadLibrary you'll have to patch it to use System.load, passing it the full path to the dynamic shared object. If the package installs a wrapper script you'll need to manually add %{_libdir}/%{name}/<jar filename> to CLASSPATH. If you are depending on a JNI-using JAR file, you'll need to add it manually -- build-classpath will not find it. 
+#Java programs that wish to make calls into native libraries do so via the Java Native Interface (JNI). A Java package uses JNI if it contains a .so
+#If the JNI-using code calls System.loadLibrary you'll have to patch it to use System.load, passing it the full path to the dynamic shared object. If the package installs a wrapper script you'll need to manually add %{_libdir}/%{name}/<jar filename> to CLASSPATH. If you are depending on a JNI-using JAR file, you'll need to add it manually -- build-classpath will not find it.
 touch -r NEWS swig/java/gdal.jar
 mkdir -p %{buildroot}%{_javadir}
 cp -p swig/java/gdal.jar  \
@@ -540,8 +540,8 @@ for docdir in %{docdirs}; do
   pushd $docdir
     path=%{_builddir}/%{name}-%{version}-fedora/refman
     mkdir -p $path/html/$docdir
-    cp -r html $path/html/$docdir 
-  
+    cp -r html $path/html/$docdir
+
     # Install all Refmans
     %if %{build_refman}
         if [ -f latex/refman.pdf ]; then
@@ -607,7 +607,7 @@ touch -r NEWS %{buildroot}%{_libdir}/pkgconfig/%{name}.pc
 # Rename the original script to gdal-config-$arch (stores arch-specific information)
 # and create a script to call one or the other -- depending on detected architecture
 # TODO: The extra script will direct you to 64 bit libs on
-# 64 bit systems -- whether you like that or not 
+# 64 bit systems -- whether you like that or not
 mv %{buildroot}%{_bindir}/%{name}-config %{buildroot}%{_bindir}/%{name}-config-%{cpuarch}
 #>>>>>>>>>>>>>
 cat > %{buildroot}%{_bindir}/%{name}-config <<EOF
@@ -659,7 +659,7 @@ pushd %{name}autotest-%{testversion}
 #  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}:$java_inc
 
   export GDAL_DATA=%{buildroot}%{_datadir}/%{name}/
-  
+
   # Enable these tests on demand
   #export GDAL_RUN_SLOW_TESTS=1
   #export GDAL_DOWNLOAD_TEST_DATA=1
@@ -669,7 +669,7 @@ pushd %{name}autotest-%{testversion}
   rm -rf ogr/ogr_mysql.py     # No database available
   rm -rf osr/osr_esri.py      # ESRI datum absent
   rm -rf osr/osr_erm.py       # File from ECW absent
-  
+
   # Run tests but force normal exit in the end
   ./run_all.py || true
 popd
@@ -742,7 +742,7 @@ rm -rf %{buildroot}
 %else
 %{ruby_vendorarchdir}/%{name}
 %endif
-  
+
 # Can I even have a separate Java package anymore?
 %files java
 %doc swig/java/apps
@@ -788,6 +788,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Fri Jul 27 2012 José Matos <jamatos@fedoraproject.org> - 1.9.1-8
+- Rebuild for new armadillo
+
 * Fri Jul 20 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.9.1-7
 - Build with PIC
 
@@ -862,13 +865,13 @@ rm -rf %{buildroot}
 - Versioned MODULE_COMPAT_ Requires for Perl (BZ 768265)
 - Add isa macro to base package Requires
 - Remove conditional for xerces_c in EL6, as EL6 has xerces_c
-  even for ppc64 via EPEL 
+  even for ppc64 via EPEL
 - Remove EL4 conditionals
 - Replace the python_lib macro definition and install Python bindings
   to sitearch directory, where they belong
 - Use correct dap library names for linking
 - Correct Ruby installation path in the Makefile instead of moving it later
-- Use libdir variable in ppc64 Python path 
+- Use libdir variable in ppc64 Python path
 - Delete obsolete chmod for Python libraries
 - Move correction for Doxygen footer to prep section
 - Delete bundled libraries before building
@@ -879,7 +882,7 @@ rm -rf %{buildroot}
 - Remove unnecessary defattr
 - Correct version number in POM
 - Allow for libpng 1.5
-                                      
+
 * Tue Dec 06 2011 Adam Jackson <ajax@redhat.com> - 1.7.3-11
 - Rebuild for new libpng
 
@@ -1134,7 +1137,7 @@ rm -rf %{buildroot}
 - keep and polish up rest of doubted license
 - further fixed hdf not supporting netcdf for for bz#189337
 - kill the annoying -Lexternal/lib for -lgeotiff
-- fix configure to not export LDFLAGS anyomre, upstream 
+- fix configure to not export LDFLAGS anyomre, upstream
   should really switch to real GNU automagic stuff
 - pymod samples and rfc docs now gone
 - hardcode external libtool to be used, LIBTOOL env not propagating anymore
@@ -1165,7 +1168,7 @@ rm -rf %{buildroot}
 - include testcases and run tests
 - enable geotiff external library we have new libgeotiff now
 - EPSG geodetic database is licensed OK since v6.13 so re-enable
-- enable it against grass by default, implement optional switches 
+- enable it against grass by default, implement optional switches
 
 * Tue Jun 05 2007 Balint Cristian <cbalint@redhat.com> 1.4.1-4
 - re-build.
@@ -1210,7 +1213,7 @@ rm -rf %{buildroot}
 
 * Thu Mar 15 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-14
 - require perl(ExtUtils::MakeMaker) instead ?dist checking
-- add pkgconfig file 
+- add pkgconfig file
 
 * Wed Mar 14 2007 Balint Cristian <cbalint@redhat.com> 1.4.0-13
 - fix typo in specfile
