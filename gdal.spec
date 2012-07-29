@@ -318,7 +318,7 @@ done
 # due to http://gcc.gnu.org/bugzilla/show_bug.cgi?id=53549
 # configure interprets the result as an error so ignore it
 # this patch can/should be removed after gcc 4.7.2 is released
-sed -i 's|HAVE_ARMADILLO=$HAVE_ARMADILLO|HAVE_ARMADILLO=yes|' configure
+sed -i 's|if test -z "`${CXX} testarmadillo.cpp -o testarmadillo -larmadillo 2>&1`"|if 1|' configure
 
 # Build with fPIC to allow Ruby bindings
 # Xcompiler should normally achieve that -- http://trac.osgeo.org/gdal/ticket/3978
@@ -796,7 +796,7 @@ rm -rf %{buildroot}
 
 %changelog
 * Sun Jul 29 2012 José Matos <jamatos@fedoraproject.org> - 1.9.1-9
-- Ignore for the moment the test for armadillo
+- Ignore for the moment the test for armadillo (to be removed after gcc 4.7.2 release)
 
 * Fri Jul 27 2012 José Matos <jamatos@fedoraproject.org> - 1.9.1-8
 - Rebuild for new armadillo
