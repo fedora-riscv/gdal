@@ -23,14 +23,14 @@
 %global testversion 1.9.0
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=663938
-%ifnarch ppc
+%ifnarch ppc ppc64
 %global spatialite "--with-spatialite"
 %endif
 
 
 Name:      gdal
 Version:   1.9.1
-Release:   10%{?dist}
+Release:   11%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -95,7 +95,7 @@ BuildRequires: libgta-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 
-%ifnarch ppc64
+%ifnarch ppc ppc64
 BuildRequires: libspatialite-devel
 %endif
 
@@ -795,6 +795,10 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Thu Aug  9 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.1-11
+- Correct and extend conditionals for ppc andd ppc64, considering libspatialite
+  Related to BZ #846301
+
 * Sun Jul 29 2012 José Matos <jamatos@fedoraproject.org> - 1.9.1-10
 - Use the correct shell idiom "if true" instead of "if 1"
 
