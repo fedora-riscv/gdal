@@ -30,7 +30,7 @@
 
 Name:      gdal
 Version:   1.9.1
-Release:   11%{?dist}
+Release:   12%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -795,6 +795,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Sun Dec  2 2012 Bruno Wolff III <bruno@wolff.to> - 1.9.1-12
+- Rebuild for libspatialite soname bump
+
 * Thu Aug  9 2012 Volker Fröhlich <volker27@gmx.at> - 1.9.1-11
 - Correct and extend conditionals for ppc andd ppc64, considering libspatialite
   Related to BZ #846301
