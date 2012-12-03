@@ -30,7 +30,7 @@
 
 Name:      gdal
 Version:   1.9.1
-Release:   12%{?dist}
+Release:   13%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -795,6 +795,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Mon Dec  3 2012 Orion Poplawski <orion@cora.nwra.com> - 1.9.1-13
+- Rebuild for hdf5 1.8.10
+
 * Sun Dec  2 2012 Bruno Wolff III <bruno@wolff.to> - 1.9.1-12
 - Rebuild for libspatialite soname bump
 
