@@ -30,7 +30,7 @@
 
 Name:      gdal
 Version:   1.9.1
-Release:   13%{?dist}
+Release:   14%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -384,7 +384,13 @@ sed -i 's|#CHARLS_LIB = -L/path/to/charls_lib -lCharLS|CHARLS_LIB = -lCharLS|' G
 
 %build
 #TODO: Couldn't I have modified that in the prep section?
-export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff -fPIC"
+%ifarch sparcv9 sparc64 s390 s390x
+export CFLAGS="$RPM_OPT_FLAGS -fPIC"
+%else
+export CFLAGS="$RPM_OPT_FLAGS -fpic"
+%endif
+export CXXFLAGS="$CFLAGS -I%{_includedir}/libgeotiff"
+export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 
 # For future reference:
 # epsilon: Stalled review -- https://bugzilla.redhat.com/show_bug.cgi?id=660024
@@ -795,6 +801,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Thu Dec 13 2012 Peter Robinson <pbrobinson@fedoraproject.org> 1.9.1-14
+- Tweak -fpic CFLAGS to fix FTBFS on ARM
+
 * Mon Dec  3 2012 Orion Poplawski <orion@cora.nwra.com> - 1.9.1-13
 - Rebuild for hdf5 1.8.10
 
