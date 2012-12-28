@@ -18,6 +18,9 @@
 # Sadly noarch doesn't work in EL 5, see
 # http://fedoraproject.org/wiki/EPEL/GuidelinesAndPolicies
 
+#TODO: EvenR suggested to drop Ruby bindings, as they are unmaintained
+# He also suggest to use --with-static-proj4 to actually link to proj, instead of dlopen()ing it.
+
 
 # Tests can be of a different version
 %global testversion 1.9.0
@@ -50,6 +53,7 @@ Patch1:    %{name}-g2clib.patch
 
 # Support poppler 0.20
 # http://trac.osgeo.org/gdal/ticket/4668
+# Solved in 1.9.2
 Patch2:    %{name}-1.9.1-poppler020.patch
 
 # http://trac.osgeo.org/gdal/changeset/24440#file0
@@ -61,6 +65,7 @@ Patch4:    %{name}-1.9.1-dods-3.11.3.patch
 Patch8:    %{name}-1.9.0-java.patch
 
 # Make man a phony buildtarget; the directory otherwise blocks it
+# Should be solved in 2.0
 Patch9:    %{name}-1.9.0-man.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -291,6 +296,9 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch9 -p1 -b .man~
 
 # Sanitize linebreaks and encoding
+#TODO: Don't touch data directory!
+# /frmts/grib/degrib18/degrib/metaname.cpp
+# and geoconcept.c are potentially dangerous to change
 set +x
 for f in `find . -type f` ; do
   if file $f | grep -q ISO-8859 ; then
@@ -307,6 +315,7 @@ for f in `find . -type f` ; do
 done
 set -x
 
+# Solved for 2.0
 for f in ogr/ogrsf_frmts/gpsbabel ogr/ogrsf_frmts/pgdump port apps; do
 pushd $f
   chmod 644 *.cpp *.h
@@ -356,6 +365,7 @@ sed -i 's|setup.py install|setup.py install --root=%{buildroot}|' swig/python/GN
 
 # Must be corrected for 64 bit architectures other than Intel
 # http://trac.osgeo.org/gdal/ticket/4544
+# Should be gone in 2.0
 sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"/usr/lib64\"|g' configure
 
 # Adjust check for LibDAP version
@@ -370,6 +380,7 @@ sed -i 's|#CHARLS_INC = -I/path/to/charls_include|CHARLS_INC = -I%{_includedir}/
 sed -i 's|#CHARLS_LIB = -L/path/to/charls_lib -lCharLS|CHARLS_LIB = -lCharLS|' GDALmake.opt.in
 
 # Replace default plug-in dir
+# Solved in 2.0
 # http://trac.osgeo.org/gdal/ticket/4444
 %if %cpuarch == 64
   sed -i 's|GDAL_PREFIX "/lib/gdalplugins"|GDAL_PREFIX "/lib64/gdalplugins"|' \
