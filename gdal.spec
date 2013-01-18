@@ -30,7 +30,7 @@
 
 Name:      gdal
 Version:   1.9.1
-Release:   15%{?dist}
+Release:   16%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -801,6 +801,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Fri Jan 18 2013 Adam Tkac <atkac redhat com> - 1.9.1-16
+- rebuild due to "jpeg8-ABI" feature drop
+
 * Fri Dec 28 2012 Richard W.M. Jones <rjones@redhat.com> - 1.9.1-15
 - Rebuild, see
   http://lists.fedoraproject.org/pipermail/devel/2012-December/175685.html
