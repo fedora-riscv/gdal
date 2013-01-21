@@ -33,7 +33,7 @@
 
 Name:      gdal
 Version:   1.9.1
-Release:   16%{?dist}
+Release:   17%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -812,6 +812,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Mon Jan 21 2013 Volker Fröhlich <volker27@gmx.at> - 1.9.1-17
+- Rebuild due to libpoppler 0.22
+
 * Fri Jan 18 2013 Adam Tkac <atkac redhat com> - 1.9.1-16
 - rebuild due to "jpeg8-ABI" feature drop
 
