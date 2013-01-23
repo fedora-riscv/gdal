@@ -3,7 +3,7 @@
 
 Name:      gdal
 Version:   1.7.3
-Release:   14%{?dist}
+Release:   15%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -629,6 +629,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs
 
 %changelog
+* Wed Jan 23 2013 Rex Dieter <rdieter@fedoraproject.org> 1.7.3-15
+- rebuild (libwebp)
+
 * Thu Feb 19 2012 Volker Fröhlich <volker27@gmx.at> - 1.7.3-14
 - Require Ruby abi
 - Add patch for Ruby 1.9 include dir, back-ported from GDAL 1.9
