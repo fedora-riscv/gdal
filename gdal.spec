@@ -30,7 +30,7 @@
 
 Name:      gdal
 Version:   1.9.1
-Release:   14%{?dist}
+Release:   14%{?dist}.1
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -801,6 +801,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Wed Jan 23 2013 Rex Dieter <rdieter@fedoraproject.org> 1.9.1-14.1
+- rebuild (libwebp)
+
 * Thu Dec 13 2012 Peter Robinson <pbrobinson@fedoraproject.org> 1.9.1-14
 - Tweak -fpic CFLAGS to fix FTBFS on ARM
 
