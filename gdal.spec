@@ -33,7 +33,7 @@
 
 Name:      gdal
 Version:   1.9.1
-Release:   17%{?dist}
+Release:   18%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -812,6 +812,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Fri Jan 25 2013 Devrim GÜNDÜZ <devrim@gunduz.org> - 1.9.1-18
+- Rebuild with geos 3.3.7.
+
 * Mon Jan 21 2013 Volker Fröhlich <volker27@gmx.at> - 1.9.1-17
 - Rebuild due to libpoppler 0.22
 
