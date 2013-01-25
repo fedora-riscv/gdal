@@ -30,7 +30,7 @@
 
 Name:      gdal
 Version:   1.9.1
-Release:   14%{?dist}.1
+Release:   15%{?dist}.1
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -801,6 +801,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Fri Jan 25 2013 Devrim GÜNDÜZ <devrim@gunduz.org> - 1.9.1-15.1
+- Rebuild with geos 3.3.7.
+
 * Wed Jan 23 2013 Rex Dieter <rdieter@fedoraproject.org> 1.9.1-14.1
 - rebuild (libwebp)
 
