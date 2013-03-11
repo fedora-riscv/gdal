@@ -48,6 +48,8 @@ Source2:   %{name}.pom
 # Cleaner script for the tarball
 Source3:   %{name}-cleaner.sh
 
+Source4:   PROVENANCE.TXT-fedora
+
 # Patch to use system g2clib
 Patch1:    %{name}-g2clib.patch
 
@@ -284,6 +286,9 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch4 -p1 -b .dods~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .man~
+
+# Copy in PROVENANCE.TXT-fedora
+cp %SOURCE4 .
 
 # Sanitize linebreaks and encoding
 #TODO: Don't touch data directory!
