@@ -32,8 +32,8 @@
 
 
 Name:      gdal
-Version:   1.9.1
-Release:   18%{?dist}
+Version:   1.9.2
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -50,14 +50,6 @@ Source3:   %{name}-cleaner.sh
 
 # Patch to use system g2clib
 Patch1:    %{name}-g2clib.patch
-
-# Support poppler 0.20
-# http://trac.osgeo.org/gdal/ticket/4668
-# Solved in 1.9.2
-Patch2:    %{name}-1.9.1-poppler020.patch
-
-# http://trac.osgeo.org/gdal/changeset/24440#file0
-Patch3:    %{name}-1.9.1-java-swig.patch
 
 Patch4:    %{name}-1.9.1-dods-3.11.3.patch
 
@@ -289,8 +281,6 @@ rm -rf frmts/gtiff/libgeotiff \
 rm -r frmts/grib/degrib18/g2clib-1.0.4
 
 %patch1 -p1 -b .g2clib~
-%patch2 -p4 -b .poppler~
-%patch3 -p4 -b .java-swig~
 %patch4 -p1 -b .dods~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .man~
@@ -812,6 +802,10 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Sun Mar 10 2013 Orion Poplawski <orion@cora.nwra.com> - 1.9.2-1
+- Update to 1.9.2
+- Drop poppler and java-swig patches applied upstream
+
 * Fri Jan 25 2013 Devrim GÜNDÜZ <devrim@gunduz.org> - 1.9.1-18
 - Rebuild with geos 3.3.7.
 
