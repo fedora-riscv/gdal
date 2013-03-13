@@ -33,7 +33,7 @@
 
 Name:      gdal
 Version:   1.9.2
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -193,7 +193,11 @@ Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 %if (0%{?fedora} < 17 || 0%{?rhel})
 Requires: ruby(abi) = 1.8
 %else
+%if 0%{?fedora} < 19
 Requires: ruby(abi) = 1.9.1
+%else
+Requires: ruby(release)
+%endif
 %endif
 
 %description ruby
@@ -807,6 +811,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Wed Mar 13 2013 Vít Ondruch <vondruch@redhat.com> - 1.9.2-2
+- Rebuild for https://fedoraproject.org/wiki/Features/Ruby_2.0.0
+
 * Sun Mar 10 2013 Orion Poplawski <orion@cora.nwra.com> - 1.9.2-1
 - Update to 1.9.2
 - Drop poppler and java-swig patches applied upstream
