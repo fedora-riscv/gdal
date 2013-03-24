@@ -33,7 +33,7 @@
 
 Name:      gdal
 Version:   1.9.2
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -811,6 +811,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Sun Mar 24 2013 Peter Robinson <pbrobinson@fedoraproject.org> 1.9.2-3
+- rebuild (libcfitsio)
+
 * Wed Mar 13 2013 Vít Ondruch <vondruch@redhat.com> - 1.9.2-2
 - Rebuild for https://fedoraproject.org/wiki/Features/Ruby_2.0.0
 
