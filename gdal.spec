@@ -30,7 +30,7 @@
 
 Name:      gdal
 Version:   1.9.1
-Release:   15%{?dist}.1
+Release:   16%{?dist}.1
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -801,6 +801,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Wed Mar 27 2013 Devrim GÜNDÜZ <devrim@gunduz.org> - 1.9.1-16.1
+- Rebuild with geos 3.3.8.
+
 * Fri Jan 25 2013 Devrim GÜNDÜZ <devrim@gunduz.org> - 1.9.1-15.1
 - Rebuild with geos 3.3.7.
 
