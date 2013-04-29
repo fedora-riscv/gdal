@@ -33,7 +33,7 @@
 
 Name:      gdal
 Version:   1.9.2
-Release:   4%{?dist}
+Release:   5%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -811,6 +811,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Mon Apr 29 2013 Peter Robinson <pbrobinson@fedoraproject.org> 1.9.2-5
+- Rebuild for ARM libspatialite issue
+
 * Tue Mar 26 2013 Volker Fröhlich <volker27@gmx.at> - 1.9.2-4
 - Rebuild for cfitsio 3.340
 
