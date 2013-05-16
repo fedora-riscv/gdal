@@ -33,7 +33,7 @@
 
 Name:      gdal
 Version:   1.9.2
-Release:   5%{?dist}
+Release:   6%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -811,6 +811,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Thu May 16 2013 Orion Poplawski <orion@cora.nwra.com> - 1.9.2-6
+- Rebuild for hdf5 1.8.11
+
 * Mon Apr 29 2013 Peter Robinson <pbrobinson@fedoraproject.org> 1.9.2-5
 - Rebuild for ARM libspatialite issue
 
