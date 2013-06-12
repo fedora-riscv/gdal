@@ -33,7 +33,7 @@
 
 Name:      gdal
 Version:   1.9.2
-Release:   6%{?dist}
+Release:   7%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -52,6 +52,8 @@ Source4:   PROVENANCE.TXT-fedora
 
 # Patch to use system g2clib
 Patch1:    %{name}-g2clib.patch
+# Patch for Fedora JNI library location
+Patch2:    %{name}-jni.patch
 
 Patch4:    %{name}-1.9.1-dods-3.11.3.patch
 
@@ -208,20 +210,7 @@ The GDAL Ruby modules provide support to handle multiple GIS file formats.
 Summary: Java modules for the GDAL file format library
 Group: Development/Libraries
 Requires: java >= 1:1.6.0
-
-# Require maven2 for the poms and depmap frag parent dirs
-# Fedora 15 has Maven3 and the package is called maven
-# Notice, maven2 is seemingly not a package in EL, but
-# directories are provided by ant
-%if (0%{?fedora})
-Requires: maven
-%else
-Requires: maven2
-%endif
-
 Requires: jpackage-utils
-Requires(post): jpackage-utils
-Requires(postun): jpackage-utils
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 
 %description java
@@ -287,6 +276,7 @@ rm -rf frmts/gtiff/libgeotiff \
 rm -r frmts/grib/degrib18/g2clib-1.0.4
 
 %patch1 -p1 -b .g2clib~
+%patch2 -p1 -b .jni~
 %patch4 -p1 -b .dods~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .man~
@@ -545,14 +535,15 @@ install -pm 644 %{SOURCE2} %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
 sed -i 's|<version></version>|<version>%{version}</version>|' %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
 
 # Create depmap fragment
-%add_to_maven_depmap org.gdal gdal-java-bindings %{version} JPP %{name}
+%add_maven_depmap JPP-%{name}.pom %{name}.jar
 
 # 775 on the .so?
 # copy JNI libraries and links, non versioned link needed by JNI
 # What is linked here?
+mkdir -p %{buildroot}%{_jnidir}/%{name}
 cp -pl swig/java/.libs/*.so*  \
-    %{buildroot}%{_libdir}
-chrpath --delete %{buildroot}%{_libdir}/*jni.so*
+    %{buildroot}%{_jnidir}/%{name}/
+chrpath --delete %{buildroot}%{_jnidir}/%{name}/*jni.so*
 
 # Install Java API documentation in the designated place
 mkdir -p %{buildroot}%{_javadocdir}/%{name}
@@ -664,9 +655,10 @@ done
 rm -f %{buildroot}%{_datadir}/%{name}/LICENSE.TXT
 
 # Throw away random API man mages plus artefact seemingly caused by Doxygen 1.8.1 or 1.8.1.1
-for f in 'GDAL*' BandProperty ColorAssociation CutlineTransformer DatasetProperty EnhanceCBInfo ListFieldDesc NamedColor OGRSplitListFieldLayer VRTBuilder _builddir_build_BUILD_%{name}-%{version}-fedora_apps_; do
+for f in 'GDAL*' BandProperty ColorAssociation CutlineTransformer DatasetProperty EnhanceCBInfo ListFieldDesc NamedColor OGRSplitListFieldLayer VRTBuilder; do
   rm -rf %{buildroot}%{_mandir}/man1/$f.1*
 done
+rm -f %{buildroot}%{_mandir}/man1/*_%{name}-%{version}-fedora_apps_*
 
 %check
 #for i in -I/usr/lib/jvm/java/include{,/linux}; do
@@ -698,20 +690,9 @@ pushd %{name}autotest-%{testversion}
 popd
 
 
-%clean
-rm -rf %{buildroot}
-
 %post libs -p /sbin/ldconfig
 
 %postun libs -p /sbin/ldconfig
-
-%post java
-/sbin/ldconfig
-%update_maven_depmap
-
-%postun java
-/sbin/ldconfig
-%update_maven_depmap
 
 
 %files
@@ -767,12 +748,9 @@ rm -rf %{buildroot}
 %endif
 
 # Can I even have a separate Java package anymore?
-%files java
+%files java -f .mfiles
 %doc swig/java/apps
-%{_javadir}/%{name}.jar
-%{_libdir}/*jni.so.*
-%{_mavenpomdir}/*
-%{_mavendepmapfragdir}/*
+%{_jnidir}/%{name}/
 
 %files javadoc
 %{_javadocdir}/%{name}
@@ -811,6 +789,9 @@ rm -rf %{buildroot}
 #Or as before, using ldconfig
 
 %changelog
+* Wed Jun 12 2013 Orion Poplawski <orion@cora.nwra.com> - 1.9.2-7
+- Update Java/JNI for new guidelines, also fixes bug #908065
+
 * Thu May 16 2013 Orion Poplawski <orion@cora.nwra.com> - 1.9.2-6
 - Rebuild for hdf5 1.8.11
 
