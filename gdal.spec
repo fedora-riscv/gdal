@@ -792,9 +792,6 @@ popd
 * Wed Jun 12 2013 Orion Poplawski <orion@cora.nwra.com> - 1.9.2-7
 - Update Java/JNI for new guidelines, also fixes bug #908065
 
-* Thu May 16 2013 Orion Poplawski <orion@cora.nwra.com> - 1.9.2-6
-- Rebuild for hdf5 1.8.11
-
 * Mon Apr 29 2013 Peter Robinson <pbrobinson@fedoraproject.org> 1.9.2-5
 - Rebuild for ARM libspatialite issue
 
