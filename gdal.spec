@@ -33,7 +33,7 @@
 
 Name:      gdal
 Version:   1.9.2
-Release:   8%{?dist}
+Release:   9%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -789,6 +789,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Jul 11 2013 Orion Poplawski <orion@cora.nwra.com> - 1.9.2-9
+- Rebuild for cfitsio 3.350
+
 * Mon Jun 24 2013 Volker Fröhlich <volker27@gmx.at> - 1.9.2-8
 - Rebuild for poppler 0.22.5
 
