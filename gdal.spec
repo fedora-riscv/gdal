@@ -33,7 +33,7 @@
 
 Name:      gdal
 Version:   1.9.2
-Release:   9%{?dist}
+Release:   10%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -789,6 +789,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Jul 17 2013 Petr Pisar <ppisar@redhat.com> - 1.9.2-10
+- Perl 5.18 rebuild
+
 * Thu Jul 11 2013 Orion Poplawski <orion@cora.nwra.com> - 1.9.2-9
 - Rebuild for cfitsio 3.350
 
