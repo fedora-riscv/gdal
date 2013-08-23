@@ -900,7 +900,7 @@ popd
 - Harmonize the use of buildroot and RPM_BUILD_ROOT
 - Introduce testversion macro
 
-* Thu Feb 19 2012 Volker Fröhlich <volker27@gmx.at> - 1.7.3-14
+* Sun Feb 19 2012 Volker Fröhlich <volker27@gmx.at> - 1.7.3-14
 - Require Ruby abi
 - Add patch for Ruby 1.9 include dir, back-ported from GDAL 1.9
 - Change version string for gdal-config from <version>-fedora to
@@ -952,7 +952,7 @@ popd
 - Removed Python files from main package files section, that
   effectively already belonged to the Python sub-package
 
-* Thu Apr 11 2011 Volker Fröhlich <volker27@gmx.at> - 1.7.3-8
+* Mon Apr 11 2011 Volker Fröhlich <volker27@gmx.at> - 1.7.3-8
 - Solved image path problem with Latex
 - Removed with-tiff and updated with-sqlite to with-sqlite3
 - Add more refman documents
@@ -1013,7 +1013,7 @@ popd
 * Tue Jul 20 2010 Orion Poplawski <orion@cora.nwra.com> - 1.7.2-4
 - Rebuild with grass support
 
-* Thu Jul 17 2010 Orion Poplawski <orion@cora.nwra.com> - 1.7.2-3
+* Thu Jul 15 2010 Orion Poplawski <orion@cora.nwra.com> - 1.7.2-3
 - Add patch to change AISConnect() to Connect() for libdap 3.10
 - build without grass for libdap soname bump
 
@@ -1121,10 +1121,10 @@ popd
 - drop gcc43 patch
 - more license cleaned
 
-* Wed May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-13
+* Wed May 28 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-13
 - fix pkgconfig too
 
-* Wed May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-12
+* Wed May 28 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-12
 - fix once more gdal-config
 
 * Tue May 27 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-11
@@ -1142,7 +1142,7 @@ popd
 - fix spurious sed problem
 - spec file cosmetics
 
-* Thu May 23 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-8
+* Fri May 23 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-8
 - fix sincos on all arch
 
 * Thu May 15 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.1-7
@@ -1169,7 +1169,7 @@ popd
 - drop large parts from gcc43 patch, some are upstream now
 - fix building with perl-5.10 swig binding issue
 
-* Wed Feb 29 2008 Orion Poplawski <orion@cora.nwra.com> - 1.5.0-4
+* Fri Feb 29 2008 Orion Poplawski <orion@cora.nwra.com> - 1.5.0-4
 - Rebuild for hdf5-1.8.0, use compatability API define
 
 * Tue Feb 12 2008 Balint Cristian <rezso@rdsor.ro> - 1.5.0-3
@@ -1210,10 +1210,10 @@ popd
 * Tue Aug 28 2007 Fedora Release Engineering <rel-eng at fedoraproject dot org> - 1.4.2-3
 - Rebuild for selinux ppc32 issue.
 
-* Wed Jul 24 2007 Balint Cristian <cbalint@redhat.com> 1.4.2-2
+* Wed Jul 25 2007 Balint Cristian <cbalint@redhat.com> 1.4.2-2
 - disable one more HFA test, HFA is unaviable due to license
 
-* Wed Jul 24 2007 Balint Cristian <cbalint@redhat.com> 1.4.2-1
+* Wed Jul 25 2007 Balint Cristian <cbalint@redhat.com> 1.4.2-1
 - new upstream one
 - catch some more docs
 - fix ogr python module runtime
