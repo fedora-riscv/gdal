@@ -32,8 +32,8 @@
 
 
 Name:      gdal
-Version:   1.9.2
-Release:   12%{?dist}
+Version:   1.10.0
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -55,14 +55,8 @@ Patch1:    %{name}-g2clib.patch
 # Patch for Fedora JNI library location
 Patch2:    %{name}-jni.patch
 
-Patch4:    %{name}-1.9.1-dods-3.11.3.patch
-
 # Fedora uses Alternatives for Java
 Patch8:    %{name}-1.9.0-java.patch
-
-# Make man a phony buildtarget; the directory otherwise blocks it
-# Should be solved in 2.0
-Patch9:    %{name}-1.9.0-man.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -109,6 +103,7 @@ BuildRequires: libdap-devel
 BuildRequires: librx-devel
 BuildRequires: mysql-devel
 BuildRequires: numpy
+BuildRequires: pcre-devel
 #BuildRequires: ogdi-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: pkgconfig
@@ -120,7 +115,18 @@ BuildRequires: ruby
 BuildRequires: ruby-devel
 BuildRequires: sqlite-devel
 BuildRequires: swig
-BuildRequires: tetex-latex
+BuildRequires: texlive-latex
+%if 0%{?fedora} >= 20
+BuildRequires: texlive-collection-fontsrecommended
+BuildRequires: texlive-collection-langcyrillic
+BuildRequires: texlive-collection-langportuguese
+BuildRequires: texlive-collection-latex
+BuildRequires: texlive-epstopdf
+BuildRequires: tex(multirow.sty)
+BuildRequires: tex(sectsty.sty)
+BuildRequires: tex(tocloft.sty)
+BuildRequires: tex(xtab.sty)
+%endif
 BuildRequires: unixODBC-devel
 BuildRequires: xerces-c-devel
 BuildRequires: xz-devel
@@ -277,9 +283,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
-%patch4 -p1 -b .dods~
 %patch8 -p1 -b .java~
-%patch9 -p1 -b .man~
 
 # Copy in PROVENANCE.TXT-fedora
 cp %SOURCE4 .
@@ -362,6 +366,9 @@ sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"/usr/lib64\"|g' confi
 %if %cpuarch == 64
   sed -i 's|with_dods_root/lib|with_dods_root/lib64|' configure
 %endif
+
+# Fix mandir
+sed -i "s|^mandir=.*|mandir='\${prefix}/share/man'|" configure
 
 # Activate support for JPEGLS
 sed -i 's|^#HAVE_CHARLS|HAVE_CHARLS|' GDALmake.opt.in
@@ -642,8 +649,7 @@ touch -r NEWS %{buildroot}%{_bindir}/%{name}-config
 chmod 755 %{buildroot}%{_bindir}/%{name}-config
 
 # Clean up junk
-rm -f %{buildroot}%{_bindir}/gdal_sieve.dox
-rm -f %{buildroot}%{_bindir}/gdal_fillnodata.dox
+rm -f %{buildroot}%{_bindir}/*.dox
 
 #jni-libs and libgdal are also built static (*.a)
 #.exists and .packlist stem from Perl
@@ -709,6 +715,7 @@ popd
 %{_bindir}/gdal_grid
 %{_bindir}/gdalenhance
 %{_bindir}/gdalmanage
+%{_bindir}/gdalserver
 %{_bindir}/gdalsrsinfo
 %{_bindir}/gdaltransform
 %{_bindir}/nearblack
@@ -789,6 +796,14 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Aug 23 2013 Orion Poplawski <orion@cora.nwra.com> - 1.10.0-1
+- Update to 1.10.0
+- Enable PCRE support
+- Drop man patch applied upstream
+- Drop dods patch fixed upstream
+- Add more tex BRs to handle changes in texlive packaging
+- Fix man page install location
+
 * Mon Aug 19 2013 Marek Kasik <mkasik@redhat.com> - 1.9.2-12
 - Rebuild (poppler-0.24.0)
 
