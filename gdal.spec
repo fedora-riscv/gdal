@@ -32,7 +32,7 @@
 
 
 Name:      gdal
-Version:   1.10.0
+Version:   1.10.1
 Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
@@ -41,7 +41,7 @@ URL:       http://www.gdal.org
 # Source0:   http://download.osgeo.org/gdal/gdal-%%{version}.tar.gz
 # See PROVENANCE.TXT-fedora and the cleaner script for details!
 
-Source0:   %{name}-%{version}-fedora.tar.gz
+Source0:   %{name}-%{version}-fedora.tar.xz
 Source1:   http://download.osgeo.org/%{name}/%{name}autotest-%{testversion}.tar.gz
 Source2:   %{name}.pom
 
@@ -796,6 +796,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sun Sep  8 2013 Volker Fröhlich <volker27@gmx.at> - 1.10.1-1
+- New upstream release
+
 * Fri Aug 23 2013 Orion Poplawski <orion@cora.nwra.com> - 1.10.0-1
 - Update to 1.10.0
 - Enable PCRE support

@@ -1,8 +1,8 @@
 #!/bin/bash
 # Volker Fröhlich
-VERSION="1.10.0"
+VERSION="1.10.1"
 
-tar xvfz gdal-"${VERSION}".tar.gz
+tar xvfz gdal-"${VERSION}".tar.xz
 
 mv gdal-"${VERSION}"{,-fedora} && pushd gdal-"${VERSION}"-fedora
 
@@ -22,4 +22,4 @@ popd
 
 #TODO: Insert Provenance file
 
-tar cvfz gdal-"${VERSION}"-fedora.tar.gz gdal-"${VERSION}"-fedora
+tar cvfJ gdal-"${VERSION}"-fedora.tar.xz gdal-"${VERSION}"-fedora
