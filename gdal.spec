@@ -23,7 +23,7 @@
 
 
 # Tests can be of a different version
-%global testversion 1.9.0
+%global testversion 1.10.1
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=663938
 %ifnarch ppc ppc64
