@@ -315,6 +315,10 @@ pushd $f
 popd
 done
 
+# Fix build order with parallel make
+# http://trac.osgeo.org/gdal/ticket/5346
+sed -i '/^swig-modules:/s/lib-target/apps-target/' GNUmakefile
+
 # Workaround about wrong result in configure
 # armadillo returns a warning about gcc versions 4.7.0 or 4.7.1
 # due to http://gcc.gnu.org/bugzilla/show_bug.cgi?id=53549
