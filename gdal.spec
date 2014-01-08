@@ -33,7 +33,7 @@
 
 Name:      gdal
 Version:   1.10.1
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -796,6 +796,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Jan 08 2014 Orion Poplawski <orion@cora.nwra.com> - 1.10.1-4
+- Rebuild for cfitsio 3.360
+
 * Thu Jan 02 2014 Orion Poplawski <orion@cora.nwra.com> - 1.10.1-3
 - Rebuild for libwebp soname bump
 
