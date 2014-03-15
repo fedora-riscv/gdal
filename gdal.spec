@@ -33,7 +33,7 @@
 
 Name:      gdal
 Version:   1.9.2
-Release:   7%{?dist}
+Release:   8%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -789,6 +789,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat Mar 15 2014 Volker Fröhlich <volker27@gmx.at> - 1.9.2-8
+- Rebuild for Armadillo 4
+- Correct changelog dates
+
 * Wed Jun 12 2013 Orion Poplawski <orion@cora.nwra.com> - 1.9.2-7
 - Update Java/JNI for new guidelines, also fixes bug #908065
 
