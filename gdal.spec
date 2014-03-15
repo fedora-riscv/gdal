@@ -33,7 +33,7 @@
 
 Name:      gdal
 Version:   1.10.1
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -796,6 +796,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat Mar 15 2014 Volker Fröhlich <volker27@gmx.at> - 1.10.1-2
+- Rebuild for Armadillo 4
+
 * Sun Sep  8 2013 Volker Fröhlich <volker27@gmx.at> - 1.10.1-1
 - New upstream release
 
