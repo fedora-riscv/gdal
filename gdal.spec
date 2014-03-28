@@ -33,7 +33,7 @@
 
 Name:      gdal
 Version:   1.10.1
-Release:   5%{?dist}
+Release:   6%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -215,7 +215,6 @@ The GDAL Ruby modules provide support to handle multiple GIS file formats.
 %package java
 Summary: Java modules for the GDAL file format library
 Group: Development/Libraries
-Requires: java >= 1:1.6.0
 Requires: jpackage-utils
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 
@@ -800,6 +799,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Mar 28 2014 Michael Simacek <msimacek@redhat.com> - 1.10.1-6
+- Use Requires: java-headless rebuild (#1067528)
+
 * Fri Jan 10 2014 Orion Poplawski <orion@cora.nwra.com> - 1.10.1-5
 - Rebuild for armadillo soname bump
 
