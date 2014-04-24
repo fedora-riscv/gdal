@@ -33,7 +33,7 @@
 
 Name:      gdal
 Version:   1.10.1
-Release:   6%{?dist}
+Release:   7%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -799,6 +799,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Apr 24 2014 Vít Ondruch <vondruch@redhat.com> - 1.10.1-7
+- Rebuilt for https://fedoraproject.org/wiki/Changes/Ruby_2.1
+
 * Fri Mar 28 2014 Michael Simacek <msimacek@redhat.com> - 1.10.1-6
 - Use Requires: java-headless rebuild (#1067528)
 
