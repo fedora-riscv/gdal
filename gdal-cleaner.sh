@@ -1,8 +1,8 @@
 #!/bin/bash
 # Volker Fröhlich
-VERSION="1.10.1"
+VERSION="1.11.0"
 
-tar xvfz gdal-"${VERSION}".tar.xz
+tar xvf gdal-"${VERSION}".tar.xz
 
 mv gdal-"${VERSION}"{,-fedora} && pushd gdal-"${VERSION}"-fedora
 
