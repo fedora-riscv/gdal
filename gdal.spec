@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.0
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -763,6 +763,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.11.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
 * Fri Apr 25 2014 Volker Fröhlich <volker27@gmx.at> - 1.11.0-1
 - New upstream release
 - Remove libgcj as BR, as it no longer exists in F21
