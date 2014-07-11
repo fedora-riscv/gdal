@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.0
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -763,6 +763,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Jul 11 2014 Orion Poplawski <orion@cora.nwra.com> - 1.11.0-3
+- Rebuild for libdap 3.13.1
+
 * Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.11.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
