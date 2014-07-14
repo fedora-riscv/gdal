@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.0
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -763,6 +763,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Jul 14 2014 Orion Poplawski <orion@cora.nwra.com> - 1.11.0-4
+- Rebuild for libgeotiff 1.4.0
+
 * Fri Jul 11 2014 Orion Poplawski <orion@cora.nwra.com> - 1.11.0-3
 - Rebuild for libdap 3.13.1
 
