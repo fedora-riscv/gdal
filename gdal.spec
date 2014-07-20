@@ -29,9 +29,9 @@
 %global with_spatialite 1
 %global spatialite "--with-spatialite"
 
-# No ppc64 build for spatialite in EL6
+# No ppc64 build for spatialite in EL7
 # https://bugzilla.redhat.com/show_bug.cgi?id=663938
-%if 0%{?rhel} == 6
+%if 0%{?rhel} == 7
 %ifnarch ppc64
 %global with_spatialite 0
 %global spatialite "--without-spatialite"
