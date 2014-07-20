@@ -31,7 +31,13 @@
 
 # No ppc64 build for spatialite in EL7
 # https://bugzilla.redhat.com/show_bug.cgi?id=663938
-ExcludeArch: ppc64
+%if 0%{?rhel} == 7
+%ifnarch ppc64
+%global with_spatialite 0
+%global spatialite "--without-spatialite"
+%endif
+%endif
+ 
 
 Name:      gdal
 Version:   1.11.0
