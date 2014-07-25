@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.0
-Release:   4%{?dist}
+Release:   5%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -763,6 +763,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Jul 25 2014 Peter Robinson <pbrobinson@fedoraproject.org> 1.11.0-5
+- rebuild (libspatialite)
+
 * Mon Jul 14 2014 Orion Poplawski <orion@cora.nwra.com> - 1.11.0-4
 - Rebuild for libgeotiff 1.4.0
 
