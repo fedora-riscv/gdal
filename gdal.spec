@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.0
-Release:   5%{?dist}
+Release:   6%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -607,7 +607,7 @@ cat > %{buildroot}%{_bindir}/%{name}-config <<EOF
 
 ARCH=\$(uname -m)
 case \$ARCH in
-x86_64 | ppc64 | ia64 | s390x | sparc64 | alpha | alphaev6 )
+x86_64 | ppc64 | ia64 | s390x | sparc64 | alpha | alphaev6 | aarch64 )
 %{name}-config-64 \${*}
 ;;
 *)
@@ -763,6 +763,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Aug 14 2014 Volker Fröhlich <volker27@gmx.at> - 1.11.0-6
+- Add aarch64 to gdal-config script (BZ#1129295)
+
 * Fri Jul 25 2014 Peter Robinson <pbrobinson@fedoraproject.org> 1.11.0-5
 - rebuild (libspatialite)
 
