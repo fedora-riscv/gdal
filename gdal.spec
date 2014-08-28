@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.0
-Release:   8%{?dist}
+Release:   9%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -763,6 +763,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Aug 28 2014 Jitka Plesnikova <jplesnik@redhat.com> - 1.11.0-9
+- Perl 5.20 rebuild
+
 * Mon Aug 25 2014 Devrim Gündüz <devrim@gunduz.org> - 1.11.0-7
 - Rebuilt for libgeotiff 
 
