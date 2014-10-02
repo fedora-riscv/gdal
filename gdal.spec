@@ -23,7 +23,7 @@
 
 
 # Tests can be of a different version
-%global testversion 1.11.0
+%global testversion 1.11.1
 %global run_tests 1
 
 %global with_spatialite 1
@@ -40,8 +40,8 @@
 
 
 Name:      gdal
-Version:   1.11.0
-Release:   9%{?dist}
+Version:   1.11.1
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -50,7 +50,7 @@ URL:       http://www.gdal.org
 # See PROVENANCE.TXT-fedora and the cleaner script for details!
 
 Source0:   %{name}-%{version}-fedora.tar.xz
-Source1:   http://download.osgeo.org/%{name}/%{name}autotest-%{testversion}.tar.gz
+Source1:   http://download.osgeo.org/%{name}/%{testversion}/%{name}autotest-%{testversion}.tar.gz
 Source2:   %{name}.pom
 
 # Cleaner script for the tarball
@@ -763,6 +763,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Oct  2 2014 Volker Fröhlich <volker27@gmx.at> - 1.11.1-1
+- New release
+- Correct test suite source URL
+
 * Thu Aug 28 2014 Jitka Plesnikova <jplesnik@redhat.com> - 1.11.0-9
 - Perl 5.20 rebuild
 
