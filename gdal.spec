@@ -23,7 +23,7 @@
 
 
 # Tests can be of a different version
-%global testversion 1.11.1
+%global testversion 1.11.2
 %global run_tests 1
 
 %global with_spatialite 1
@@ -40,7 +40,7 @@
  
 
 Name:      gdal
-Version:   1.11.1
+Version:   1.11.2
 Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
@@ -493,6 +493,7 @@ mkdir -p %{buildroot}%{_libdir}/%{name}plugins
 
 #TODO: Don't do that?
 find %{buildroot}%{perl_vendorarch} -name "*.dox" -exec rm -rf '{}' \;
+rm -f %{buildroot}%{perl_archlib}/perllocal.pod
 
 # Correct permissions
 #TODO and potential ticket: Why are the permissions not correct?
@@ -607,7 +608,7 @@ cat > %{buildroot}%{_bindir}/%{name}-config <<EOF
 
 ARCH=\$(uname -m)
 case \$ARCH in
-x86_64 | ppc64 | ia64 | s390x | sparc64 | alpha | alphaev6 )
+x86_64 | ppc64 | ppc64le | ia64 | s390x | sparc64 | alpha | alphaev6 | aarch64 )
 %{name}-config-64 \${*}
 ;;
 *)
@@ -763,6 +764,11 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Jul  7 2015 Volker Fröhlich <volker27@gmx.at> - 1.11.2-1
+- New release
+- Update gdal-config for aarch64 and ppc64le
+- Don't try to install perllocal.pod (bz 1161231)
+
 * Tue Nov 18 2014 Volker Fröhlich <volker27@gmx.at> - 1.11.1-1
 - New release
 - Correct test suite source URL
