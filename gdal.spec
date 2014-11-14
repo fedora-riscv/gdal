@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.1
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -607,7 +607,7 @@ cat > %{buildroot}%{_bindir}/%{name}-config <<EOF
 
 ARCH=\$(uname -m)
 case \$ARCH in
-x86_64 | ppc64 | ia64 | s390x | sparc64 | alpha | alphaev6 | aarch64 )
+x86_64 | ppc64 | ppc64le | ia64 | s390x | sparc64 | alpha | alphaev6 | aarch64 )
 %{name}-config-64 \${*}
 ;;
 *)
@@ -763,6 +763,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Nov 14 2014 Dan Horák <dan[at]danny.cz> - 1.11.1-2
+- update gdal-config for ppc64le
+
 * Thu Oct  2 2014 Volker Fröhlich <volker27@gmx.at> - 1.11.1-1
 - New release
 - Correct test suite source URL
