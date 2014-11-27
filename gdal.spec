@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.1
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -763,6 +763,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Nov 27 2014 Marek Kasik <mkasik@redhat.com> - 1.11.1-3
+- Rebuild (poppler-0.28.1)
+
 * Fri Nov 14 2014 Dan Horák <dan[at]danny.cz> - 1.11.1-2
 - update gdal-config for ppc64le
 
