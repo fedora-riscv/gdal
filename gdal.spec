@@ -493,6 +493,7 @@ mkdir -p %{buildroot}%{_libdir}/%{name}plugins
 
 #TODO: Don't do that?
 find %{buildroot}%{perl_vendorarch} -name "*.dox" -exec rm -rf '{}' \;
+rm -f %{buildroot}%{perl_archlib}/perllocal.pod
 
 # Correct permissions
 #TODO and potential ticket: Why are the permissions not correct?
@@ -763,6 +764,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Dec  2 2014 Jerry James <loganjerry@gmail.com> - 1.11.1-3
+- Don't try to install perllocal.pod (bz 1161231)
+
 * Thu Nov 27 2014 Marek Kasik <mkasik@redhat.com> - 1.11.1-3
 - Rebuild (poppler-0.28.1)
 
