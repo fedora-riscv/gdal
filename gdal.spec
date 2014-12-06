@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.1
-Release:   2%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -65,6 +65,9 @@ Patch2:    %{name}-jni.patch
 
 # Fedora uses Alternatives for Java
 Patch8:    %{name}-1.9.0-java.patch
+
+# http://trac.osgeo.org/gdal/changeset/27949
+Patch9:    %{name}-1.11.1-sqlite-crash.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -266,6 +269,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
 %patch8 -p1 -b .java~
+%patch9 -p3 -b .sqlite~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -493,6 +497,7 @@ mkdir -p %{buildroot}%{_libdir}/%{name}plugins
 
 #TODO: Don't do that?
 find %{buildroot}%{perl_vendorarch} -name "*.dox" -exec rm -rf '{}' \;
+rm -f %{buildroot}%{perl_archlib}/perllocal.pod
 
 # Correct permissions
 #TODO and potential ticket: Why are the permissions not correct?
@@ -763,6 +768,15 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat Dec  6 2014 Volker Fröhlich <volker27@gmx.at> - 1.11.1-4
+- Apply upstream changeset 27949 to prevent a crash when using sqlite 3.8.7
+
+* Tue Dec  2 2014 Jerry James <loganjerry@gmail.com> - 1.11.1-3
+- Don't try to install perllocal.pod (bz 1161231)
+
+* Thu Nov 27 2014 Marek Kasik <mkasik@redhat.com> - 1.11.1-3
+- Rebuild (poppler-0.28.1)
+
 * Fri Nov 14 2014 Dan Horák <dan[at]danny.cz> - 1.11.1-2
 - update gdal-config for ppc64le
 
