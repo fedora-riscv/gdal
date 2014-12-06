@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.1
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -65,6 +65,9 @@ Patch2:    %{name}-jni.patch
 
 # Fedora uses Alternatives for Java
 Patch8:    %{name}-1.9.0-java.patch
+
+# http://trac.osgeo.org/gdal/changeset/27949
+Patch9:    %{name}-1.11.1-sqlite-crash.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -266,6 +269,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
 %patch8 -p1 -b .java~
+%patch9 -p3 -b .sqlite~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -764,6 +768,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat Dec  6 2014 Volker Fröhlich <volker27@gmx.at> - 1.11.1-4
+- Apply upstream changeset 27949 to prevent a crash when using sqlite 3.8.7
+
 * Tue Dec  2 2014 Jerry James <loganjerry@gmail.com> - 1.11.1-3
 - Don't try to install perllocal.pod (bz 1161231)
 
