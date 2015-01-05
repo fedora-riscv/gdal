@@ -333,7 +333,7 @@ rm -rf $RPM_BUILD_ROOT
 %{perl_vendorarch}/*
 
 %changelog
-* Mon Jan 5 2014 Devrim Gunduz <devrim@gunduz.org> 1.4.2-5
+* Mon Jan 5 2015 Devrim Gunduz <devrim@gunduz.org> 1.4.2-5
 - Rebuild for new xerces
 
 * Thu Aug 09 2007 Balint Cristian <cbalint@redhat.com> 1.4.2-4
