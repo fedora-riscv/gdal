@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.1
-Release:   4%{?dist}
+Release:   5%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -768,6 +768,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Jan 07 2015 Orion Poplawski <orion@cora.nwra.com> - 1.11.1-5
+- Rebuild for hdf5 1.8.4
+
 * Sat Dec  6 2014 Volker Fröhlich <volker27@gmx.at> - 1.11.1-4
 - Apply upstream changeset 27949 to prevent a crash when using sqlite 3.8.7
 
