@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.1
-Release:   5%{?dist}
+Release:   6%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -768,6 +768,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Jan 23 2015 Marek Kasik <mkasik@redhat.com> - 1.11.1-6
+- Rebuild (poppler-0.30.0)
+
 * Wed Jan 07 2015 Orion Poplawski <orion@cora.nwra.com> - 1.11.1-5
 - Rebuild for hdf5 1.8.4
 
