@@ -66,9 +66,6 @@ Patch2:    %{name}-jni.patch
 # Fedora uses Alternatives for Java
 Patch8:    %{name}-1.9.0-java.patch
 
-# http://trac.osgeo.org/gdal/changeset/27949
-Patch9:    %{name}-1.11.1-sqlite-crash.patch
-
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: ant
@@ -269,7 +266,6 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
 %patch8 -p1 -b .java~
-%patch9 -p3 -b .sqlite~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -770,6 +766,7 @@ popd
 %changelog
 * Tue Feb 17 2015 Volker Fröhlich <volker27@gmx.at> - 1.11.2-1
 - New release
+- Remove obsolete sqlite patch
 
 * Fri Jan 23 2015 Marek Kasik <mkasik@redhat.com> - 1.11.1-6
 - Rebuild (poppler-0.30.0)
