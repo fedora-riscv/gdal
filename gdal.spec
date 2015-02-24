@@ -23,7 +23,7 @@
 
 
 # Tests can be of a different version
-%global testversion 1.11.1
+%global testversion 1.11.2
 %global run_tests 1
 
 %global with_spatialite 1
@@ -40,8 +40,8 @@
 
 
 Name:      gdal
-Version:   1.11.1
-Release:   6%{?dist}
+Version:   1.11.2
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -768,6 +768,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Feb 17 2015 Volker Fröhlich <volker27@gmx.at> - 1.11.2-1
+- New release
+
 * Fri Jan 23 2015 Marek Kasik <mkasik@redhat.com> - 1.11.1-6
 - Rebuild (poppler-0.30.0)
 
