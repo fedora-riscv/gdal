@@ -768,12 +768,6 @@ popd
 - New release
 - Remove obsolete sqlite patch
 
-* Fri Jan 23 2015 Marek Kasik <mkasik@redhat.com> - 1.11.1-6
-- Rebuild (poppler-0.30.0)
-
-* Wed Jan 07 2015 Orion Poplawski <orion@cora.nwra.com> - 1.11.1-5
-- Rebuild for hdf5 1.8.4
-
 * Sat Dec  6 2014 Volker Fröhlich <volker27@gmx.at> - 1.11.1-4
 - Apply upstream changeset 27949 to prevent a crash when using sqlite 3.8.7
 
