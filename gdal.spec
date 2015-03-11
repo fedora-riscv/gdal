@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.2
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -764,6 +764,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Mar 11 2015 Devrim Gündüz <devrim@gunduz.org> - 1.11.2-2
+- Rebuilt for proj 4.9.1
+
 * Tue Feb 17 2015 Volker Fröhlich <volker27@gmx.at> - 1.11.2-1
 - New release
 - Remove obsolete sqlite patch
