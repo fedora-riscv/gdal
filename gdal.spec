@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.2
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -764,6 +764,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Mar 31 2015 Orion Poplawski <orion@cora.nwra.com> - 1.11.2-3
+- Rebuild for g2clib fix
+
 * Wed Mar 11 2015 Devrim Gündüz <devrim@gunduz.org> - 1.11.2-2
 - Rebuilt for proj 4.9.1
 
