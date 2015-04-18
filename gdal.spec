@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.2
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -764,6 +764,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat Apr 18 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 1.11.2-4
+- Rebuild for gcc-5.0.1 ABI changes.
+
 * Tue Mar 31 2015 Orion Poplawski <orion@cora.nwra.com> - 1.11.2-3
 - Rebuild for g2clib fix
 
