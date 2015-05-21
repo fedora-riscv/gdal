@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.2
-Release:   5%{?dist}
+Release:   6%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -322,7 +322,7 @@ sed -i 's|-L\$with_geotiff\/lib -lgeotiff $LIBS|-lgeotiff $LIBS|g' configure
 
 # libproj is dlopened; upstream sources point to .so, which is usually not present
 # http://trac.osgeo.org/gdal/ticket/3602
-sed -i 's|libproj.so|libproj.so.0|g' ogr/ogrct.cpp
+sed -i 's|libproj.so|libproj.so.9|g' ogr/ogrct.cpp
 
 # Fix Python installation path
 sed -i 's|setup.py install|setup.py install --root=%{buildroot}|' swig/python/GNUmakefile
@@ -764,6 +764,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu May 11 2015 Devrim Gündüz <devrim@gunduz.org> - 1.11.2-6
+- Fix proj soname in ogr/ogrct.cpp. Per report from Sandro Mani.
+  Fixes #1212215.
+
 * Sun May 17 2015 Orion Poplawski <orion@cora.nwra.com> - 1.11.2-5
 - Rebuild for hdf5 1.8.15
 
