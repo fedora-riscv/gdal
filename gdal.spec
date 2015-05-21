@@ -21,6 +21,8 @@
 #TODO: EvenR suggested to drop Ruby bindings, as they are unmaintained
 # He also suggest to use --with-static-proj4 to actually link to proj, instead of dlopen()ing it.
 
+# Major digit of the proj so version
+%global proj_somaj 9
 
 # Tests can be of a different version
 %global testversion 1.11.2
@@ -140,6 +142,13 @@ BuildRequires: zlib-devel
 
 # Run time dependency for gpsbabel driver
 Requires: gpsbabel
+
+# proj DL-opened in ogrct.cpp, see also fix in %%prep
+%if 0%{?__isa_bits} == 64
+Requires: libproj.so.%{proj_somaj}()(64bit)
+%else
+Requires: libproj.so.%{proj_somaj}
+%endif
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 
@@ -322,8 +331,8 @@ sed -i 's|-L\$with_geotiff\/lib -lgeotiff $LIBS|-lgeotiff $LIBS|g' configure
 
 # libproj is dlopened; upstream sources point to .so, which is usually not present
 # http://trac.osgeo.org/gdal/ticket/3602
-sed -i 's|libproj.so|libproj.so.9|g' ogr/ogrct.cpp
-
+sed -i 's|libproj.so|libproj.so.%{proj_somaj}|g' ogr/ogrct.cpp
+ 
 # Fix Python installation path
 sed -i 's|setup.py install|setup.py install --root=%{buildroot}|' swig/python/GNUmakefile
 
@@ -765,8 +774,8 @@ popd
 
 %changelog
 * Thu May 21 2015 Devrim Gündüz <devrim@gunduz.org> - 1.11.2-6
-- Fix proj soname in ogr/ogrct.cpp. Per report from Sandro Mani.
-  Fixes #1212215.
+- Fix proj soname in ogr/ogrct.cpp. Patch from Sandro Mani
+  <manisandro @ gmail.com>  Fixes #1212215.
 
 * Sun May 17 2015 Orion Poplawski <orion@cora.nwra.com> - 1.11.2-5
 - Rebuild for hdf5 1.8.15
