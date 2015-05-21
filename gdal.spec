@@ -764,7 +764,7 @@ popd
 #Or as before, using ldconfig
 
 %changelog
-* Thu May 11 2015 Devrim Gündüz <devrim@gunduz.org> - 1.11.2-6
+* Thu May 21 2015 Devrim Gündüz <devrim@gunduz.org> - 1.11.2-6
 - Fix proj soname in ogr/ogrct.cpp. Per report from Sandro Mani.
   Fixes #1212215.
 
