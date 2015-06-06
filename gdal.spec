@@ -43,7 +43,7 @@
 
 Name:      gdal
 Version:   1.11.2
-Release:   6%{?dist}
+Release:   7%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -773,6 +773,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat Jun 06 2015 Jitka Plesnikova <jplesnik@redhat.com> - 1.11.2-7
+- Perl 5.22 rebuild
+
 * Thu May 21 2015 Devrim Gündüz <devrim@gunduz.org> - 1.11.2-6
 - Fix proj soname in ogr/ogrct.cpp. Patch from Sandro Mani
   <manisandro @ gmail.com>  Fixes #1212215.
