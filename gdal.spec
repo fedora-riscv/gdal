@@ -43,7 +43,7 @@
 
 Name:      gdal
 Version:   1.11.2
-Release:   7%{?dist}
+Release:   8%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -67,6 +67,10 @@ Patch2:    %{name}-jni.patch
 
 # Fedora uses Alternatives for Java
 Patch8:    %{name}-1.9.0-java.patch
+
+# update for poppler >= 31
+# http://trac.osgeo.org/gdal/changeset/28438/
+Patch9:    %{name}-svn28438-poppler31.diff
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -275,6 +279,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
 %patch8 -p1 -b .java~
+%patch9 -p1 -b .poppler31~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -773,6 +778,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Jun 09 2015 Dan Horák <dan[at]danny.cz> - 1.11.2-8
+- add upstream patch for poppler >= 31
+
 * Sat Jun 06 2015 Jitka Plesnikova <jplesnik@redhat.com> - 1.11.2-7
 - Perl 5.22 rebuild
 
