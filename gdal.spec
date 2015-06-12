@@ -43,7 +43,7 @@
 
 Name:      gdal
 Version:   1.11.2
-Release:   8%{?dist}
+Release:   9%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -778,6 +778,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Jun 12 2015 Volker Fröhlich <volker27@gmx.at> - 1.11.2-9
+- Rebuild for Perl's dropped module_compat_5.20.*
+
 * Tue Jun 09 2015 Dan Horák <dan[at]danny.cz> - 1.11.2-8
 - add upstream patch for poppler >= 31
 
