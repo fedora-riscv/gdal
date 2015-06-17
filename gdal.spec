@@ -43,7 +43,7 @@
 
 Name:      gdal
 Version:   1.11.2
-Release:   9%{?dist}
+Release:   10%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -778,6 +778,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.11.2-10
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Fri Jun 12 2015 Volker Fröhlich <volker27@gmx.at> - 1.11.2-9
 - Rebuild for Perl's dropped module_compat_5.20.*
 
