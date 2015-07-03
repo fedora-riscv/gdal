@@ -43,7 +43,7 @@
 
 Name:      gdal
 Version:   1.11.2
-Release:   10%{?dist}
+Release:   11%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -337,7 +337,7 @@ sed -i 's|-L\$with_geotiff\/lib -lgeotiff $LIBS|-lgeotiff $LIBS|g' configure
 # libproj is dlopened; upstream sources point to .so, which is usually not present
 # http://trac.osgeo.org/gdal/ticket/3602
 sed -i 's|libproj.so|libproj.so.%{proj_somaj}|g' ogr/ogrct.cpp
- 
+
 # Fix Python installation path
 sed -i 's|setup.py install|setup.py install --root=%{buildroot}|' swig/python/GNUmakefile
 
@@ -778,6 +778,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Jul  3 2015 José Matos <jamatos@fedoraproject.org> - 1.11.2-11
+- Rebuild for armadillo 5(.xxx.y)
+
 * Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.11.2-10
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
@@ -836,7 +839,7 @@ popd
 - Perl 5.20 rebuild
 
 * Mon Aug 25 2014 Devrim Gündüz <devrim@gunduz.org> - 1.11.0-7
-- Rebuilt for libgeotiff 
+- Rebuilt for libgeotiff
 
 * Sat Aug 16 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.11.0-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
