@@ -766,8 +766,8 @@ popd
 %changelog
 * Tue Jul  7 2015 Volker Fröhlich <volker27@gmx.at> - 1.11.2-1
 - New release
-- Update gdal-config for aarch64 and ppc64le
-- Don't try to install perllocal.pod (bz 1161231)
+- Rebuild for g2clib (bz 1203582)
+- Update gdal-config for aarch64 and ppc64le (bz 1227642)
 
 * Tue Nov 18 2014 Volker Fröhlich <volker27@gmx.at> - 1.11.1-1
 - New release
