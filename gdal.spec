@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.2
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -764,6 +764,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Jul  8 2015 José Matos <jamatos@fedoraproject.org> - 1.11.2-4
+- Rebuild for armadillo 5(.xxx.y)
+
 * Tue Mar 31 2015 Orion Poplawski <orion@cora.nwra.com> - 1.11.2-3
 - Rebuild for g2clib fix
 
@@ -800,7 +803,7 @@ popd
 - Perl 5.20 rebuild
 
 * Mon Aug 25 2014 Devrim Gündüz <devrim@gunduz.org> - 1.11.0-7
-- Rebuilt for libgeotiff 
+- Rebuilt for libgeotiff
 
 * Sat Aug 16 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.11.0-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
