@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.2
-Release:   1%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -764,6 +764,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Jul  8 2015 José Matos <jamatos@fedoraproject.org> - 1.11.2-4
+- Rebuild for armadillo 5(.xxx.y)
+
 * Tue Feb 17 2015 Volker Fröhlich <volker27@gmx.at> - 1.11.2-1
 - New release
 - Remove obsolete sqlite patch
