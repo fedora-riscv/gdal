@@ -43,7 +43,7 @@
 
 Name:      gdal
 Version:   1.11.2
-Release:   11%{?dist}
+Release:   12%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -778,6 +778,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Jul 22 2015 Marek Kasik <mkasik@redhat.com> - 1.11.2-12
+- Rebuild (poppler-0.34.0)
+
 * Fri Jul  3 2015 José Matos <jamatos@fedoraproject.org> - 1.11.2-11
 - Rebuild for armadillo 5(.xxx.y)
 
