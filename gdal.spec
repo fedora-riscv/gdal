@@ -25,7 +25,7 @@
 %global proj_somaj 9
 
 # Tests can be of a different version
-%global testversion 1.11.2
+%global testversion 2.0.0
 %global run_tests 1
 
 %global with_spatialite 1
@@ -42,13 +42,13 @@
 
 
 Name:      gdal
-Version:   1.11.2
-Release:   12%{?dist}
+Version:   2.0.0
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
 URL:       http://www.gdal.org
-# Source0:   http://download.osgeo.org/gdal/gdal-%%{version}.tar.gz
+# Source0:   http://download.osgeo.org/gdal/%%{version}/gdal-%%{version}.tar.xz
 # See PROVENANCE.TXT-fedora and the cleaner script for details!
 
 Source0:   %{name}-%{version}-fedora.tar.xz
@@ -68,9 +68,10 @@ Patch2:    %{name}-jni.patch
 # Fedora uses Alternatives for Java
 Patch8:    %{name}-1.9.0-java.patch
 
-# update for poppler >= 31
-# http://trac.osgeo.org/gdal/changeset/28438/
-Patch9:    %{name}-svn28438-poppler31.diff
+# Perl SWIG comments and string formatting
+# https://trac.osgeo.org/gdal/ticket/6039
+# https://trac.osgeo.org/gdal/ticket/6050
+Patch9:    %{name}-2.0.0-swig-perl.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -79,7 +80,7 @@ BuildRequires: ant
 BuildRequires: armadillo-devel
 BuildRequires: cfitsio-devel
 # No CharLS in EL5
-BuildRequires: CharLS-devel
+#BuildRequires: CharLS-devel
 BuildRequires: chrpath
 BuildRequires: curl-devel
 BuildRequires: doxygen
@@ -279,7 +280,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
 %patch8 -p1 -b .java~
-%patch9 -p1 -b .poppler31~
+%patch9 -p1 -b .swig~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -356,9 +357,9 @@ sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"/usr/lib64\"|g' confi
 sed -i "s|^mandir=.*|mandir='\${prefix}/share/man'|" configure
 
 # Activate support for JPEGLS
-sed -i 's|^#HAVE_CHARLS|HAVE_CHARLS|' GDALmake.opt.in
-sed -i 's|#CHARLS_INC = -I/path/to/charls_include|CHARLS_INC = -I%{_includedir}/CharLS|' GDALmake.opt.in
-sed -i 's|#CHARLS_LIB = -L/path/to/charls_lib -lCharLS|CHARLS_LIB = -lCharLS|' GDALmake.opt.in
+#sed -i 's|^#HAVE_CHARLS|HAVE_CHARLS|' GDALmake.opt.in
+#sed -i 's|#CHARLS_INC = -I/path/to/charls_include|CHARLS_INC = -I%{_includedir}/CharLS|' GDALmake.opt.in
+#sed -i 's|#CHARLS_LIB = -L/path/to/charls_lib -lCharLS|CHARLS_LIB = -lCharLS|' GDALmake.opt.in
 
 # Replace default plug-in dir
 # Solved in 2.0
@@ -778,6 +779,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sun Jul 26 2015 Volker Froehlich <volker27@gmx.at> - 2.0.0-1
+- Disable charls support due to build issues
+- Solve a string formatting and comment errors in the Perl swig template
+
 * Wed Jul 22 2015 Marek Kasik <mkasik@redhat.com> - 1.11.2-12
 - Rebuild (poppler-0.34.0)
 
