@@ -43,7 +43,7 @@
 
 Name:      gdal
 Version:   2.0.0
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -72,6 +72,9 @@ Patch8:    %{name}-1.9.0-java.patch
 # https://trac.osgeo.org/gdal/ticket/6039
 # https://trac.osgeo.org/gdal/ticket/6050
 Patch9:    %{name}-2.0.0-swig-perl.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1249703
+Patch10:   %{name}-2.0.0-xopen-source.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -281,6 +284,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch2 -p1 -b .jni~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .swig~
+%patch10 -p1 -b .xopen~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -779,6 +783,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sun Aug 09 2015 Jonathan Wakely <jwakely@redhat.com> 2.0.0-2
+- Patch to set _XOPEN_SOURCE correctly (bug #1249703)
+
 * Sun Jul 26 2015 Volker Froehlich <volker27@gmx.at> - 2.0.0-1
 - Disable charls support due to build issues
 - Solve a string formatting and comment errors in the Perl swig template
