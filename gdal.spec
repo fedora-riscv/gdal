@@ -43,7 +43,7 @@
 
 Name:      gdal
 Version:   2.0.0
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -783,6 +783,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Aug 27 2015 Jonathan Wakely <jwakely@redhat.com> - 2.0.0-3
+- Rebuilt for Boost 1.59
+
 * Sun Aug 09 2015 Jonathan Wakely <jwakely@redhat.com> 2.0.0-2
 - Patch to set _XOPEN_SOURCE correctly (bug #1249703)
 
