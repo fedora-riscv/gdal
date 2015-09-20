@@ -1,4 +1,4 @@
-#TODO: g2clib and grib (said to be modified)
+an#TODO: g2clib and grib (said to be modified)
 #TODO: Python 3 modules should be possible since 1.7
 #TODO: Create script to make clean tarball
 #TODO: msg needs to have PublicDecompWT.zip from EUMETSAT, which is not free;
@@ -43,7 +43,7 @@
 
 Name:      gdal
 Version:   2.0.0
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -123,6 +123,7 @@ BuildRequires: mysql-devel
 BuildRequires: numpy
 BuildRequires: pcre-devel
 BuildRequires: ogdi-devel
+BuildRequires: openjpeg2-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: pkgconfig
 BuildRequires: poppler-devel
@@ -391,7 +392,6 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 
 # For future reference:
 # epsilon: Stalled review -- https://bugzilla.redhat.com/show_bug.cgi?id=660024
-# openjpeg 2.0 necessary, 1.4 is in Fedora
 # Building without pgeo driver, because it drags in Java
 
 %configure \
@@ -426,7 +426,7 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
         --with-odbc               \
         --with-ogdi               \
         --without-msg             \
-        --without-openjpeg        \
+        --with-openjpeg           \
         --with-pcraster           \
         --with-pg                 \
         --with-png                \
@@ -783,6 +783,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sun Sep 20 2015 Volker Froehlich <volker27@gmx.at> - 2.0.0-4
+- Support openjpeg2
+
 * Thu Aug 27 2015 Jonathan Wakely <jwakely@redhat.com> - 2.0.0-3
 - Rebuilt for Boost 1.59
 
