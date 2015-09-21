@@ -74,6 +74,7 @@ Patch8:    %{name}-1.9.0-java.patch
 Patch9:    %{name}-2.0.0-swig-perl.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1249703
+# Solved in https://trac.osgeo.org/gdal/ticket/6072
 Patch10:   %{name}-2.0.0-xopen-source.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
