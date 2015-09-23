@@ -18,7 +18,6 @@
 # Sadly noarch doesn't work in EL 5, see
 # http://fedoraproject.org/wiki/EPEL/GuidelinesAndPolicies
 
-#TODO: EvenR suggested to drop Ruby bindings, as they are unmaintained
 # He also suggest to use --with-static-proj4 to actually link to proj, instead of dlopen()ing it.
 
 # Major digit of the proj so version
@@ -208,6 +207,7 @@ This package contains development files for GDAL.
 %package libs
 Summary: GDAL file format library
 Group: System Environment/Libraries
+# https://trac.osgeo.org/gdal/ticket/3978#comment:5
 Obsoletes: %{name}-ruby < 1.11.0-1
 
 %description libs
