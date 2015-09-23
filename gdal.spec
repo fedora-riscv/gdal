@@ -42,7 +42,7 @@
 
 Name:      gdal
 Version:   2.0.0
-Release:   4%{?dist}
+Release:   5%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -784,6 +784,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Sep 23 2015 Orion Poplawski <orion@cora.nwra.com> - 2.0.0-5
+- Rebuild for libdap 3.15.1
+
 * Sun Sep 20 2015 Volker Froehlich <volker27@gmx.at> - 2.0.0-4
 - Support openjpeg2
 
