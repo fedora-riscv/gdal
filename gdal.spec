@@ -24,7 +24,7 @@
 %global proj_somaj 9
 
 # Tests can be of a different version
-%global testversion 2.0.0
+%global testversion 2.0.1
 %global run_tests 1
 
 %global with_spatialite 1
@@ -41,8 +41,8 @@
 
 
 Name:      gdal
-Version:   2.0.0
-Release:   5%{?dist}
+Version:   2.0.1
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -66,15 +66,6 @@ Patch2:    %{name}-jni.patch
 
 # Fedora uses Alternatives for Java
 Patch8:    %{name}-1.9.0-java.patch
-
-# Perl SWIG comments and string formatting
-# https://trac.osgeo.org/gdal/ticket/6039
-# https://trac.osgeo.org/gdal/ticket/6050
-Patch9:    %{name}-2.0.0-swig-perl.patch
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1249703
-# Solved in https://trac.osgeo.org/gdal/ticket/6072
-Patch10:   %{name}-2.0.0-xopen-source.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -285,8 +276,6 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
 %patch8 -p1 -b .java~
-%patch9 -p1 -b .swig~
-%patch10 -p1 -b .xopen~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -753,6 +742,7 @@ popd
 %files perl
 %doc swig/perl/README
 %{perl_vendorarch}/*
+%{_mandir}/man3/*.3pm*
 
 %files python
 %doc swig/python/README.txt
@@ -784,6 +774,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Sep 24 2015 Volker Froehlich <volker27@gmx.at> - 2.0.1-1
+- Updated for 2.0.1; Add Perl module manpage
+
 * Wed Sep 23 2015 Orion Poplawski <orion@cora.nwra.com> - 2.0.0-5
 - Rebuild for libdap 3.15.1
 
