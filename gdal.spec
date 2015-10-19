@@ -18,7 +18,6 @@
 # Sadly noarch doesn't work in EL 5, see
 # http://fedoraproject.org/wiki/EPEL/GuidelinesAndPolicies
 
-#TODO: EvenR suggested to drop Ruby bindings, as they are unmaintained
 # He also suggest to use --with-static-proj4 to actually link to proj, instead of dlopen()ing it.
 
 
@@ -41,12 +40,12 @@
 
 Name:      gdal
 Version:   1.11.2
-Release:   4%{?dist}
+Release:   5%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
 URL:       http://www.gdal.org
-# Source0:   http://download.osgeo.org/gdal/gdal-%%{version}.tar.gz
+# Source0:   http://download.osgeo.org/gdal/%%{version}/gdal-%%{version}.tar.xz
 # See PROVENANCE.TXT-fedora and the cleaner script for details!
 
 Source0:   %{name}-%{version}-fedora.tar.xz
@@ -62,6 +61,9 @@ Source4:   PROVENANCE.TXT-fedora
 Patch1:    %{name}-g2clib.patch
 # Patch for Fedora JNI library location
 Patch2:    %{name}-jni.patch
+
+# https://trac.osgeo.org/gdal/ticket/6159#ticket
+Patch3:    %{name}-2.0.1-iso8211-include.patch
 
 # Fedora uses Alternatives for Java
 Patch8:    %{name}-1.9.0-java.patch
@@ -113,6 +115,7 @@ BuildRequires: mysql-devel
 BuildRequires: numpy
 BuildRequires: pcre-devel
 BuildRequires: ogdi-devel
+BuildRequires: openjpeg2-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: pkgconfig
 BuildRequires: poppler-devel
@@ -265,6 +268,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
+%patch3 -p1 -b .iso8211~
 %patch8 -p1 -b .java~
 
 # Copy in PROVENANCE.TXT-fedora
@@ -372,7 +376,6 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 
 # For future reference:
 # epsilon: Stalled review -- https://bugzilla.redhat.com/show_bug.cgi?id=660024
-# openjpeg 2.0 necessary, 1.4 is in Fedora
 # Building without pgeo driver, because it drags in Java
 
 %configure \
@@ -407,7 +410,7 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
         --with-odbc               \
         --with-ogdi               \
         --without-msg             \
-        --without-openjpeg        \
+        --with-openjpeg           \
         --with-pcraster           \
         --with-pg                 \
         --with-png                \
@@ -432,6 +435,15 @@ make docs
 pushd swig/perl
   perl Makefile.PL;  make;
   echo > Makefile.PL;
+popd
+
+# Build some utilities, as requested in BZ #1271906
+pushd ogr/ogrsf_frmts/s57/
+  make all
+popd
+
+pushd frmts/iso8211/
+  make all
 popd
 
 # Install the Perl modules in the right place
@@ -487,6 +499,11 @@ rm -rf %{buildroot}
 make    DESTDIR=%{buildroot} \
         install \
         install-man
+
+install -pm 755 ogr/ogrsf_frmts/s57/s57dump %{buildroot}%{_bindir}
+install -pm 755 frmts/iso8211/8211createfromxml %{buildroot}%{_bindir}
+install -pm 755 frmts/iso8211/8211dump %{buildroot}%{_bindir}
+install -pm 755 frmts/iso8211/8211view %{buildroot}%{_bindir}
 
 # Directory for auto-loading plugins
 mkdir -p %{buildroot}%{_libdir}/%{name}plugins
@@ -695,6 +712,8 @@ popd
 %{_bindir}/gdaltransform
 %{_bindir}/nearblack
 %{_bindir}/ogr*
+%{_bindir}/8211*
+%{_bindir}/s57*
 %{_bindir}/testepsg
 %{_mandir}/man1/gdal*.1*
 %exclude %{_mandir}/man1/gdal-config.1*
@@ -764,6 +783,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Oct 21 2015 Volker Froehlich <volker27@gmx.at> - 1.11.2-5
+- Solve BZ #1271906 (Build iso8211 and s57 utilities)
+- Support openjpeg2
+
 * Wed Jul  8 2015 José Matos <jamatos@fedoraproject.org> - 1.11.2-4
 - Rebuild for armadillo 5(.xxx.y)
 
