@@ -42,7 +42,7 @@
 
 Name:      gdal
 Version:   2.0.1
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -63,6 +63,9 @@ Source4:   PROVENANCE.TXT-fedora
 Patch1:    %{name}-g2clib.patch
 # Patch for Fedora JNI library location
 Patch2:    %{name}-jni.patch
+
+# https://trac.osgeo.org/gdal/ticket/6159#ticket
+Patch3:    %{name}-2.0.1-iso8211-include.patch
 
 # Fedora uses Alternatives for Java
 Patch8:    %{name}-1.9.0-java.patch
@@ -275,6 +278,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
+%patch3 -p1 -b .iso8211~
 %patch8 -p1 -b .java~
 
 # Copy in PROVENANCE.TXT-fedora
@@ -443,6 +447,15 @@ pushd swig/perl
   echo > Makefile.PL;
 popd
 
+# Build some utilities, as requested in BZ #1271906
+pushd ogr/ogrsf_frmts/s57/
+  make all
+popd
+
+pushd frmts/iso8211/
+  make all
+popd
+
 # Install the Perl modules in the right place
 sed -i 's|INSTALLDIRS = site|INSTALLDIRS = vendor|' swig/perl/Makefile_*
 
@@ -496,6 +509,11 @@ rm -rf %{buildroot}
 make    DESTDIR=%{buildroot} \
         install \
         install-man
+
+install -pm 755 ogr/ogrsf_frmts/s57/s57dump %{buildroot}%{_bindir}
+install -pm 755 frmts/iso8211/8211createfromxml %{buildroot}%{_bindir}
+install -pm 755 frmts/iso8211/8211dump %{buildroot}%{_bindir}
+install -pm 755 frmts/iso8211/8211view %{buildroot}%{_bindir}
 
 # Directory for auto-loading plugins
 mkdir -p %{buildroot}%{_libdir}/%{name}plugins
@@ -704,6 +722,8 @@ popd
 %{_bindir}/gdaltransform
 %{_bindir}/nearblack
 %{_bindir}/ogr*
+%{_bindir}/8211*
+%{_bindir}/s57*
 %{_bindir}/testepsg
 %{_mandir}/man1/gdal*.1*
 %exclude %{_mandir}/man1/gdal-config.1*
@@ -774,6 +794,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sun Oct 18 2015 Volker Froehlich <volker27@gmx.at> - 2.0.1-2
+- Solve BZ #1271906 (Build iso8211 and s57 utilities)
+
 * Thu Sep 24 2015 Volker Froehlich <volker27@gmx.at> - 2.0.1-1
 - Updated for 2.0.1; Add Perl module manpage
 
