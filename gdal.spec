@@ -22,7 +22,7 @@
 
 
 # Tests can be of a different version
-%global testversion 1.11.2
+%global testversion 1.11.3
 %global run_tests 1
 
 %global with_spatialite 1
@@ -39,8 +39,8 @@
 
 
 Name:      gdal
-Version:   1.11.2
-Release:   5%{?dist}
+Version:   1.11.3
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -783,6 +783,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Oct 21 2015 Volker Froehlich <volker27@gmx.at> - 1.11.3-1
+- New release
+
 * Wed Oct 21 2015 Volker Froehlich <volker27@gmx.at> - 1.11.2-5
 - Solve BZ #1271906 (Build iso8211 and s57 utilities)
 - Support openjpeg2
