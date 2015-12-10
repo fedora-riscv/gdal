@@ -41,7 +41,7 @@
 
 Name:      gdal
 Version:   1.11.2
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -309,7 +309,10 @@ sed -i '/^swig-modules:/s/lib-target/apps-target/' GNUmakefile
 sed -i 's|if test -z "`${CXX} testarmadillo.cpp -o testarmadillo -larmadillo 2>&1`"|if true|' configure
 
 # Replace hard-coded library- and include paths
+%ifnarch aarch64 ppc64le
+# workaround libtool bug in RHEL 7.2 (rhbz#1287191)
 sed -i 's|@LIBTOOL@|%{_bindir}/libtool|g' GDALmake.opt.in
+%endif
 sed -i 's|-L\$with_cfitsio -L\$with_cfitsio/lib -lcfitsio|-lcfitsio|g' configure
 sed -i 's|-I\$with_cfitsio -I\$with_cfitsio/include|-I\$with_cfitsio/include/cfitsio|g' configure
 sed -i 's|-L\$with_netcdf -L\$with_netcdf/lib -lnetcdf|-lnetcdf|g' configure
@@ -764,6 +767,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Dec 10 2015 Dan Horák <dan[at]danny.cz> - 1.11.2-2
+- workaround libtool bug in RHEL 7.2 (rhbz#1287191)
+
 * Tue Jul  7 2015 Volker Fröhlich <volker27@gmx.at> - 1.11.2-1
 - New release
 - Rebuild for g2clib (bz 1203582)
