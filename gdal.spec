@@ -42,7 +42,7 @@
 
 Name:      gdal
 Version:   2.0.1
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -794,6 +794,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Dec 28 2015 Igor Gnatenko <i.gnatenko.brain@gmail.com> - 2.0.1-3
+- Rebuilt for libwebp soname bump
+
 * Sun Oct 18 2015 Volker Froehlich <volker27@gmx.at> - 2.0.1-2
 - Solve BZ #1271906 (Build iso8211 and s57 utilities)
 
