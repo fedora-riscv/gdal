@@ -24,7 +24,7 @@
 %global proj_somaj 9
 
 # Tests can be of a different version
-%global testversion 2.0.1
+%global testversion 2.0.2
 %global run_tests 1
 
 %global with_spatialite 1
@@ -41,8 +41,8 @@
 
 
 Name:      gdal
-Version:   2.0.1
-Release:   6%{?dist}
+Version:   2.0.2
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -355,6 +355,10 @@ sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"/usr/lib64\"|g' confi
 # Fix mandir
 sed -i "s|^mandir=.*|mandir='\${prefix}/share/man'|" configure
 
+# Add our custom cflags when trying to find geos
+# https://bugzilla.redhat.com/show_bug.cgi?id=1284714
+sed -i 's|CFLAGS=\"${GEOS_CFLAGS}\"|CFLAGS=\"${CFLAGS} ${GEOS_CFLAGS}\"|g' configure
+
 # Activate support for JPEGLS
 #sed -i 's|^#HAVE_CHARLS|HAVE_CHARLS|' GDALmake.opt.in
 #sed -i 's|#CHARLS_INC = -I/path/to/charls_include|CHARLS_INC = -I%{_includedir}/CharLS|' GDALmake.opt.in
@@ -368,10 +372,6 @@ sed -i "s|^mandir=.*|mandir='\${prefix}/share/man'|" configure
     gcore/gdaldrivermanager.cpp \
     ogr/ogrsf_frmts/generic/ogrsfdriverregistrar.cpp
 %endif
-
-# Remove man dir, as it blocks a build target.
-# It obviously slipped into the tarball and is not in Trunk (April 17th, 2011)
-#rm -rf man
 
 
 %build
@@ -665,6 +665,7 @@ for f in 'GDAL*' BandProperty ColorAssociation CutlineTransformer DatasetPropert
 done
 #TODO: What's that?
 rm -f %{buildroot}%{_mandir}/man1/*_%{name}-%{version}-fedora_apps_*
+rm -f %{buildroot}%{_mandir}/man1/_home_rouault_dist_wrk_gdal_apps_.1*
 
 %check
 %if %{run_tests}
@@ -794,6 +795,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Feb 04 2016 Volker Froehlich <volker27@gmx.at> - 2.0.2-1
+- New upstream release
+- Fix geos support (BZ #1284714)
+
 * Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2.0.1-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
