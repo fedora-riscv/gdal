@@ -42,7 +42,7 @@
 
 Name:      gdal
 Version:   2.0.2
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -795,6 +795,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Feb 08 2016 Volker Froehlich <volker27@gmx.at> - 2.0.2-2
+- Rebuild for armadillo 6
+
 * Thu Feb 04 2016 Volker Froehlich <volker27@gmx.at> - 2.0.2-1
 - New upstream release
 - Fix geos support (BZ #1284714)
