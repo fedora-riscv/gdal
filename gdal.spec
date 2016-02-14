@@ -22,7 +22,7 @@
 
 
 # Tests can be of a different version
-%global testversion 1.11.3
+%global testversion 1.11.4
 %global run_tests 1
 
 %global with_spatialite 1
@@ -39,7 +39,7 @@
  
 
 Name:      gdal
-Version:   1.11.3
+Version:   1.11.4
 Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
@@ -658,6 +658,7 @@ for f in 'GDAL*' BandProperty ColorAssociation CutlineTransformer DatasetPropert
 done
 #TODO: What's that?
 rm -f %{buildroot}%{_mandir}/man1/*_%{name}-%{version}-fedora_apps_*
+rm -f %{buildroot}%{_mandir}/man1/_home_rouault_dist_wrk_gdal_apps_.1*
 
 %check
 %if %{run_tests}
@@ -786,6 +787,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sun Feb 14 2016 Volker Froehlich <volker27@gmx.at> - 1.11.4-1
+- New release
+
 * Thu Feb 04 2016 Volker Froehlich <volker27@gmx.at> - 1.11.3-1
 - New release
 - Solve BZ #1271906 (Build iso8211 and s57 utilities)
