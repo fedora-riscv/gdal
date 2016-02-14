@@ -42,7 +42,7 @@
 
 Name:      gdal
 Version:   2.0.2
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -66,6 +66,9 @@ Patch2:    %{name}-jni.patch
 
 # https://trac.osgeo.org/gdal/ticket/6159#ticket
 Patch3:    %{name}-2.0.1-iso8211-include.patch
+
+# https://trac.osgeo.org/gdal/ticket/6360
+Patch4:    %{name}-2.0.2-sqlite-crash.patch
 
 # Fedora uses Alternatives for Java
 Patch8:    %{name}-1.9.0-java.patch
@@ -279,6 +282,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
 %patch3 -p1 -b .iso8211~
+%patch4 -p4 -b .sqlite~
 %patch8 -p1 -b .java~
 
 # Copy in PROVENANCE.TXT-fedora
@@ -795,6 +799,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sun Feb 14 2016 Volker Froehlich <volker27@gmx.at> - 2.0.2-3
+- Add patch for GDAL issue #6360
+
 * Mon Feb 08 2016 Volker Froehlich <volker27@gmx.at> - 2.0.2-2
 - Rebuild for armadillo 6
 
