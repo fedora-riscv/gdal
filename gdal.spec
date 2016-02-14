@@ -22,7 +22,7 @@
 
 
 # Tests can be of a different version
-%global testversion 1.11.3
+%global testversion 1.11.4
 %global run_tests 1
 
 %global with_spatialite 1
@@ -39,7 +39,7 @@
 
 
 Name:      gdal
-Version:   1.11.3
+Version:   1.11.4
 Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
@@ -64,6 +64,9 @@ Patch2:    %{name}-jni.patch
 
 # https://trac.osgeo.org/gdal/ticket/6159#ticket
 Patch3:    %{name}-2.0.1-iso8211-include.patch
+
+# https://trac.osgeo.org/gdal/ticket/6360
+Patch4:    %{name}-1.11.4-sqlite-crash.patch
 
 # Fedora uses Alternatives for Java
 Patch8:    %{name}-1.9.0-java.patch
@@ -269,6 +272,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
 %patch3 -p1 -b .iso8211~
+%patch4 -p4 -b .sqlite~
 %patch8 -p1 -b .java~
 
 # Copy in PROVENANCE.TXT-fedora
@@ -655,6 +659,7 @@ for f in 'GDAL*' BandProperty ColorAssociation CutlineTransformer DatasetPropert
 done
 #TODO: What's that?
 rm -f %{buildroot}%{_mandir}/man1/*_%{name}-%{version}-fedora_apps_*
+rm -f %{buildroot}%{_mandir}/man1/_home_rouault_dist_wrk_gdal_apps_.1*
 
 %check
 %if %{run_tests}
@@ -783,6 +788,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Oct 21 2015 Volker Froehlich <volker27@gmx.at> - 1.11.4-1
+- New release
+- Patch for GDAL issue #6360
+
 * Wed Oct 21 2015 Volker Froehlich <volker27@gmx.at> - 1.11.3-1
 - New release
 
