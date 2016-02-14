@@ -788,7 +788,7 @@ popd
 #Or as before, using ldconfig
 
 %changelog
-* Wed Oct 21 2015 Volker Froehlich <volker27@gmx.at> - 1.11.4-1
+* Sun Feb 14 2016 Volker Froehlich <volker27@gmx.at> - 1.11.4-1
 - New release
 - Patch for GDAL issue #6360
 
