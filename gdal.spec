@@ -42,7 +42,7 @@
 
 Name:      gdal
 Version:   2.0.2
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -118,6 +118,7 @@ BuildRequires: libdap-devel
 BuildRequires: librx-devel
 BuildRequires: mysql-devel
 BuildRequires: numpy
+BuildRequires: python3-numpy
 BuildRequires: pcre-devel
 BuildRequires: ogdi-devel
 BuildRequires: openjpeg2-devel
@@ -127,6 +128,7 @@ BuildRequires: poppler-devel
 BuildRequires: postgresql-devel
 BuildRequires: proj-devel
 BuildRequires: python2-devel
+BuildRequires: python3-devel
 BuildRequires: sqlite-devel
 BuildRequires: swig
 BuildRequires: texlive-latex
@@ -252,6 +254,16 @@ The GDAL Python modules provide support to handle multiple GIS file formats.
 The package also includes a couple of useful utilities in Python.
 
 
+%package python3
+Summary: Python modules for the GDAL file format library
+Group:   Development/Libraries
+Requires: python3-numpy
+Requires: %{name}-libs%{?_isa} = %{version}-%{release}
+
+%description python3
+The GDAL Python 3 modules provide support to handle multiple GIS file formats.
+
+
 %package doc
 Summary: Documentation for GDAL
 Group:   Documentation
@@ -261,7 +273,7 @@ BuildArch: noarch
 This package contains HTML and PDF documentation for GDAL.
 
 # We don't want to provide private Python extension libs
-%global __provides_exclude_from ^%{python_sitearch}/.*\.so$
+%global __provides_exclude_from ^(%{python2_sitearch}|%{python3_sitearch})/.*\.so$
 
 %prep
 %setup -q -n %{name}-%{version}-fedora
@@ -344,6 +356,16 @@ sed -i 's|libproj.so|libproj.so.%{proj_somaj}|g' ogr/ogrct.cpp
 
 # Fix Python installation path
 sed -i 's|setup.py install|setup.py install --root=%{buildroot}|' swig/python/GNUmakefile
+
+# Fix Python samples to depend on correct interpreter
+mkdir -p swig/python3/samples
+pushd swig/python/samples
+for f in `find . -name '*.py'`; do
+  sed 's|^#!.\+python$|#!/usr/bin/python3|' $f > ../../python3/samples/$f
+  chmod --reference=$f ../../python3/samples/$f
+  sed -i 's|^#!.\+python$|#!/usr/bin/python2|' $f
+done
+popd
 
 # Must be corrected for 64 bit architectures other than Intel
 # http://trac.osgeo.org/gdal/ticket/4544
@@ -473,6 +495,11 @@ pushd swig/java
   ./make_doc.sh
 popd
 
+# Make Python 3 module
+pushd swig/python
+  %{__python3} setup.py build
+popd
+
 # --------- Documentation ----------
 
 # No useful documentation in swig
@@ -509,6 +536,12 @@ done
 
 %install
 rm -rf %{buildroot}
+
+# Install Python 3 module
+# Must be done first so executables are Python 2.
+pushd swig/python
+  %{__python3} setup.py install --skip-build --root %{buildroot}
+popd
 
 make    DESTDIR=%{buildroot} \
         install \
@@ -781,11 +814,23 @@ popd
 %{_mandir}/man1/gdal_merge.1*
 %{_mandir}/man1/gdal_retile.1*
 %{_mandir}/man1/gdal_sieve.1*
-%{python_sitearch}/osgeo
-%{python_sitearch}/GDAL-%{version}-py*.egg-info
-%{python_sitearch}/osr.py*
-%{python_sitearch}/ogr.py*
-%{python_sitearch}/gdal*.py*
+%{python2_sitearch}/osgeo
+%{python2_sitearch}/GDAL-%{version}-py*.egg-info
+%{python2_sitearch}/osr.py*
+%{python2_sitearch}/ogr.py*
+%{python2_sitearch}/gdal*.py*
+
+%files python3
+%doc swig/python/README.txt
+%doc swig/python3/samples
+%{python3_sitearch}/osgeo
+%{python3_sitearch}/GDAL-%{version}-py*.egg-info
+%{python3_sitearch}/osr.py
+%{python3_sitearch}/__pycache__/osr.*.py*
+%{python3_sitearch}/ogr.py
+%{python3_sitearch}/__pycache__/ogr.*.py*
+%{python3_sitearch}/gdal*.py
+%{python3_sitearch}/__pycache__/gdal*.*.py*
 
 %files doc
 %doc gdal_frmts ogrsf_frmts refman
@@ -799,6 +844,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Feb 16 2016 Elliott Sales de Andrade <quantum.analyst@gmail.com> - 2.0.2-4
+- Add Python 3 support
+
 * Sun Feb 14 2016 Volker Froehlich <volker27@gmx.at> - 2.0.2-3
 - Add patch for GDAL issue #6360
 
