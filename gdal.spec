@@ -40,7 +40,7 @@
 
 Name:      gdal
 Version:   1.11.4
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -788,6 +788,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Feb 26 2016 José Matos <jamatos@fedoraproject.org> - 1.11.4-2
+- Rebuild for armadillo 6
+
 * Sun Feb 14 2016 Volker Froehlich <volker27@gmx.at> - 1.11.4-1
 - New release
 - Patch for GDAL issue #6360
