@@ -42,7 +42,7 @@
 
 Name:      gdal
 Version:   2.0.2
-Release:   4%{?dist}
+Release:   5%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -844,6 +844,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Apr 18 2016 Jozef Mlich <imlich@fit.vutbr.cz> - 2.0.2-5
+- gdal needs rebuilding for change in libdap
+  Resolves: #1328104
+
 * Tue Feb 16 2016 Elliott Sales de Andrade <quantum.analyst@gmail.com> - 2.0.2-4
 - Add Python 3 support
 
