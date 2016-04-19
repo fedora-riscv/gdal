@@ -121,6 +121,7 @@ BuildRequires: numpy
 BuildRequires: python3-numpy
 BuildRequires: pcre-devel
 BuildRequires: ogdi-devel
+BuildRequires: perl-devel
 BuildRequires: openjpeg2-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: pkgconfig
@@ -844,9 +845,8 @@ popd
 #Or as before, using ldconfig
 
 %changelog
-* Mon Apr 18 2016 Jozef Mlich <imlich@fit.vutbr.cz> - 2.0.2-5
-- gdal needs rebuilding for change in libdap
-  Resolves: #1328104
+* Mon Apr 18 2016 Tom Hughes <tom@compton.nu> - 2.0.2-5
+- Rebuild for libdap change Resoloves: #1328104
 
 * Tue Feb 16 2016 Elliott Sales de Andrade <quantum.analyst@gmail.com> - 2.0.2-4
 - Add Python 3 support
