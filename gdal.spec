@@ -24,7 +24,7 @@
 %global proj_somaj 9
 
 # Tests can be of a different version
-%global testversion 2.0.2
+%global testversion 2.1.0
 %global run_tests 1
 
 %global with_spatialite 1
@@ -41,8 +41,8 @@
 
 
 Name:      gdal
-Version:   2.0.2
-Release:   5%{?dist}
+Version:   2.1.0
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -64,14 +64,9 @@ Patch1:    %{name}-g2clib.patch
 # Patch for Fedora JNI library location
 Patch2:    %{name}-jni.patch
 
-# https://trac.osgeo.org/gdal/ticket/6159#ticket
-Patch3:    %{name}-2.0.1-iso8211-include.patch
-
-# https://trac.osgeo.org/gdal/ticket/6360
-Patch4:    %{name}-2.0.2-sqlite-crash.patch
-
 # Fedora uses Alternatives for Java
 Patch8:    %{name}-1.9.0-java.patch
+Patch9:    %{name}-2.1.0-zlib.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -294,9 +289,8 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
-%patch3 -p1 -b .iso8211~
-%patch4 -p4 -b .sqlite~
 %patch8 -p1 -b .java~
+%patch9 -p1 -b .zlib~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -773,6 +767,8 @@ popd
 %exclude %{_mandir}/man1/gdal_sieve.1*
 %{_mandir}/man1/nearblack.1*
 %{_mandir}/man1/ogr*.1*
+%{_mandir}/man1/gnm*.1.*
+
 
 %files libs
 %doc LICENSE.TXT NEWS PROVENANCE.TXT COMMITERS PROVENANCE.TXT-fedora
@@ -845,6 +841,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon May 02 2016 Jozef Mlich <imlich@fit.vutbr.cz> - 2.1.0-1
+- New upstream release
+
 * Mon Apr 18 2016 Tom Hughes <tom@compton.nu> - 2.0.2-5
 - Rebuild for libdap change Resoloves: #1328104
 
