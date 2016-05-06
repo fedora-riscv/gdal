@@ -42,7 +42,7 @@
 
 Name:      gdal
 Version:   2.1.0
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -453,7 +453,8 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
         --with-xerces             \
         --enable-shared           \
         --with-perl               \
-        --with-python
+        --with-python             \
+        --with-libkml
 
         #--with-rasdaman           # 8.3 rasdaman has no -lcompression; doesn't work
 
@@ -841,6 +842,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri May 06 2016 Sandro Mani <manisandro@gmail.com>- 2.1.0-4
+- Enable libKML support
+  Resolves: #1332008
+
 * Tue May 03 2016 Adam Williamson <awilliam@redhat.com> - 2.1.0-3
 - rebuild for updated poppler
 
