@@ -42,7 +42,7 @@
 
 Name:      gdal
 Version:   2.1.0
-Release:   4%{?dist}
+Release:   5%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -98,6 +98,8 @@ BuildRequires: libgta-devel
 
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
+# No libkml in EL
+BuildRequires: libkml-devel
 
 %if %{with_spatialite}
 BuildRequires: libspatialite-devel
@@ -842,6 +844,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon May 09 2016 Volker Froehlich <volker27@gmx.at> - 2.1.0-5
+- Add missing BR for libkml
+
 * Fri May 06 2016 Sandro Mani <manisandro@gmail.com>- 2.1.0-4
 - Enable libKML support
   Resolves: #1332008
