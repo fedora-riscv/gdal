@@ -119,6 +119,7 @@ BuildRequires: python3-numpy
 BuildRequires: pcre-devel
 BuildRequires: ogdi-devel
 BuildRequires: perl-devel
+BuildRequires: perl-generators
 BuildRequires: openjpeg2-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: pkgconfig
