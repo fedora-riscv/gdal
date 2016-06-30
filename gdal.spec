@@ -42,7 +42,7 @@
 
 Name:      gdal
 Version:   2.0.2
-Release:   5%{?dist}
+Release:   6%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -845,6 +845,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Jun 30 2016 José Matos <jamatos@fedoraproject.org> - 2.0.2-6
+- Rebuild for armadillo 7
+
 * Mon Apr 18 2016 Tom Hughes <tom@compton.nu> - 2.0.2-5
 - Rebuild for libdap change Resoloves: #1328104
 
