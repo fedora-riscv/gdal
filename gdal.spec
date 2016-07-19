@@ -42,7 +42,7 @@
 
 Name:      gdal
 Version:   2.1.0
-Release:   7%{?dist}
+Release:   8%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -845,6 +845,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Jul 19 2016 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.1.0-8
+- https://fedoraproject.org/wiki/Changes/Automatic_Provides_for_Python_RPM_Packages
+
 * Mon Jul 18 2016 Marek Kasik <mkasik@redhat.com> - 2.1.0-7
 - Rebuild for poppler-0.45.0
 
