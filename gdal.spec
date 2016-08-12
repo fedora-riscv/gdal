@@ -24,7 +24,7 @@
 %global proj_somaj 9
 
 # Tests can be of a different version
-%global testversion 2.1.0
+%global testversion 2.1.1
 %global run_tests 1
 
 %global with_spatialite 1
@@ -39,10 +39,12 @@
 %endif
 %endif
 
+%global compdir %(dirname $(pkg-config --variable=compatdir bash-completion))
+
 
 Name:      gdal
-Version:   2.1.0
-Release:   8%{?dist}
+Version:   2.1.1
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -63,6 +65,8 @@ Source4:   PROVENANCE.TXT-fedora
 Patch1:    %{name}-g2clib.patch
 # Patch for Fedora JNI library location
 Patch2:    %{name}-jni.patch
+# Fix bash-completion install dir
+Patch3:    %{name}-completion.patch
 
 # Fedora uses Alternatives for Java
 Patch8:    %{name}-1.9.0-java.patch
@@ -73,6 +77,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: ant
 # No armadillo in EL5
 BuildRequires: armadillo-devel
+BuildRequires: bash-completion
 BuildRequires: cfitsio-devel
 # No CharLS in EL5
 #BuildRequires: CharLS-devel
@@ -292,6 +297,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
+%patch3 -p1 -b .completion~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
 
@@ -325,17 +331,6 @@ pushd $f
 popd
 done
 
-# Fix build order with parallel make
-# http://trac.osgeo.org/gdal/ticket/5346
-sed -i '/^swig-modules:/s/lib-target/apps-target/' GNUmakefile
-
-# Workaround about wrong result in configure
-# armadillo returns a warning about gcc versions 4.7.0 or 4.7.1
-# due to http://gcc.gnu.org/bugzilla/show_bug.cgi?id=53549
-# configure interprets the result as an error so ignore it
-# this patch can/should be removed after gcc 4.7.2 is released
-sed -i 's|if test -z "`${CXX} testarmadillo.cpp -o testarmadillo -larmadillo 2>&1`"|if true|' configure
-
 # Replace hard-coded library- and include paths
 sed -i 's|@LIBTOOL@|%{_bindir}/libtool|g' GDALmake.opt.in
 sed -i 's|-L\$with_cfitsio -L\$with_cfitsio/lib -lcfitsio|-lcfitsio|g' configure
@@ -365,11 +360,6 @@ for f in `find . -name '*.py'`; do
 done
 popd
 
-# Must be corrected for 64 bit architectures other than Intel
-# http://trac.osgeo.org/gdal/ticket/4544
-# Should be gone in 2.0
-sed -i 's|test \"$ARCH\" = \"x86_64\"|test \"$libdir\" = \"/usr/lib64\"|g' configure
-
 # Adjust check for LibDAP version
 # http://trac.osgeo.org/gdal/ticket/4545
 %if %cpuarch == 64
@@ -387,15 +377,6 @@ sed -i 's|CFLAGS=\"${GEOS_CFLAGS}\"|CFLAGS=\"${CFLAGS} ${GEOS_CFLAGS}\"|g' confi
 #sed -i 's|^#HAVE_CHARLS|HAVE_CHARLS|' GDALmake.opt.in
 #sed -i 's|#CHARLS_INC = -I/path/to/charls_include|CHARLS_INC = -I%{_includedir}/CharLS|' GDALmake.opt.in
 #sed -i 's|#CHARLS_LIB = -L/path/to/charls_lib -lCharLS|CHARLS_LIB = -lCharLS|' GDALmake.opt.in
-
-# Replace default plug-in dir
-# Solved in 2.0
-# http://trac.osgeo.org/gdal/ticket/4444
-%if %cpuarch == 64
-  sed -i 's|GDAL_PREFIX "/lib/gdalplugins"|GDAL_PREFIX "/lib64/gdalplugins"|' \
-    gcore/gdaldrivermanager.cpp \
-    ogr/ogrsf_frmts/generic/ogrsfdriverregistrar.cpp
-%endif
 
 
 %build
@@ -699,6 +680,13 @@ rm -f %{buildroot}%{_datadir}/%{name}/LICENSE.TXT
 for f in 'GDAL*' BandProperty ColorAssociation CutlineTransformer DatasetProperty EnhanceCBInfo ListFieldDesc NamedColor OGRSplitListFieldLayer VRTBuilder; do
   rm -rf %{buildroot}%{_mandir}/man1/$f.1*
 done
+
+# Fix python interpreter
+sed -i '1s|^#!/usr/bin/env python$|#!%{__python2}|' %{buildroot}%{_bindir}/*.py
+
+# Cleanup .pyc for now
+rm -f %{buildroot}%{_bindir}/*.pyc
+
 #TODO: What's that?
 rm -f %{buildroot}%{_mandir}/man1/*_%{name}-%{version}-fedora_apps_*
 rm -f %{buildroot}%{_mandir}/man1/_home_rouault_dist_wrk_gdal_apps_.1*
@@ -741,6 +729,7 @@ popd
 
 
 %files
+%{compdir}/
 %{_bindir}/gdallocationinfo
 %{_bindir}/gdal_contour
 %{_bindir}/gdal_rasterize
@@ -845,6 +834,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Aug 12 2016 Orion Poplawski <orion@cora.nwra.com> - 2.1.1-1
+- Update to 2.1.1
+- Add patch to fix bash-completion installation and install it (bug #1337143)
+
 * Tue Jul 19 2016 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.1.0-8
 - https://fedoraproject.org/wiki/Changes/Automatic_Provides_for_Python_RPM_Packages
 
