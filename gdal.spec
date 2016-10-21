@@ -44,7 +44,7 @@
 
 Name:      gdal
 Version:   2.1.1
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -834,6 +834,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Oct 21 2016 Marek Kasik <mkasik@redhat.com> - 2.1.1-2
+- Rebuild for poppler-0.48.0
+
 * Fri Aug 12 2016 Orion Poplawski <orion@cora.nwra.com> - 2.1.1-1
 - Update to 2.1.1
 - Add patch to fix bash-completion installation and install it (bug #1337143)
