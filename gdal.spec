@@ -97,6 +97,7 @@ BuildRequires: hdf5-devel
 BuildRequires: java-devel >= 1:1.6.0
 BuildRequires: jasper-devel
 BuildRequires: jpackage-utils
+BuildRequires: json-c-devel
 BuildRequires: libgeotiff-devel
 # No libgta in EL5
 BuildRequires: libgta-devel
@@ -415,6 +416,7 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
         --with-jasper             \
         --with-java               \
         --with-jpeg               \
+        --with-libjson-c          \
         --without-jpeg12          \
         --with-liblzma            \
         --with-libtiff=external   \
@@ -834,6 +836,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat Oct 22 2016 Orion Poplawski <orion@cora.nwra.com> - 2.1.1-2
+- Use system libjson-c
+
 * Fri Oct 21 2016 Marek Kasik <mkasik@redhat.com> - 2.1.1-2
 - Rebuild for poppler-0.48.0
 
