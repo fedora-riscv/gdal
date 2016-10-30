@@ -43,8 +43,8 @@
 
 
 Name:      gdal
-Version:   2.1.1
-Release:   2%{?dist}
+Version:   2.1.2
+Release:   1%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -836,6 +836,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sun Oct 30 2016 Volker Froehlich <volker27@gmx.at> - 2.1.2-1
+- New upstream release
+
 * Sat Oct 22 2016 Orion Poplawski <orion@cora.nwra.com> - 2.1.1-2
 - Use system libjson-c
 
