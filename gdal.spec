@@ -67,6 +67,8 @@ Patch1:    %{name}-g2clib.patch
 Patch2:    %{name}-jni.patch
 # Fix bash-completion install dir
 Patch3:    %{name}-completion.patch
+# Fix uchar type
+Patch4:    %{name}-uchar.patch
 
 # Fedora uses Alternatives for Java
 Patch8:    %{name}-1.9.0-java.patch
@@ -281,10 +283,7 @@ This package contains HTML and PDF documentation for GDAL.
 %global __provides_exclude_from ^(%{python2_sitearch}|%{python3_sitearch})/.*\.so$
 
 %prep
-%setup -q -n %{name}-%{version}-fedora
-
-# Unpack tests to the same directory
-%setup -q -D -a 1 -n %{name}-%{version}-fedora
+%setup -q -n %{name}-%{version}-fedora -a 1
 
 # Delete bundled libraries
 rm -rf frmts/zlib
@@ -299,6 +298,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
 %patch3 -p1 -b .completion~
+%patch4 -p1 -b .uchar~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
 
@@ -838,6 +838,7 @@ popd
 %changelog
 * Thu Dec 01 2016 Orion Poplawski <orion@cora.nwra.com> - 2.1.2-3
 - Rebuild for jasper 2.0
+- Add patch to fix build with jasper 2.0
 
 * Wed Nov 23 2016 David Tardon <dtardon@redhat.com> - 2.1.2-2
 - rebuild for poppler 0.49.0
