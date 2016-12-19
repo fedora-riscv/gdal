@@ -44,7 +44,7 @@
 
 Name:      gdal
 Version:   2.1.2
-Release:   4%{?dist}
+Release:   5%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -836,6 +836,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Dec 19 2016 Miro Hrončok <mhroncok@redhat.com> - 2.1.2-5
+- Rebuild for Python 3.6
+
 * Fri Dec 16 2016 David Tardon <dtardon@redhat.com> - 2.1.2-4
 - rebuild for poppler 0.50.0
 
