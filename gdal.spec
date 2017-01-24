@@ -130,7 +130,7 @@ BuildRequires:	perl-devel
 BuildRequires:	perl-generators
 BuildRequires:	openjpeg2-devel
 BuildRequires:	perl(ExtUtils::MakeMaker)
-BuildRequires:	pkgconfig
+BuildRequires:	%{_bindir}/pkg-config
 BuildRequires:	poppler-devel
 BuildRequires:	postgresql-devel
 BuildRequires:	proj-devel
@@ -831,6 +831,7 @@ popd
 * Tue Jan 24 2017 Devrim Gündüz <devrim@gunduz.org> - 2.1.2-6
 - Rebuilt for proj 4.9.3
 - Fix many rpmlint warnings/errors.
+- Add a workaround for the pkg-config change in rawhide.
 
 * Mon Dec 19 2016 Miro Hrončok <mhroncok@redhat.com> - 2.1.2-5
 - Rebuild for Python 3.6
