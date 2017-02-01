@@ -44,7 +44,7 @@
 
 Name:		gdal
 Version:	2.1.3
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -828,6 +828,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Feb 01 2017 Sandro Mani <manisandro@gmail.com> - 2.1.3-2
+- Rebuild (libwebp)
+
 * Fri Jan 27 2017 Volker Froehlich <volker27@gmx.at> - 2.1.3-1
 - New upstream release
 - Don't run tests by default (BZ #1260151)
