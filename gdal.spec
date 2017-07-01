@@ -24,7 +24,7 @@
 %global proj_somaj 12
 
 # Tests can be of a different version
-%global testversion 2.1.3
+%global testversion 2.1.4
 %global run_tests 0
 
 %global with_spatialite 1
@@ -43,8 +43,8 @@
 
 
 Name:		gdal
-Version:	2.1.3
-Release:	4%{?dist}
+Version:	2.1.4
+Release:	1%{?dist}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -828,6 +828,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat Jul 01 2017 Volker Froehlich <volker27@gmx.at> - 2.1.4-1
+- New upstream release
+
 * Sun Jun 04 2017 Jitka Plesnikova <jplesnik@redhat.com> - 2.1.3-4
 - Perl 5.26 rebuild
 
