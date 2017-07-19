@@ -44,7 +44,7 @@
 
 Name:		gdal
 Version:	2.1.4
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -99,6 +99,8 @@ BuildRequires:	hdf5-devel
 BuildRequires:	java-devel >= 1:1.6.0
 BuildRequires:	jasper-devel
 BuildRequires:	jpackage-utils
+# add_maven_depmap macro moved into this package in F27, it seems like
+BuildRequires:	javapackages-local
 BuildRequires:	json-c-devel
 BuildRequires:	libgeotiff-devel
 # No libgta in EL5
@@ -828,6 +830,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Jul 19 2017 Adam Williamson <awilliam@redhat.com> - 2.1.4-2
+- Rebuild against MariaDB 10.2
+- BuildRequires: javapackages-local, for a macro that got moved there
+
 * Sat Jul 01 2017 Volker Froehlich <volker27@gmx.at> - 2.1.4-1
 - New upstream release
 
