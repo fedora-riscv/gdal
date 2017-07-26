@@ -44,7 +44,7 @@
 
 Name:		gdal
 Version:	2.1.4
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -830,6 +830,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.1.4-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
 * Wed Jul 19 2017 Adam Williamson <awilliam@redhat.com> - 2.1.4-2
 - Rebuild against MariaDB 10.2
 - BuildRequires: javapackages-local, for a macro that got moved there
