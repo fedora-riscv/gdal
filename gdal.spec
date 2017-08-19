@@ -44,7 +44,7 @@
 
 Name:		gdal
 Version:	2.1.4
-Release:	6%{?dist}
+Release:	7%{?dist}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -394,8 +394,14 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 # epsilon: Stalled review -- https://bugzilla.redhat.com/show_bug.cgi?id=660024
 # Building without pgeo driver, because it drags in Java
 
+%if 0%{?fedora} >= 27
+%global g2clib grib2c
+%else
+%global g2clib g2c_v1.6.0
+%endif
+
 %configure \
-	LIBS=-lgrib2c \
+	LIBS=-l%{g2clib} \
 	--with-autoload=%{_libdir}/%{name}plugins \
 	--datadir=%{_datadir}/%{name}/ \
 	--includedir=%{_includedir}/%{name}/ \
@@ -834,6 +840,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat Aug 19 2017 Orion Poplawski <orion@cora.nwra.com> - 2.1.4-7
+- Handle new g2clib name in Fedora 27+
+
 * Sat Aug 19 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 2.1.4-6
 - Python 2 binary package renamed to python2-gdal
   See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3
