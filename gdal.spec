@@ -44,7 +44,7 @@
 
 Name:		gdal
 Version:	2.1.4
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -252,13 +252,17 @@ Requires:	perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 The GDAL Perl modules provide support to handle multiple GIS file formats.
 
 
-%package python
+%package -n python2-gdal
+%{?python_provide:%python_provide python2-gdal}
+# Remove before F30
+Provides: %{name}-python%{?_isa} = %{version}-%{release}
+Obsoletes: %{name}-python < %{version}-%{release}
 Summary:	Python modules for the GDAL file format library
 Group:		Development/Libraries
 Requires:	numpy
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 
-%description python
+%description -n python2-gdal
 The GDAL Python modules provide support to handle multiple GIS file formats.
 The package also includes a couple of useful utilities in Python.
 
@@ -788,7 +792,7 @@ popd
 %{perl_vendorarch}/*
 %{_mandir}/man3/*.3pm*
 
-%files python
+%files -n python2-gdal
 %doc swig/python/README.txt
 %doc swig/python/samples
 #TODO: Bug with .py files in EPEL 5 bindir, see http://fedoraproject.org/wiki/EPEL/GuidelinesAndPolicies
@@ -830,6 +834,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat Aug 19 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 2.1.4-6
+- Python 2 binary package renamed to python2-gdal
+  See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3
+
 * Thu Aug 03 2017 David Tardon <dtardon@redhat.com> - 2.1.4-5
 - rebuild for poppler 0.57.0
 
