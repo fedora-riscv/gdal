@@ -44,7 +44,7 @@
 
 Name:		gdal
 Version:	2.1.4
-Release:	7%{?dist}
+Release:	8%{?dist}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -255,6 +255,7 @@ The GDAL Perl modules provide support to handle multiple GIS file formats.
 %package -n python2-gdal
 %{?python_provide:%python_provide python2-gdal}
 # Remove before F30
+Provides: %{name}-python = %{version}-%{release}
 Provides: %{name}-python%{?_isa} = %{version}-%{release}
 Obsoletes: %{name}-python < %{version}-%{release}
 Summary:	Python modules for the GDAL file format library
@@ -840,6 +841,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sun Aug 20 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 2.1.4-8
+- Add Provides for the old name without %%_isa
+
 * Sat Aug 19 2017 Orion Poplawski <orion@cora.nwra.com> - 2.1.4-7
 - Handle new g2clib name in Fedora 27+
 
