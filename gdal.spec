@@ -396,9 +396,9 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 # Building without pgeo driver, because it drags in Java
 
 %if 0%{?fedora} >= 27
-%global g2clib grib2c
-%else
 %global g2clib g2c_v1.6.0
+%else
+%global g2clib grib2c
 %endif
 
 %configure \
