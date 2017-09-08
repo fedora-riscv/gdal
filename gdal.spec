@@ -44,7 +44,7 @@
 
 Name:		gdal
 Version:	2.1.4
-Release:	8%{?dist}
+Release:	9%{?dist}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -73,6 +73,8 @@ Patch4:		%{name}-uchar.patch
 # Fedora uses Alternatives for Java
 Patch8:		%{name}-1.9.0-java.patch
 Patch9:		%{name}-2.1.0-zlib.patch
+
+Patch10:	0001-adapt-to-poppler-0.58.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -308,6 +310,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch4 -p1 -b .uchar~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
+%patch10 -p1 -b .poppler~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -450,7 +453,10 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 	--with-libkml
 
 # {?_smp_mflags} doesn't work; Or it does -- who knows!
-make %{?_smp_mflags}
+# NOTE: running autoconf seems to break build:
+# fitsdataset.cpp:37:10: fatal error: fitsio.h: No such file or directory
+#  #include <fitsio.h>
+make %{?_smp_mflags} POPPLER_0_20_OR_LATER=yes POPPLER_0_23_OR_LATER=yes POPPLER_BASE_STREAM_HAS_TWO_ARGS=YES POPPLER_NEW_OBJECT_API=yes
 make man
 make docs
 
@@ -841,6 +847,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Sep 08 2017 David Tardon <dtardon@redhat.com> - 2.1.4-9
+- rebuild for poppler 0.59.0
+
 * Sun Aug 20 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 2.1.4-8
 - Add Provides for the old name without %%_isa
 
