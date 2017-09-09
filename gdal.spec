@@ -74,7 +74,7 @@ Patch4:		%{name}-uchar.patch
 Patch8:		%{name}-1.9.0-java.patch
 Patch9:		%{name}-2.1.0-zlib.patch
 
-Patch10:	0001-adapt-to-poppler-0.58.patch
+Patch10:	%{name}-2.1.4-poppler-0.58.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -310,7 +310,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch4 -p1 -b .uchar~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
-%patch10 -p1 -b .poppler~
+%patch10 -p4 -b .poppler~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -456,7 +456,7 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 # NOTE: running autoconf seems to break build:
 # fitsdataset.cpp:37:10: fatal error: fitsio.h: No such file or directory
 #  #include <fitsio.h>
-make %{?_smp_mflags} POPPLER_0_20_OR_LATER=yes POPPLER_0_23_OR_LATER=yes POPPLER_BASE_STREAM_HAS_TWO_ARGS=YES POPPLER_NEW_OBJECT_API=yes
+make %{?_smp_mflags} POPPLER_0_20_OR_LATER=yes POPPLER_0_23_OR_LATER=yes POPPLER_BASE_STREAM_HAS_TWO_ARGS=yes POPPLER_0_58_OR_LATER=yes
 make man
 make docs
 
