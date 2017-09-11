@@ -41,10 +41,12 @@
 
 %global compdir %(dirname $(pkg-config --variable=compatdir bash-completion))
 
+# Enable/disable generating refmans
+%global build_refman 0
 
 Name:		gdal
 Version:	2.1.4
-Release:	9%{?dist}
+Release:	10%{?dist}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -142,6 +144,7 @@ BuildRequires:	python2-devel
 BuildRequires:	python3-devel
 BuildRequires:	sqlite-devel
 BuildRequires:	swig
+%if %{build_refman}
 BuildRequires:	texlive-latex
 %if 0%{?fedora} >= 20
 BuildRequires:	texlive-collection-fontsrecommended
@@ -153,6 +156,7 @@ BuildRequires:	tex(multirow.sty)
 BuildRequires:	tex(sectsty.sty)
 BuildRequires:	tex(tocloft.sty)
 BuildRequires:	tex(xtab.sty)
+%endif
 %endif
 BuildRequires:	unixODBC-devel
 BuildRequires:	xerces-c-devel
@@ -170,9 +174,6 @@ Requires:	libproj.so.%{proj_somaj}
 %endif
 
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
-
-# Enable/disable generating refmans
-%global build_refman 1
 
 # We have multilib triage
 %if "%{_lib}" == "lib"
@@ -456,7 +457,14 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 # NOTE: running autoconf seems to break build:
 # fitsdataset.cpp:37:10: fatal error: fitsio.h: No such file or directory
 #  #include <fitsio.h>
-make %{?_smp_mflags} POPPLER_0_20_OR_LATER=yes POPPLER_0_23_OR_LATER=yes POPPLER_BASE_STREAM_HAS_TWO_ARGS=yes POPPLER_0_58_OR_LATER=yes
+
+POPPLER_OPTS="POPPLER_0_20_OR_LATER=yes POPPLER_0_23_OR_LATER=yes POPPLER_BASE_STREAM_HAS_TWO_ARGS=yes"
+%if 0%{?fedora} > 26
+POPPLER_OPTS="$POPPLER_OPTS POPPLER_0_58_OR_LATER=yes"
+%endif
+
+make %{?_smp_mflags} $POPPLER_OPTS
+
 make man
 make docs
 
@@ -585,6 +593,7 @@ chrpath --delete %{buildroot}%{_jnidir}/%{name}/*jni.so*
 mkdir -p %{buildroot}%{_javadocdir}/%{name}
 cp -pr swig/java/java/org %{buildroot}%{_javadocdir}/%{name}
 
+%if %{build_refman}
 # Install refmans
 for docdir in %{docdirs}; do
   pushd $docdir
@@ -601,6 +610,7 @@ for docdir in %{docdirs}; do
     %endif
   popd
 done
+%endif
 
 # Install formats documentation
 for dir in gdal_frmts ogrsf_frmts; do
@@ -836,7 +846,10 @@ popd
 %{python3_sitearch}/__pycache__/gdal*.*.py*
 
 %files doc
-%doc gdal_frmts ogrsf_frmts refman
+%doc gdal_frmts ogrsf_frmts
+%if %{build_refman}
+refman/
+%endif
 
 #TODO: jvm
 #Should be managed by the Alternatives system and not via ldconfig
@@ -847,6 +860,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Sep 11 2017 Rex Dieter <rdieter@fedoraproject.org> - 2.1.4-10
+- build_refman 0 (temporary bootstrap for missing texlive in rawhide)
+- segment POPPLER_OPTS, makes buildable on f25
+
 * Fri Sep 08 2017 David Tardon <dtardon@redhat.com> - 2.1.4-9
 - rebuild for poppler 0.59.0
 
