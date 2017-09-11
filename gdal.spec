@@ -27,8 +27,35 @@
 %global testversion 2.1.4
 %global run_tests 0
 
+%global compdir %(dirname $(pkg-config --variable=compatdir bash-completion))
+
+# Enable minimal bootstrap mode
+# https://bugzilla.redhat.com/show_bug.cgi?id=1490492
+%if 0%{?fedora} > 27
+%global bootstrap 1
+%endif
+
+%if 0%{?bootstrap}
+%global build_refman 0
+%global with_mysql 0
+%global mysql --without-mysql
+%global with_poppler 0
+%global poppler --without-poppler
+%global with_spatialite 0
+%global spatialite "--without-spatialite"
+%else
+# Enable/disable generating refmans
+# texlive currently broken deps and FTBFS in rawhide
+%global build_refman 1
+# https://bugzilla.redhat.com/show_bug.cgi?id=1490492
+%global with_mysql 1
+%global mysql --with-mysql
+# https://bugzilla.redhat.com/show_bug.cgi?id=1490492
+%global with_poppler 1
+%global poppler --with-poppler
 %global with_spatialite 1
 %global spatialite "--with-spatialite"
+%endif
 
 # No ppc64 build for spatialite in EL6
 # https://bugzilla.redhat.com/show_bug.cgi?id=663938
@@ -38,11 +65,6 @@
 %global spatialite "--without-spatialite"
 %endif
 %endif
-
-%global compdir %(dirname $(pkg-config --variable=compatdir bash-completion))
-
-# Enable/disable generating refmans
-%global build_refman 0
 
 Name:		gdal
 Version:	2.1.4
@@ -127,7 +149,9 @@ BuildRequires:	giflib-devel
 BuildRequires:	netcdf-devel
 BuildRequires:	libdap-devel
 BuildRequires:	librx-devel
+%if 0%{?with_mysql}
 BuildRequires:	mysql-devel
+%endif
 BuildRequires:	numpy
 BuildRequires:	python3-numpy
 BuildRequires:	pcre-devel
@@ -137,7 +161,9 @@ BuildRequires:	perl-generators
 BuildRequires:	openjpeg2-devel
 BuildRequires:	perl(ExtUtils::MakeMaker)
 BuildRequires:	%{_bindir}/pkg-config
+%if 0%{?with_poppler}
 BuildRequires:	poppler-devel
+%endif
 BuildRequires:	postgresql-devel
 BuildRequires:	proj-devel
 BuildRequires:	python2-devel
@@ -433,7 +459,7 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 	--with-libtiff=external	\
 	--with-libz		\
 	--without-mdb		\
-	--with-mysql		\
+	%{mysql}		\
 	--with-netcdf		\
 	--with-odbc		\
 	--with-ogdi		\
@@ -442,7 +468,7 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 	--with-pcraster		\
 	--with-pg		\
 	--with-png		\
-	--with-poppler		\
+	%{poppler}		\
 	%{spatialite}		\
 	--with-sqlite3		\
 	--with-threads		\
@@ -593,7 +619,6 @@ chrpath --delete %{buildroot}%{_jnidir}/%{name}/*jni.so*
 mkdir -p %{buildroot}%{_javadocdir}/%{name}
 cp -pr swig/java/java/org %{buildroot}%{_javadocdir}/%{name}
 
-%if %{build_refman}
 # Install refmans
 for docdir in %{docdirs}; do
   pushd $docdir
@@ -610,7 +635,6 @@ for docdir in %{docdirs}; do
     %endif
   popd
 done
-%endif
 
 # Install formats documentation
 for dir in gdal_frmts ogrsf_frmts; do
@@ -846,10 +870,7 @@ popd
 %{python3_sitearch}/__pycache__/gdal*.*.py*
 
 %files doc
-%doc gdal_frmts ogrsf_frmts
-%if %{build_refman}
-refman/
-%endif
+%doc gdal_frmts ogrsf_frmts refman
 
 #TODO: jvm
 #Should be managed by the Alternatives system and not via ldconfig
@@ -861,7 +882,7 @@ refman/
 
 %changelog
 * Mon Sep 11 2017 Rex Dieter <rdieter@fedoraproject.org> - 2.1.4-10
-- build_refman 0 (temporary bootstrap for missing texlive in rawhide)
+- support %%bootstrap mode, enable for rawhide (#1490492)
 - segment POPPLER_OPTS, makes buildable on f25
 
 * Fri Sep 08 2017 David Tardon <dtardon@redhat.com> - 2.1.4-9
