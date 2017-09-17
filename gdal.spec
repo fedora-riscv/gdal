@@ -68,7 +68,7 @@
 
 Name:		gdal
 Version:	2.1.4
-Release:	10%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	11%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -881,6 +881,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sun Sep 17 2017 Rex Dieter <rdieter@fedoraproject.org> - 2.1.4-11
+- rebuild (armadillo)
+
 * Mon Sep 11 2017 Rex Dieter <rdieter@fedoraproject.org> - 2.1.4-10
 - support %%bootstrap mode, enable for rawhide (#1490492)
 - segment POPPLER_OPTS, makes buildable on f25
