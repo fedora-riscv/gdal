@@ -24,7 +24,7 @@
 %global proj_somaj 12
 
 # Tests can be of a different version
-%global testversion 2.1.4
+%global testversion 2.2.2
 %global run_tests 0
 
 %global compdir %(dirname $(pkg-config --variable=compatdir bash-completion))
@@ -67,8 +67,8 @@
 %endif
 
 Name:		gdal
-Version:	2.1.4
-Release:	11%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Version:	2.2.2
+Release:	1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -91,14 +91,11 @@ Patch1:		%{name}-g2clib.patch
 Patch2:		%{name}-jni.patch
 # Fix bash-completion install dir
 Patch3:		%{name}-completion.patch
-# Fix uchar type
-Patch4:		%{name}-uchar.patch
 
 # Fedora uses Alternatives for Java
 Patch8:		%{name}-1.9.0-java.patch
-Patch9:		%{name}-2.1.0-zlib.patch
 
-Patch10:	%{name}-2.1.4-poppler-0.58.patch
+Patch9:		%{name}-2.2.2-zlib.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -334,10 +331,8 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
 %patch3 -p1 -b .completion~
-%patch4 -p1 -b .uchar~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
-%patch10 -p4 -b .poppler~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -798,6 +793,8 @@ popd
 %{_bindir}/8211*
 %{_bindir}/s57*
 %{_bindir}/testepsg
+%{_bindir}/gnmanalyse
+%{_bindir}/gnmmanage
 %{_mandir}/man1/gdal*.1*
 %exclude %{_mandir}/man1/gdal-config.1*
 %exclude %{_mandir}/man1/gdal2tiles.1*
@@ -856,6 +853,7 @@ popd
 %{python2_sitearch}/osr.py*
 %{python2_sitearch}/ogr.py*
 %{python2_sitearch}/gdal*.py*
+%{python2_sitearch}/gnm.py*
 
 %files python3
 %doc swig/python/README.txt
@@ -868,6 +866,8 @@ popd
 %{python3_sitearch}/__pycache__/ogr.*.py*
 %{python3_sitearch}/gdal*.py
 %{python3_sitearch}/__pycache__/gdal*.*.py*
+%{python3_sitearch}/gnm.py*
+%{python3_sitearch}/__pycache__/gnm.*.py*
 
 %files doc
 %doc gdal_frmts ogrsf_frmts refman
@@ -881,6 +881,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Sep 22 2017 Volker Froehlich <volker27@gmx.at> - 2.2.2-1
+- New upstream release
+- Add new entries to the files sections
+
 * Sun Sep 17 2017 Rex Dieter <rdieter@fedoraproject.org> - 2.1.4-11
 - rebuild (armadillo)
 

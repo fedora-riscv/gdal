@@ -1,60 +1,7 @@
-diff -up gdal-1.9.0-fedora/frmts/grib/degrib18/degrib/engribapi.c.g2clib gdal-1.9.0-fedora/frmts/grib/degrib18/degrib/engribapi.c
---- gdal-1.9.0-fedora/frmts/grib/degrib18/degrib/engribapi.c.g2clib	2012-01-04 00:03:34.000000000 -0700
-+++ gdal-1.9.0-fedora/frmts/grib/degrib18/degrib/engribapi.c	2012-03-09 12:54:58.582531620 -0700
-@@ -419,7 +419,6 @@ int fillSect3 (enGribMeta *en, uShort2 t
-                double meshLat, double orientLon, double scaleLat1,
-                double scaleLat2, double southLat, double southLon)
- {
--   const struct gridtemplate *templatesgrid = get_templatesgrid();
-    int i;               /* loop counter over number of GDS templates. */
-    double unit;         /* Used to convert from stored value to degrees
-                          * lat/lon. See GRIB2 Regulation 92.1.6 */
-@@ -641,7 +640,6 @@ int fillSect4_0 (enGribMeta *en, uShort2
-                  double dSurfVal2)
- {
-    int i;               /* loop counter over number of PDS templates. */
--   const struct pdstemplate *templatespds = get_templatespds();
- 
-    /* analysis template (0) */
-    /* In addition templates (1, 2, 5, 8, 9, 12) begin with 4.0 info. */
-@@ -1197,7 +1195,6 @@ int fillSect5 (enGribMeta *en, uShort2 t
-                uChar orderOfDiff)
- {
-    int i;               /* loop counter over number of DRS templates. */
--   const struct drstemplate *templatesdrs = get_templatesdrs();
- 
-    /* Find NCEP's template match */
-    for (i = 0; i < MAXDRSTEMP; i++) {
-diff -up gdal-1.9.0-fedora/frmts/grib/degrib18/degrib/grib2api.c.g2clib gdal-1.9.0-fedora/frmts/grib/degrib18/degrib/grib2api.c
---- gdal-1.9.0-fedora/frmts/grib/degrib18/degrib/grib2api.c.g2clib	2012-01-04 00:03:34.000000000 -0700
-+++ gdal-1.9.0-fedora/frmts/grib/degrib18/degrib/grib2api.c	2012-03-09 12:55:38.686097396 -0700
-@@ -958,7 +958,6 @@ void unpk_g2ncep (sInt4 * kfildo, float
-    }
-    curIndex = 14;
-    for (i = 0; i < gfld->igdtlen; i++) {
--      const struct gridtemplate *templatesgrid = get_templatesgrid();
-       is3[curIndex] = gfld->igdtmpl[i];
-       curIndex += abs (templatesgrid[gridIndex].mapgrid[i]);
-    }
-@@ -1026,7 +1025,6 @@ void unpk_g2ncep (sInt4 * kfildo, float
-    }
-    curIndex = 9;
-    for (i = 0; i < gfld->ipdtlen; i++) {
--      const struct pdstemplate *templatespds = get_templatespds();
-       is4[curIndex] = gfld->ipdtmpl[i];
-       curIndex += abs (templatespds[pdsIndex].mappds[i]);
-    }
-@@ -1044,7 +1042,6 @@ void unpk_g2ncep (sInt4 * kfildo, float
-    }
-    curIndex = 11;
-    for (i = 0; i < gfld->idrtlen; i++) {
--      const struct drstemplate *templatesdrs = get_templatesdrs();
-       is5[curIndex] = gfld->idrtmpl[i];
-       curIndex += abs (templatesdrs[drsIndex].mapdrs[i]);
-    }
-diff -up gdal-1.9.0-fedora/frmts/grib/GNUmakefile.g2clib gdal-1.9.0-fedora/frmts/grib/GNUmakefile
---- gdal-1.9.0-fedora/frmts/grib/GNUmakefile.g2clib	2012-01-04 00:03:34.000000000 -0700
-+++ gdal-1.9.0-fedora/frmts/grib/GNUmakefile	2012-03-09 12:05:14.050311275 -0700
+diff --git a/frmts/grib/GNUmakefile b/frmts/grib/GNUmakefile
+index cd0b260..47e5dde 100644
+--- a/frmts/grib/GNUmakefile
++++ b/frmts/grib/GNUmakefile
 @@ -7,8 +7,7 @@ include ../../GDALmake.opt
  OBJ	=	gribdataset.o \
                  clock.o \
@@ -63,5 +10,70 @@ diff -up gdal-1.9.0-fedora/frmts/grib/GNUmakefile.g2clib gdal-1.9.0-fedora/frmts
 -		dec_jpeg2000.o jpcunpack.o jpcpack.o enc_jpeg2000.o
 +                degrib2.o inventory.o metaname.o myerror.o tdlpack.o filedatasource.o memorydatasource.o grib1tab.o myutil.o metaparse.o weather.o metaprint.o engribapi.o grib2api.o myassert.o scan.o memendian.o fileendian.o 
  
- ifeq ($(HAVE_JASPER),yes)
- EXTRAFLAGS	:= 	$(EXTRAFLAGS) -DHAVE_JASPER
+ ifeq ($(PNG_SETTING),internal)
+ EXTRAFLAGS      :=      $(EXTRAFLAGS) -I../png/libpng -DUSE_PNG
+@@ -20,7 +19,7 @@ endif
+ 
+ ifeq ($(PNG_SETTING),external)
+ EXTRAFLAGS      :=      $(EXTRAFLAGS) -DUSE_PNG
+-OBJ     :=      $(OBJ) pngpack.o pngunpack.o enc_png.o dec_png.o
++OBJ     :=      $(OBJ)
+ endif
+ 
+ CPPFLAGS	:=	 $(CPPFLAGS) $(EXTRAFLAGS)
+diff --git a/frmts/grib/degrib18/degrib/engribapi.c b/frmts/grib/degrib18/degrib/engribapi.c
+index 9f64e8b..d9f2b96 100644
+--- a/frmts/grib/degrib18/degrib/engribapi.c
++++ b/frmts/grib/degrib18/degrib/engribapi.c
+@@ -419,7 +419,6 @@ int fillSect3 (enGribMeta *en, uShort2 tmplNum, double majEarth,
+                double meshLat, double orientLon, double scaleLat1,
+                double scaleLat2, double southLat, double southLon)
+ {
+-   const struct gridtemplate *templatesgrid = get_templatesgrid();
+    int i;               /* loop counter over number of GDS templates. */
+    double unit;         /* Used to convert from stored value to degrees
+                          * lat/lon. See GRIB2 Regulation 92.1.6 */
+@@ -641,7 +640,6 @@ int fillSect4_0 (enGribMeta *en, uShort2 tmplNum, uChar cat, uChar subCat,
+                  double dSurfVal2)
+ {
+    int i;               /* loop counter over number of PDS templates. */
+-   const struct pdstemplate *templatespds = get_templatespds();
+ 
+    /* analysis template (0) */
+    /* In addition templates (1, 2, 5, 8, 9, 12) begin with 4.0 info. */
+@@ -1197,7 +1195,6 @@ int fillSect5 (enGribMeta *en, uShort2 tmplNum, sShort2 BSF, sShort2 DSF,
+                uChar orderOfDiff)
+ {
+    int i;               /* loop counter over number of DRS templates. */
+-   const struct drstemplate *templatesdrs = get_templatesdrs();
+ 
+    /* Find NCEP's template match */
+    for (i = 0; i < MAXDRSTEMP; i++) {
+diff --git a/frmts/grib/degrib18/degrib/grib2api.c b/frmts/grib/degrib18/degrib/grib2api.c
+index 78e8c50..1724805 100644
+--- a/frmts/grib/degrib18/degrib/grib2api.c
++++ b/frmts/grib/degrib18/degrib/grib2api.c
+@@ -961,7 +961,6 @@ void unpk_g2ncep (CPL_UNUSED sInt4 * kfildo, float * ain, sInt4 * iain, sInt4 *
+    }
+    curIndex = 14;
+    for (i = 0; i < gfld->igdtlen; i++) {
+-      const struct gridtemplate *templatesgrid = get_templatesgrid();
+       is3[curIndex] = gfld->igdtmpl[i];
+       curIndex += abs (templatesgrid[gridIndex].mapgrid[i]);
+    }
+@@ -1029,7 +1028,6 @@ void unpk_g2ncep (CPL_UNUSED sInt4 * kfildo, float * ain, sInt4 * iain, sInt4 *
+    }
+    curIndex = 9;
+    for (i = 0; i < gfld->ipdtlen; i++) {
+-      const struct pdstemplate *templatespds = get_templatespds();
+       is4[curIndex] = gfld->ipdtmpl[i];
+       curIndex += abs (templatespds[pdsIndex].mappds[i]);
+    }
+@@ -1047,7 +1045,6 @@ void unpk_g2ncep (CPL_UNUSED sInt4 * kfildo, float * ain, sInt4 * iain, sInt4 *
+    }
+    curIndex = 11;
+    for (i = 0; i < gfld->idrtlen; i++) {
+-      const struct drstemplate *templatesdrs = get_templatesdrs();
+       is5[curIndex] = gfld->idrtmpl[i];
+       curIndex += abs (templatesdrs[drsIndex].mapdrs[i]);
+    }
