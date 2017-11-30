@@ -12,8 +12,6 @@ rm data/esri_Wisconsin_extra.wkt
 rm data/esri_StatePlane_extra.wkt
 rm data/ecw_cs.wkt
 
-rm -r frmts/bsb
-
 #Really necessary?
 rm -r swig/php
 

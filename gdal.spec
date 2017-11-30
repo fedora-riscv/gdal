@@ -68,7 +68,7 @@
 
 Name:		gdal
 Version:	2.2.2
-Release:	1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	2%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -432,7 +432,6 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 	--datadir=%{_datadir}/%{name}/ \
 	--includedir=%{_includedir}/%{name}/ \
 	--prefix=%{_prefix}	\
-	--without-bsb		\
 	--with-armadillo	\
 	--with-curl		\
 	--with-cfitsio=%{_prefix}	\
@@ -881,6 +880,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Nov 29 2017 Volker Froehlich <volker27@gmx.at> - 2.2.2-2
+- Re-enable bsb format (BZ#1432330)
+
 * Fri Sep 22 2017 Volker Froehlich <volker27@gmx.at> - 2.2.2-1
 - New upstream release
 - Add new entries to the files sections
