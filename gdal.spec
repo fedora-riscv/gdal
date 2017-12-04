@@ -24,7 +24,7 @@
 %global proj_somaj 12
 
 # Tests can be of a different version
-%global testversion 2.2.2
+%global testversion 2.2.3
 %global run_tests 0
 
 %global compdir %(dirname $(pkg-config --variable=compatdir bash-completion))
@@ -67,8 +67,8 @@
 %endif
 
 Name:		gdal
-Version:	2.2.2
-Release:	2%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Version:	2.2.3
+Release:	1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -91,6 +91,10 @@ Patch1:		%{name}-g2clib.patch
 Patch2:		%{name}-jni.patch
 # Fix bash-completion install dir
 Patch3:		%{name}-completion.patch
+
+# https://trac.osgeo.org/gdal/changeset/40801/
+# Python bindings version was 2.2.2 instead of 2.2.3
+Patch5:     %{name}-2.2.3-swig-python-version.patch
 
 # Fedora uses Alternatives for Java
 Patch8:		%{name}-1.9.0-java.patch
@@ -331,6 +335,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
 %patch3 -p1 -b .completion~
+%patch5 -p1 -b .python~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
 
@@ -880,6 +885,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Dec 04 2017 Volker Froehlich <volker27@gmx.at> - 2.2.3-1
+- New upstream release
+
 * Wed Nov 29 2017 Volker Froehlich <volker27@gmx.at> - 2.2.2-2
 - Re-enable bsb format (BZ#1432330)
 
