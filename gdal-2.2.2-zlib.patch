@@ -1,7 +1,7 @@
-diff --git a/frmts/mrf/mrf_band.cpp b/frmts/mrf/mrf_band.cpp
-index c904aa4..cf981da 100644
---- a/frmts/mrf/mrf_band.cpp
-+++ b/frmts/mrf/mrf_band.cpp
+Index: gdal-2.2.3-fedora/frmts/mrf/mrf_band.cpp
+===================================================================
+--- gdal-2.2.3-fedora.orig/frmts/mrf/mrf_band.cpp
++++ gdal-2.2.3-fedora/frmts/mrf/mrf_band.cpp
 @@ -49,7 +49,7 @@
  
  #include <vector>

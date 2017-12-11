@@ -1,7 +1,7 @@
-diff --git a/swig/python/setup.py b/swig/python/setup.py
-index 6fac6f9..b6aa52e 100644
---- a/swig/python/setup.py
-+++ b/swig/python/setup.py
+Index: gdal-2.2.3-fedora/swig/python/setup.py
+===================================================================
+--- gdal-2.2.3-fedora.orig/swig/python/setup.py
++++ gdal-2.2.3-fedora/swig/python/setup.py
 @@ -7,7 +7,7 @@
  # Howard Butler hobu.inc@gmail.com
  

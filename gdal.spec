@@ -68,7 +68,7 @@
 
 Name:		gdal
 Version:	2.2.3
-Release:	2%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	3%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -100,6 +100,8 @@ Patch5:     %{name}-2.2.3-swig-python-version.patch
 Patch8:		%{name}-1.9.0-java.patch
 
 Patch9:		%{name}-2.2.2-zlib.patch
+
+Patch10:	%{name}-2.2.3_json-c_013.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -338,6 +340,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch5 -p1 -b .python~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
+%patch10 -p1 -b .json-c_013~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -885,6 +888,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Dec 11 2017 Björn Esser <besser82@fedoraproject.org> - 2.2.3-3.1.bootstrap
+- Add patch to cleanly build against json-c v0.13
+
 * Sun Dec 10 2017 Björn Esser <besser82@fedoraproject.org> - 2.2.3-2.1.bootstrap
 - Rebuilt for libjson-c.so.3
 

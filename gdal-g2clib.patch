@@ -1,7 +1,7 @@
-diff --git a/frmts/grib/GNUmakefile b/frmts/grib/GNUmakefile
-index cd0b260..47e5dde 100644
---- a/frmts/grib/GNUmakefile
-+++ b/frmts/grib/GNUmakefile
+Index: gdal-2.2.3-fedora/frmts/grib/GNUmakefile
+===================================================================
+--- gdal-2.2.3-fedora.orig/frmts/grib/GNUmakefile
++++ gdal-2.2.3-fedora/frmts/grib/GNUmakefile
 @@ -7,8 +7,7 @@ include ../../GDALmake.opt
  OBJ	=	gribdataset.o \
                  clock.o \
@@ -21,11 +21,11 @@ index cd0b260..47e5dde 100644
  endif
  
  CPPFLAGS	:=	 $(CPPFLAGS) $(EXTRAFLAGS)
-diff --git a/frmts/grib/degrib18/degrib/engribapi.c b/frmts/grib/degrib18/degrib/engribapi.c
-index 9f64e8b..d9f2b96 100644
---- a/frmts/grib/degrib18/degrib/engribapi.c
-+++ b/frmts/grib/degrib18/degrib/engribapi.c
-@@ -419,7 +419,6 @@ int fillSect3 (enGribMeta *en, uShort2 tmplNum, double majEarth,
+Index: gdal-2.2.3-fedora/frmts/grib/degrib18/degrib/engribapi.c
+===================================================================
+--- gdal-2.2.3-fedora.orig/frmts/grib/degrib18/degrib/engribapi.c
++++ gdal-2.2.3-fedora/frmts/grib/degrib18/degrib/engribapi.c
+@@ -419,7 +419,6 @@ int fillSect3 (enGribMeta *en, uShort2 t
                 double meshLat, double orientLon, double scaleLat1,
                 double scaleLat2, double southLat, double southLon)
  {
@@ -33,7 +33,7 @@ index 9f64e8b..d9f2b96 100644
     int i;               /* loop counter over number of GDS templates. */
     double unit;         /* Used to convert from stored value to degrees
                           * lat/lon. See GRIB2 Regulation 92.1.6 */
-@@ -641,7 +640,6 @@ int fillSect4_0 (enGribMeta *en, uShort2 tmplNum, uChar cat, uChar subCat,
+@@ -641,7 +640,6 @@ int fillSect4_0 (enGribMeta *en, uShort2
                   double dSurfVal2)
  {
     int i;               /* loop counter over number of PDS templates. */
@@ -41,7 +41,7 @@ index 9f64e8b..d9f2b96 100644
  
     /* analysis template (0) */
     /* In addition templates (1, 2, 5, 8, 9, 12) begin with 4.0 info. */
-@@ -1197,7 +1195,6 @@ int fillSect5 (enGribMeta *en, uShort2 tmplNum, sShort2 BSF, sShort2 DSF,
+@@ -1197,7 +1195,6 @@ int fillSect5 (enGribMeta *en, uShort2 t
                 uChar orderOfDiff)
  {
     int i;               /* loop counter over number of DRS templates. */
@@ -49,11 +49,11 @@ index 9f64e8b..d9f2b96 100644
  
     /* Find NCEP's template match */
     for (i = 0; i < MAXDRSTEMP; i++) {
-diff --git a/frmts/grib/degrib18/degrib/grib2api.c b/frmts/grib/degrib18/degrib/grib2api.c
-index 78e8c50..1724805 100644
---- a/frmts/grib/degrib18/degrib/grib2api.c
-+++ b/frmts/grib/degrib18/degrib/grib2api.c
-@@ -961,7 +961,6 @@ void unpk_g2ncep (CPL_UNUSED sInt4 * kfildo, float * ain, sInt4 * iain, sInt4 *
+Index: gdal-2.2.3-fedora/frmts/grib/degrib18/degrib/grib2api.c
+===================================================================
+--- gdal-2.2.3-fedora.orig/frmts/grib/degrib18/degrib/grib2api.c
++++ gdal-2.2.3-fedora/frmts/grib/degrib18/degrib/grib2api.c
+@@ -961,7 +961,6 @@ void unpk_g2ncep (CPL_UNUSED sInt4 * kfi
     }
     curIndex = 14;
     for (i = 0; i < gfld->igdtlen; i++) {
@@ -61,7 +61,7 @@ index 78e8c50..1724805 100644
        is3[curIndex] = gfld->igdtmpl[i];
        curIndex += abs (templatesgrid[gridIndex].mapgrid[i]);
     }
-@@ -1029,7 +1028,6 @@ void unpk_g2ncep (CPL_UNUSED sInt4 * kfildo, float * ain, sInt4 * iain, sInt4 *
+@@ -1029,7 +1028,6 @@ void unpk_g2ncep (CPL_UNUSED sInt4 * kfi
     }
     curIndex = 9;
     for (i = 0; i < gfld->ipdtlen; i++) {
@@ -69,7 +69,7 @@ index 78e8c50..1724805 100644
        is4[curIndex] = gfld->ipdtmpl[i];
        curIndex += abs (templatespds[pdsIndex].mappds[i]);
     }
-@@ -1047,7 +1045,6 @@ void unpk_g2ncep (CPL_UNUSED sInt4 * kfildo, float * ain, sInt4 * iain, sInt4 *
+@@ -1047,7 +1045,6 @@ void unpk_g2ncep (CPL_UNUSED sInt4 * kfi
     }
     curIndex = 11;
     for (i = 0; i < gfld->idrtlen; i++) {
