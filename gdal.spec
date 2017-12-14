@@ -62,7 +62,7 @@
 
 Name:		gdal
 Version:	2.2.3
-Release:	4%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	5%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -169,7 +169,7 @@ BuildRequires:	sqlite-devel
 BuildRequires:	swig
 %if %{build_refman}
 BuildRequires:	texlive-latex
-%if 0%{?fedora} >= 20
+%if 0%{?fedora} >= 20 || 0%{?rhel} > 7
 BuildRequires:	texlive-collection-fontsrecommended
 BuildRequires:	texlive-collection-langcyrillic
 BuildRequires:	texlive-collection-langportuguese
@@ -422,7 +422,7 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 # epsilon: Stalled review -- https://bugzilla.redhat.com/show_bug.cgi?id=660024
 # Building without pgeo driver, because it drags in Java
 
-%if 0%{?fedora} >= 27
+%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
 %global g2clib g2c_v1.6.0
 %else
 %global g2clib grib2c
@@ -481,7 +481,7 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 #  #include <fitsio.h>
 
 POPPLER_OPTS="POPPLER_0_20_OR_LATER=yes POPPLER_0_23_OR_LATER=yes POPPLER_BASE_STREAM_HAS_TWO_ARGS=yes"
-%if 0%{?fedora} > 26
+%if 0%{?fedora} > 26 || 0%{?rhel} > 7
 POPPLER_OPTS="$POPPLER_OPTS POPPLER_0_58_OR_LATER=yes"
 %endif
 
@@ -882,6 +882,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Dec 14 2017 Merlin Mathesius <mmathesi@redhat.com> - 2.2.3-5
+- Cleanup spec file conditionals
+
 * Thu Dec 14 2017 Pavel Raiskup <praiskup@redhat.com> - 2.2.3-4
 - drop bootstrap mode
 - build-require mariadb-connector-c-devel (rhbz#1494096)
