@@ -147,7 +147,7 @@ BuildRequires:	netcdf-devel
 BuildRequires:	libdap-devel
 BuildRequires:	librx-devel
 %if 0%{?with_mysql}
-BuildRequires:	mysql-devel
+BuildRequires:	mariadb-connector-c-devel
 %endif
 BuildRequires:	numpy
 BuildRequires:	python3-numpy
@@ -884,6 +884,7 @@ popd
 %changelog
 * Thu Dec 14 2017 Pavel Raiskup <praiskup@redhat.com> - 2.2.3-4
 - drop bootstrap mode
+- build-require mariadb-connector-c-devel (rhbz#1494096)
 
 * Mon Dec 11 2017 Björn Esser <besser82@fedoraproject.org> - 2.2.3-3.1.bootstrap
 - Add patch to cleanly build against json-c v0.13
