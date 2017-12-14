@@ -29,12 +29,6 @@
 
 %global compdir %(dirname $(pkg-config --variable=compatdir bash-completion))
 
-# Enable minimal bootstrap mode
-# https://bugzilla.redhat.com/show_bug.cgi?id=1490492
-%if 0%{?fedora} > 27
-%global bootstrap 1
-%endif
-
 %if 0%{?bootstrap}
 %global build_refman 0
 %global with_mysql 0
@@ -42,7 +36,7 @@
 %global with_poppler 0
 %global poppler --without-poppler
 %global with_spatialite 0
-%global spatialite "--without-spatialite"
+%global spatialite --without-spatialite
 %else
 # Enable/disable generating refmans
 # texlive currently broken deps and FTBFS in rawhide
@@ -62,13 +56,13 @@
 %if 0%{?rhel} == 6
 %ifnarch ppc64
 %global with_spatialite 0
-%global spatialite "--without-spatialite"
+%global spatialite --without-spatialite
 %endif
 %endif
 
 Name:		gdal
 Version:	2.2.3
-Release:	3%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	4%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -888,6 +882,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Dec 14 2017 Pavel Raiskup <praiskup@redhat.com> - 2.2.3-4
+- drop bootstrap mode
+
 * Mon Dec 11 2017 Björn Esser <besser82@fedoraproject.org> - 2.2.3-3.1.bootstrap
 - Add patch to cleanly build against json-c v0.13
 
