@@ -62,7 +62,7 @@
 
 Name:		gdal
 Version:	2.2.3
-Release:	7%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	8%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -96,6 +96,9 @@ Patch8:		%{name}-1.9.0-java.patch
 Patch9:		%{name}-2.2.2-zlib.patch
 
 Patch10:	%{name}-2.2.3_json-c_013.patch
+
+# https://github.com/OSGeo/gdal/pull/295
+Patch11:	%{name}-srcbands.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -336,6 +339,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
 %patch10 -p1 -b .json-c_013~
+%patch11 -p2 -b .srcbands~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -883,6 +887,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Feb 13 2018 Tom Hughes <tom@compton.nu> - 2.2.3-8
+- Add patch for bug by node-gdal tests and fixed upstream
+
 * Tue Feb 13 2018 Tom Hughes <tom@compton.nu> - 2.2.3-7
 - Use libtirpc for RPC routines
 
