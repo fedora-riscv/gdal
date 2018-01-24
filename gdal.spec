@@ -185,6 +185,7 @@ BuildRequires:	unixODBC-devel
 BuildRequires:	xerces-c-devel
 BuildRequires:	xz-devel
 BuildRequires:	zlib-devel
+BuildRequires:	libtirpc-devel
 
 # Run time dependency for gpsbabel driver
 Requires:	gpsbabel
@@ -415,8 +416,8 @@ export CFLAGS="$RPM_OPT_FLAGS -fPIC"
 %else
 export CFLAGS="$RPM_OPT_FLAGS -fpic"
 %endif
-export CXXFLAGS="$CFLAGS -I%{_includedir}/libgeotiff"
-export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
+export CXXFLAGS="$CFLAGS -I%{_includedir}/libgeotiff -I%{_includedir}/tirpc"
+export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff -I%{_includedir}/tirpc"
 
 # For future reference:
 # epsilon: Stalled review -- https://bugzilla.redhat.com/show_bug.cgi?id=660024
@@ -429,7 +430,7 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 %endif
 
 %configure \
-	LIBS=-l%{g2clib} \
+	LIBS="-l%{g2clib} -ltirpc" \
 	--with-autoload=%{_libdir}/%{name}plugins \
 	--datadir=%{_datadir}/%{name}/ \
 	--includedir=%{_includedir}/%{name}/ \
@@ -882,6 +883,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Feb 13 2018 Tom Hughes <tom@compton.nu> - 2.2.3-7
+- Use libtirpc for RPC routines
+
 * Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.2.3-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 
