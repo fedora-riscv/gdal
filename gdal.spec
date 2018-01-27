@@ -62,7 +62,7 @@
 
 Name:		gdal
 Version:	2.2.3
-Release:	5%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	6%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -169,17 +169,17 @@ BuildRequires:	sqlite-devel
 BuildRequires:	swig
 %if %{build_refman}
 BuildRequires:	texlive-latex
-%if 0%{?fedora} >= 20 || 0%{?rhel} > 7
 BuildRequires:	texlive-collection-fontsrecommended
+%if 0%{?fedora}
 BuildRequires:	texlive-collection-langcyrillic
 BuildRequires:	texlive-collection-langportuguese
+%endif
 BuildRequires:	texlive-collection-latex
 BuildRequires:	texlive-epstopdf
 BuildRequires:	tex(multirow.sty)
 BuildRequires:	tex(sectsty.sty)
 BuildRequires:	tex(tocloft.sty)
 BuildRequires:	tex(xtab.sty)
-%endif
 %endif
 BuildRequires:	unixODBC-devel
 BuildRequires:	xerces-c-devel
@@ -882,6 +882,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat Jan 27 2018 Than Ngo <than@redhat.com> - - 2.2.3-6
+- cleanup condition
+
 * Thu Dec 14 2017 Merlin Mathesius <mmathesi@redhat.com> - 2.2.3-5
 - Cleanup spec file conditionals
 
