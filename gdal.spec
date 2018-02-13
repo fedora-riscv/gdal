@@ -62,7 +62,7 @@
 
 Name:		gdal
 Version:	2.2.3
-Release:	7%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	8%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -97,8 +97,12 @@ Patch9:		%{name}-2.2.2-zlib.patch
 
 Patch10:	%{name}-2.2.3_json-c_013.patch
 
+# Add tirpc include dir and libs for hdf4, needed since https://fedoraproject.org/wiki/Changes/SunRPCRemoval
+Patch11:	gdal-tirpc.patch
+
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+BuildRequires:	automake autoconf libtool
 BuildRequires:	ant
 # No armadillo in EL5
 BuildRequires:	armadillo-devel
@@ -118,6 +122,7 @@ BuildRequires:	geos-devel
 BuildRequires:	ghostscript
 BuildRequires:	hdf-devel
 BuildRequires:	hdf-static
+BuildRequires:	libtirpc-devel
 BuildRequires:	hdf5-devel
 BuildRequires:	java-devel >= 1:1.6.0
 BuildRequires:	jasper-devel
@@ -335,6 +340,10 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
 %patch10 -p1 -b .json-c_013~
+%patch11 -p1 -b .tirpc~
+
+# Needed for Patch11
+autoreconf -ifv
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -882,6 +891,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Feb 13 2018 Sandro Mani <manisandro@gmail.com> - 2.2.3-8
+- Rebuild (giflib)
+- Add patch to adapt for https://fedoraproject.org/wiki/Changes/SunRPCRemoval
+
 * Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.2.3-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 
