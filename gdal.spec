@@ -100,7 +100,6 @@ Patch10:	%{name}-2.2.3_json-c_013.patch
 # https://github.com/OSGeo/gdal/pull/295
 Patch11:	%{name}-srcbands.patch
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:	ant
 # No armadillo in EL5
