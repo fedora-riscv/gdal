@@ -62,7 +62,7 @@
 
 Name:		gdal
 Version:	2.2.3
-Release:	8%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	9%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -88,7 +88,7 @@ Patch3:		%{name}-completion.patch
 
 # https://trac.osgeo.org/gdal/changeset/40801/
 # Python bindings version was 2.2.2 instead of 2.2.3
-Patch5:     %{name}-2.2.3-swig-python-version.patch
+Patch5:		%{name}-2.2.3-swig-python-version.patch
 
 # Fedora uses Alternatives for Java
 Patch8:		%{name}-1.9.0-java.patch
@@ -388,7 +388,7 @@ sed -i 's|-L\$with_geotiff\/lib -lgeotiff $LIBS|-lgeotiff $LIBS|g' configure
 sed -i 's|libproj.so|libproj.so.%{proj_somaj}|g' ogr/ogrct.cpp
 
 # Fix Python installation path
-sed -i 's|setup.py install|setup.py install --root=%{buildroot}|' swig/python/GNUmakefile
+sed -i 's|setup.py install|setup.py install --root=$DESTDIR|' swig/python/GNUmakefile
 
 # Fix Python samples to depend on correct interpreter
 mkdir -p swig/python3/samples
@@ -887,6 +887,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Feb 13 2018 Pavel Raiskup <praiskup@redhat.com> - 2.2.3-9
+- silence some rpmlint warnings
+
 * Tue Feb 13 2018 Tom Hughes <tom@compton.nu> - 2.2.3-8
 - Add patch for bug by node-gdal tests and fixed upstream
 
