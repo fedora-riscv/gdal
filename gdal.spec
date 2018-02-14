@@ -62,7 +62,7 @@
 
 Name:		gdal
 Version:	2.2.3
-Release:	10%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	11%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -886,6 +886,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Feb 14 2018 David Tardon <dtardon@redhat.com> - 2.2.3-11
+- rebuild for poppler 0.62.0
+
 * Wed Feb 14 2018 Volker Fröhlich <volker27@gmx.at> - 2.2.3-10
 - Don't own /etc/bash_completion.d (BZ#1545012)
 
