@@ -27,7 +27,7 @@
 %global testversion 2.2.3
 %global run_tests 0
 
-%global compdir %(dirname $(pkg-config --variable=compatdir bash-completion))
+%global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
 
 %if 0%{?bootstrap}
 %global build_refman 0
@@ -62,7 +62,7 @@
 
 Name:		gdal
 Version:	2.2.3
-Release:	9%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	10%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -776,7 +776,7 @@ popd
 
 
 %files
-%{compdir}/
+%{bashcompletiondir}/*
 %{_bindir}/gdallocationinfo
 %{_bindir}/gdal_contour
 %{_bindir}/gdal_rasterize
@@ -886,6 +886,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Feb 14 2018 Volker Fröhlich <volker27@gmx.at> - 2.2.3-10
+- Don't own /etc/bash_completion.d (BZ#1545012)
+
 * Tue Feb 13 2018 Pavel Raiskup <praiskup@redhat.com> - 2.2.3-9
 - silence some rpmlint warnings
 
