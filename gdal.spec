@@ -62,7 +62,7 @@
 
 Name:		gdal
 Version:	2.2.3
-Release:	11%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	12%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -886,6 +886,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Feb 23 2018 Christian Dersch <lupinix@mailbox.org> - 2.2.3-12
+- rebuilt for cfitsio 3.420 (so version bump)
+
 * Wed Feb 14 2018 David Tardon <dtardon@redhat.com> - 2.2.3-11
 - rebuild for poppler 0.62.0
 
