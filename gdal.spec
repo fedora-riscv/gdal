@@ -62,7 +62,7 @@
 
 Name:		gdal
 Version:	2.2.3
-Release:	12%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	13%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -886,6 +886,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Mar 06 2018 Björn Esser <besser82@fedoraproject.org> - 2.2.3-13
+- Rebuilt for libjson-c.so.4 (json-c v0.13.1)
+
 * Fri Feb 23 2018 Christian Dersch <lupinix@mailbox.org> - 2.2.3-12
 - rebuilt for cfitsio 3.420 (so version bump)
 
