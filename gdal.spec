@@ -62,7 +62,7 @@
 
 Name:		gdal
 Version:	2.2.3
-Release:	13%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	14%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -886,6 +886,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Mar 23 2018 Adam Williamson <awilliam@redhat.com> - 2.2.3-14
+- Rebuild for poppler 0.63.0
+
 * Tue Mar 06 2018 Björn Esser <besser82@fedoraproject.org> - 2.2.3-13
 - Rebuilt for libjson-c.so.4 (json-c v0.13.1)
 
