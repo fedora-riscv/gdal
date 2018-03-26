@@ -24,7 +24,7 @@
 %global proj_somaj 12
 
 # Tests can be of a different version
-%global testversion 2.2.3
+%global testversion 2.2.4
 %global run_tests 0
 
 %global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
@@ -61,8 +61,8 @@
 %endif
 
 Name:		gdal
-Version:	2.2.3
-Release:	14%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Version:	2.2.4
+Release:	1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -86,19 +86,10 @@ Patch2:		%{name}-jni.patch
 # Fix bash-completion install dir
 Patch3:		%{name}-completion.patch
 
-# https://trac.osgeo.org/gdal/changeset/40801/
-# Python bindings version was 2.2.2 instead of 2.2.3
-Patch5:		%{name}-2.2.3-swig-python-version.patch
-
 # Fedora uses Alternatives for Java
 Patch8:		%{name}-1.9.0-java.patch
 
 Patch9:		%{name}-2.2.2-zlib.patch
-
-Patch10:	%{name}-2.2.3_json-c_013.patch
-
-# https://github.com/OSGeo/gdal/pull/295
-Patch11:	%{name}-srcbands.patch
 
 
 BuildRequires:	ant
@@ -334,11 +325,8 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch1 -p1 -b .g2clib~
 %patch2 -p1 -b .jni~
 %patch3 -p1 -b .completion~
-%patch5 -p1 -b .python~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
-%patch10 -p1 -b .json-c_013~
-%patch11 -p2 -b .srcbands~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -886,6 +874,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Mar 22 2018 Volker Fröhlich <volker27@gmx.at> - 2.2.4-1
+- New upstream release
+
 * Fri Mar 23 2018 Adam Williamson <awilliam@redhat.com> - 2.2.3-14
 - Rebuild for poppler 0.63.0
 
