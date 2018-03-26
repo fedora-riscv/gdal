@@ -747,10 +747,10 @@ pushd %{name}autotest-%{testversion}
   #export GDAL_DOWNLOAD_TEST_DATA=1
 
   # Remove some test cases that would require special preparation
- rm -rf ogr/ogr_pg.py        # No database available
- rm -rf ogr/ogr_mysql.py     # No database available
- rm -rf osr/osr_esri.py      # ESRI datum absent
- rm -rf osr/osr_erm.py       # File from ECW absent
+  rm -rf ogr/ogr_pg.py        # No database available
+  rm -rf ogr/ogr_mysql.py     # No database available
+  rm -rf osr/osr_esri.py      # ESRI datum absent
+  rm -rf osr/osr_erm.py       # File from ECW absent
 
   # Run tests but force normal exit in the end
   ./run_all.py || true
@@ -874,7 +874,7 @@ popd
 #Or as before, using ldconfig
 
 %changelog
-* Thu Mar 22 2018 Volker Fröhlich <volker27@gmx.at> - 2.2.4-1
+* Mon Mar 26 2018 Volker Fröhlich <volker27@gmx.at> - 2.2.4-1
 - New upstream release
 
 * Fri Mar 23 2018 Adam Williamson <awilliam@redhat.com> - 2.2.3-14
