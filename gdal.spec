@@ -44,7 +44,7 @@
 
 Name:		gdal
 Version:	2.1.3
-Release:	2%{?dist}
+Release:	2.1%{?dist}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -69,6 +69,10 @@ Patch2:		%{name}-jni.patch
 Patch3:		%{name}-completion.patch
 # Fix uchar type
 Patch4:		%{name}-uchar.patch
+
+# BZ #1565050
+# Extra semicolons in macros
+Patch5:		%{name}-2.1-extra-semicolon.patch
 
 # Fedora uses Alternatives for Java
 Patch8:		%{name}-1.9.0-java.patch
@@ -299,6 +303,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch2 -p1 -b .jni~
 %patch3 -p1 -b .completion~
 %patch4 -p1 -b .uchar~
+%patch5 -p0 -b .semicolon~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
 
@@ -388,8 +393,14 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff"
 # epsilon: Stalled review -- https://bugzilla.redhat.com/show_bug.cgi?id=660024
 # Building without pgeo driver, because it drags in Java
 
+%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
+%global g2clib g2c_v1.6.0
+%else
+%global g2clib grib2c
+%endif
+
 %configure \
-	LIBS=-lgrib2c \
+	LIBS="-l%{g2clib}" \
 	--with-autoload=%{_libdir}/%{name}plugins \
 	--datadir=%{_datadir}/%{name}/ \
 	--includedir=%{_includedir}/%{name}/ \
@@ -828,6 +839,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Apr 10 2018 Volker Froehlich <volker27@gmx.at> - 2.1.3-2.1
+- BZ #1565050 -- Remove extra semicolon in macros
+- Backport Orion Poplaswki's g2clib name handling
+
 * Wed Feb 01 2017 Sandro Mani <manisandro@gmail.com> - 2.1.3-2
 - Rebuild (libwebp)
 
