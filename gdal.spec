@@ -62,7 +62,7 @@
 
 Name:		gdal
 Version:	2.2.4
-Release:	3%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	4%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -874,6 +874,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Jun 19 2018 Miro Hrončok <mhroncok@redhat.com> - 2.2.4-4
+- Rebuilt for Python 3.7
+
 * Sat May 26 2018 Christian Dersch <lupinix@mailbox.org> - 2.2.4-3
 - rebuilt for cfitsio 3.450
 
