@@ -62,7 +62,7 @@
 
 Name:		gdal
 Version:	2.2.4
-Release:	5%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	6%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -874,6 +874,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Jun 29 2018 Jitka Plesnikova <jplesnik@redhat.com> - 2.2.4-6
+- Perl 5.28 rebuild
+
 * Fri Jun 22 2018 Orion Poplawski <orion@nwra.com> - 2.2.4-5
 - Rebuild for libdap 3.19.1
 
