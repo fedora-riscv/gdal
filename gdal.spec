@@ -92,6 +92,7 @@ Patch8:		%{name}-1.9.0-java.patch
 Patch9:		%{name}-2.2.2-zlib.patch
 
 
+BuildRequires:	gcc-c++
 BuildRequires:	ant
 # No armadillo in EL5
 BuildRequires:	armadillo-devel
