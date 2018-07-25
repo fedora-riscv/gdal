@@ -62,7 +62,7 @@
 
 Name:		gdal
 Version:	2.2.4
-Release:	8%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	9%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -92,7 +92,7 @@ Patch8:		%{name}-1.9.0-java.patch
 Patch9:		%{name}-2.2.2-zlib.patch
 
 
-BuildRequires:	gcc-c++
+BuildRequires:	gcc gcc-c++
 BuildRequires:	ant
 # No armadillo in EL5
 BuildRequires:	armadillo-devel
@@ -875,6 +875,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Jul 25 2018 Devrim Gündüz <devrim@gunduz.org> - 2.2.4-9
+- Fix #1606875
+
 * Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.2.4-8
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
