@@ -24,7 +24,7 @@
 %global proj_somaj 12
 
 # Tests can be of a different version
-%global testversion 2.2.4
+%global testversion 2.3.1
 %global run_tests 0
 
 %global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
@@ -61,8 +61,8 @@
 %endif
 
 Name:		gdal
-Version:	2.2.4
-Release:	10%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Version:	2.3.1
+Release:	1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -89,9 +89,7 @@ Patch3:		%{name}-completion.patch
 # Fedora uses Alternatives for Java
 Patch8:		%{name}-1.9.0-java.patch
 
-Patch9:		%{name}-2.2.2-zlib.patch
-
-Patch10:	%{name}-2.2.4-poppler-0.64.0.patch
+Patch9:		%{name}-2.3.0-zlib.patch
 
 BuildRequires:	gcc gcc-c++
 BuildRequires:	ant
@@ -322,14 +320,13 @@ rm -rf frmts/jpeg/libjpeg \
     frmts/jpeg/libjpeg12
 rm -rf frmts/gtiff/libgeotiff \
     frmts/gtiff/libtiff
-rm -r frmts/grib/degrib18/g2clib-1.0.4
+#rm -r frmts/grib/degrib/g2clib
 
-%patch1 -p1 -b .g2clib~
-%patch2 -p1 -b .jni~
+#%patch1 -p1 -b .g2clib~
+#%patch2 -p1 -b .jni~
 %patch3 -p1 -b .completion~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
-%patch10 -p1 -b .poppler~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -354,10 +351,9 @@ for f in `find . -type f` ; do
 done
 set -x
 
-# Solved for 2.0
-for f in ogr/ogrsf_frmts/gpsbabel ogr/ogrsf_frmts/pgdump port apps; do
+for f in apps; do
 pushd $f
-  chmod 644 *.cpp *.h
+  chmod 644 *.cpp
 popd
 done
 
@@ -877,6 +873,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Aug 14 2018 Volker Fröhlich <volker27@gmx.at> - 2.3.1-1
+- New upstream release
+
 * Tue Aug 14 2018 Marek Kasik <mkasik@redhat.com> - 2.2.4-10
 - Rebuild for poppler-0.67.0
 
