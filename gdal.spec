@@ -62,7 +62,7 @@
 
 Name:		gdal
 Version:	2.2.4
-Release:	9%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	10%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -91,6 +91,7 @@ Patch8:		%{name}-1.9.0-java.patch
 
 Patch9:		%{name}-2.2.2-zlib.patch
 
+Patch10:	%{name}-2.2.4-poppler-0.64.0.patch
 
 BuildRequires:	gcc gcc-c++
 BuildRequires:	ant
@@ -328,6 +329,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch3 -p1 -b .completion~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
+%patch10 -p1 -b .poppler~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -875,6 +877,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Aug 14 2018 Marek Kasik <mkasik@redhat.com> - 2.2.4-10
+- Rebuild for poppler-0.67.0
+
 * Wed Jul 25 2018 Devrim Gündüz <devrim@gunduz.org> - 2.2.4-9
 - Fix #1606875
 
