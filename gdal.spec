@@ -91,6 +91,10 @@ Patch8:		%{name}-1.9.0-java.patch
 
 Patch9:		%{name}-2.3.0-zlib.patch
 
+# https://github.com/OSGeo/gdal/pull/876
+Patch10:	%{name}-2.3.1-perl-build.patch
+
+
 BuildRequires:	gcc gcc-c++
 BuildRequires:	ant
 # No armadillo in EL5
@@ -171,6 +175,7 @@ BuildRequires:	texlive-collection-latex
 BuildRequires:	texlive-epstopdf
 BuildRequires:	tex(multirow.sty)
 BuildRequires:	tex(sectsty.sty)
+BuildRequires:	tex(tabu.sty)
 BuildRequires:	tex(tocloft.sty)
 BuildRequires:	tex(xtab.sty)
 %endif
@@ -288,13 +293,16 @@ The GDAL Python modules provide support to handle multiple GIS file formats.
 The package also includes a couple of useful utilities in Python.
 
 
-%package python3
+%package -n python3-gdal
+%{?python_provide:%python_provide python3-gdal}
 Summary:	Python modules for the GDAL file format library
 Group:		Development/Libraries
 Requires:	python3-numpy
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
+Obsoletes:	gdal-python3 < 2.3.1
+Provides:	gdal-python3
 
-%description python3
+%description -n python3-gdal
 The GDAL Python 3 modules provide support to handle multiple GIS file formats.
 
 
@@ -327,6 +335,7 @@ rm -rf frmts/gtiff/libgeotiff \
 %patch3 -p1 -b .completion~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
+%patch10 -p1 -b .perl-build~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -358,7 +367,6 @@ popd
 done
 
 # Replace hard-coded library- and include paths
-sed -i 's|@LIBTOOL@|%{_bindir}/libtool|g' GDALmake.opt.in
 sed -i 's|-L\$with_cfitsio -L\$with_cfitsio/lib -lcfitsio|-lcfitsio|g' configure
 sed -i 's|-I\$with_cfitsio -I\$with_cfitsio/include|-I\$with_cfitsio/include/cfitsio|g' configure
 sed -i 's|-L\$with_netcdf -L\$with_netcdf/lib -lnetcdf|-lnetcdf|g' configure
@@ -372,9 +380,6 @@ sed -i 's|-L\$with_geotiff\/lib -lgeotiff $LIBS|-lgeotiff $LIBS|g' configure
 # libproj is dlopened; upstream sources point to .so, which is usually not present
 # http://trac.osgeo.org/gdal/ticket/3602
 sed -i 's|libproj.so|libproj.so.%{proj_somaj}|g' ogr/ogrct.cpp
-
-# Fix Python installation path
-sed -i 's|setup.py install|setup.py install --root=$DESTDIR|' swig/python/GNUmakefile
 
 # Fix Python samples to depend on correct interpreter
 mkdir -p swig/python3/samples
@@ -462,9 +467,10 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff -I%{_includedir}/tirpc"
 	--with-webp		\
 	--with-xerces		\
 	--enable-shared		\
-	--with-perl		\
-	--with-python		\
 	--with-libkml
+
+sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
+sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 
 # {?_smp_mflags} doesn't work; Or it does -- who knows!
 # NOTE: running autoconf seems to break build:
@@ -481,12 +487,6 @@ make %{?_smp_mflags} $POPPLER_OPTS
 make man
 make docs
 
-# Make Perl modules
-pushd swig/perl
-  perl Makefile.PL;  make;
-  echo > Makefile.PL;
-popd
-
 # Build some utilities, as requested in BZ #1271906
 pushd ogr/ogrsf_frmts/s57/
   make all
@@ -496,22 +496,22 @@ pushd frmts/iso8211/
   make all
 popd
 
-# Install the Perl modules in the right place
-sed -i 's|INSTALLDIRS = site|INSTALLDIRS = vendor|' swig/perl/Makefile_*
-
-# Don't append installation info to pod
-#TODO: What about the pod?
-sed -i 's|>> $(DESTINSTALLARCHLIB)\/perllocal.pod|> \/dev\/null|g' swig/perl/Makefile_*
-
 # Make Java module and documentation
 pushd swig/java
   make
   ./make_doc.sh
 popd
 
-# Make Python 3 module
+# Make Python modules
 pushd swig/python
-  %{__python3} setup.py build
+  %py3_build
+  %py2_build
+popd
+
+# Make Python modules
+pushd swig/perl
+  perl Makefile.PL INSTALLDIRS=vendor
+  %make_build
 popd
 
 # --------- Documentation ----------
@@ -551,10 +551,13 @@ done
 %install
 rm -rf %{buildroot}
 
-# Install Python 3 module
-# Must be done first so executables are Python 2.
 pushd swig/python
-  %{__python3} setup.py install --skip-build --root %{buildroot}
+  %py3_install
+  %py2_install
+popd
+
+pushd swig/perl
+  %make_install
 popd
 
 make	DESTDIR=%{buildroot}	\
@@ -571,7 +574,7 @@ mkdir -p %{buildroot}%{_libdir}/%{name}plugins
 
 #TODO: Don't do that?
 find %{buildroot}%{perl_vendorarch} -name "*.dox" -exec rm -rf '{}' \;
-rm -f %{buildroot}%{perl_archlib}/perllocal.pod
+rm %{buildroot}%{perl_archlib}/perllocal.pod
 
 # Correct permissions
 #TODO and potential ticket: Why are the permissions not correct?
@@ -715,12 +718,6 @@ for f in 'GDAL*' BandProperty ColorAssociation CutlineTransformer DatasetPropert
   rm -rf %{buildroot}%{_mandir}/man1/$f.1*
 done
 
-# Fix python interpreter
-sed -i '1s|^#!/usr/bin/env python$|#!%{__python2}|' %{buildroot}%{_bindir}/*.py
-
-# Cleanup .pyc for now
-rm -f %{buildroot}%{_bindir}/*.pyc
-
 #TODO: What's that?
 rm -f %{buildroot}%{_mandir}/man1/*_%{name}-%{version}-fedora_apps_*
 rm -f %{buildroot}%{_mandir}/man1/_home_rouault_dist_wrk_gdal_apps_.1*
@@ -800,8 +797,9 @@ popd
 
 
 %files libs
-%doc LICENSE.TXT NEWS PROVENANCE.TXT COMMITERS PROVENANCE.TXT-fedora
-%{_libdir}/libgdal.so.*
+%doc LICENSE.TXT NEWS PROVENANCE.TXT COMMITTERS PROVENANCE.TXT-fedora
+%{_libdir}/libgdal.so.20
+%{_libdir}/libgdal.so.20.*
 %{_datadir}/%{name}
 #TODO: Possibly remove files like .dxf, .dgn, ...
 %dir %{_libdir}/%{name}plugins
@@ -847,7 +845,7 @@ popd
 %{python2_sitearch}/gdal*.py*
 %{python2_sitearch}/gnm.py*
 
-%files python3
+%files -n python3-gdal
 %doc swig/python/README.txt
 %doc swig/python3/samples
 %{python3_sitearch}/osgeo
