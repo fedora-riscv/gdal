@@ -1,5 +1,4 @@
 #TODO: g2clib and grib (said to be modified)
-#TODO: Python 3 modules should be possible since 1.7
 #TODO: Create script to make clean tarball
 #TODO: msg needs to have PublicDecompWT.zip from EUMETSAT, which is not free;
 #      Building without msg therefore
@@ -51,6 +50,9 @@
 %global spatialite "--with-spatialite"
 %endif
 
+%bcond_without python2
+%bcond_without python3
+
 # No ppc64 build for spatialite in EL6
 # https://bugzilla.redhat.com/show_bug.cgi?id=663938
 %if 0%{?rhel} == 6
@@ -62,7 +64,7 @@
 
 Name:		gdal
 Version:	2.3.2
-Release:	1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	2%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -146,8 +148,6 @@ BuildRequires:	librx-devel
 %if 0%{?with_mysql}
 BuildRequires:	mariadb-connector-c-devel
 %endif
-BuildRequires:	numpy
-BuildRequires:	python3-numpy
 BuildRequires:	pcre-devel
 BuildRequires:	ogdi-devel
 BuildRequires:	perl-devel
@@ -160,8 +160,14 @@ BuildRequires:	poppler-devel
 %endif
 BuildRequires:	libpq-devel
 BuildRequires:	proj-devel
+%if %{with python2}
 BuildRequires:	python2-devel
+BuildRequires:	python2-numpy
+%endif
+%if %{with python3}
 BuildRequires:	python3-devel
+BuildRequires:	python3-numpy
+%endif
 BuildRequires:	sqlite-devel
 BuildRequires:	swig
 %if %{build_refman}
@@ -276,7 +282,7 @@ Requires:	perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 %description perl
 The GDAL Perl modules provide support to handle multiple GIS file formats.
 
-
+%if %{with python2}
 %package -n python2-gdal
 %{?python_provide:%python_provide python2-gdal}
 # Remove before F30
@@ -291,8 +297,10 @@ Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 %description -n python2-gdal
 The GDAL Python modules provide support to handle multiple GIS file formats.
 The package also includes a couple of useful utilities in Python.
+%endif
 
 
+%if %{with python3}
 %package -n python3-gdal
 %{?python_provide:%python_provide python3-gdal}
 Summary:	Python modules for the GDAL file format library
@@ -304,6 +312,18 @@ Provides:	gdal-python3
 
 %description -n python3-gdal
 The GDAL Python 3 modules provide support to handle multiple GIS file formats.
+%endif
+
+
+%if %{with python2} || %{with python3}
+%package python-tools
+Summary:	Python tools for the GDAL file format library
+Requires:	%{?with_python3:python3-gdal}%{?!with_python3:python2-gdal}
+
+%description python-tools
+The GDAL Python package provides number of tools for programming and
+manipulating GDAL file format library
+%endif
 
 
 %package doc
@@ -381,6 +401,7 @@ sed -i 's|-L\$with_geotiff\/lib -lgeotiff $LIBS|-lgeotiff $LIBS|g' configure
 # http://trac.osgeo.org/gdal/ticket/3602
 sed -i 's|libproj.so|libproj.so.%{proj_somaj}|g' ogr/ogrct.cpp
 
+%if %{with python3} || %{with python2}
 # Fix Python samples to depend on correct interpreter
 mkdir -p swig/python3/samples
 pushd swig/python/samples
@@ -390,6 +411,7 @@ for f in `find . -name '*.py'`; do
   sed -i 's|^#!.\+python$|#!/usr/bin/python2|' $f
 done
 popd
+%endif
 
 # Adjust check for LibDAP version
 # http://trac.osgeo.org/gdal/ticket/4545
@@ -504,8 +526,8 @@ popd
 
 # Make Python modules
 pushd swig/python
-  %py3_build
-  %py2_build
+  %{?with_python2:%py2_build}
+  %{?with_python3:%py3_build}
 popd
 
 # Make Python modules
@@ -552,8 +574,8 @@ done
 rm -rf %{buildroot}
 
 pushd swig/python
-  %py3_install
-  %py2_install
+  %{?with_python2:%py2_install}
+  %{?with_python3:%py3_install}
 popd
 
 pushd swig/perl
@@ -575,6 +597,10 @@ mkdir -p %{buildroot}%{_libdir}/%{name}plugins
 #TODO: Don't do that?
 find %{buildroot}%{perl_vendorarch} -name "*.dox" -exec rm -rf '{}' \;
 rm %{buildroot}%{perl_archlib}/perllocal.pod
+
+%if %{without python} && %{without python3}
+rm %buildroot%_mandir/man1/{pct2rgb,rgb2pct}.1
+%endif
 
 # Correct permissions
 #TODO and potential ticket: Why are the permissions not correct?
@@ -826,25 +852,19 @@ popd
 %{perl_vendorarch}/*
 %{_mandir}/man3/*.3pm*
 
+%if %{with python2}
 %files -n python2-gdal
 %doc swig/python/README.txt
 %doc swig/python/samples
-#TODO: Bug with .py files in EPEL 5 bindir, see http://fedoraproject.org/wiki/EPEL/GuidelinesAndPolicies
-%{_bindir}/*.py
-%{_mandir}/man1/pct2rgb.1*
-%{_mandir}/man1/rgb2pct.1*
-%{_mandir}/man1/gdal2tiles.1*
-%{_mandir}/man1/gdal_fillnodata.1*
-%{_mandir}/man1/gdal_merge.1*
-%{_mandir}/man1/gdal_retile.1*
-%{_mandir}/man1/gdal_sieve.1*
 %{python2_sitearch}/osgeo
 %{python2_sitearch}/GDAL-%{version}-py*.egg-info
 %{python2_sitearch}/osr.py*
 %{python2_sitearch}/ogr.py*
 %{python2_sitearch}/gdal*.py*
 %{python2_sitearch}/gnm.py*
+%endif
 
+%if %{with python3}
 %files -n python3-gdal
 %doc swig/python/README.txt
 %doc swig/python3/samples
@@ -858,6 +878,19 @@ popd
 %{python3_sitearch}/__pycache__/gdal*.*.py*
 %{python3_sitearch}/gnm.py*
 %{python3_sitearch}/__pycache__/gnm.*.py*
+%endif
+
+%if %{with python2} || %{with python3}
+%files python-tools
+%_bindir/*.py
+%{_mandir}/man1/pct2rgb.1*
+%{_mandir}/man1/rgb2pct.1*
+%{_mandir}/man1/gdal2tiles.1*
+%{_mandir}/man1/gdal_fillnodata.1*
+%{_mandir}/man1/gdal_merge.1*
+%{_mandir}/man1/gdal_retile.1*
+%{_mandir}/man1/gdal_sieve.1*
+%endif
 
 %files doc
 %doc gdal_frmts ogrsf_frmts refman
@@ -871,6 +904,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Oct 04 2018 Pavel Raiskup <praiskup@redhat.com> - 2.3.2-2
+- Python 3 is the default Python now
+
 * Mon Oct  1 2018 Volker Fröhlich <volker27@gmx.at> - 2.3.2-1
 - New upstream release
 
