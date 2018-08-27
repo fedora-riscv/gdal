@@ -62,7 +62,7 @@
 
 Name:		gdal
 Version:	2.3.1
-Release:	2%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	3%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -871,6 +871,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Aug 27 2018 José Abílio Matos <jamatos@fc.up.pt> - 2.3.1-3
+- rebuild for armadillo soname bump (take 2)
+
 * Fri Aug 17 2018 José Abílio Matos <jamatos@fc.up.pt> - 2.3.1-2
 - rebuild for armadillo soname bump
 
