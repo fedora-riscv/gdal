@@ -44,7 +44,7 @@
 
 Name:		gdal
 Version:	2.1.4
-Release:	5.1%{?dist}
+Release:	6.1%{?dist}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -841,6 +841,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Aug 27 2018 José Abílio Matos <jamatos@fc.up.pt> - 2.1.4-6.1
+- rebuild for armadillo soname bump
+
 * Tue Apr 10 2018 Volker Froehlich <volker27@gmx.at> - 2.1.4-5.1
 - BZ #1565050 -- Remove extra semicolon in macros
 - Backport Orion Poplaswki's g2clib name handling
