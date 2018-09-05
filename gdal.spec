@@ -158,7 +158,7 @@ BuildRequires:	%{_bindir}/pkg-config
 %if 0%{?with_poppler}
 BuildRequires:	poppler-devel
 %endif
-BuildRequires:	postgresql-devel
+BuildRequires:	libpq-devel
 BuildRequires:	proj-devel
 BuildRequires:	python2-devel
 BuildRequires:	python3-devel
