@@ -24,7 +24,7 @@
 %global proj_somaj 12
 
 # Tests can be of a different version
-%global testversion 2.3.1
+%global testversion 2.3.2
 %global run_tests 0
 
 %global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
@@ -61,8 +61,8 @@
 %endif
 
 Name:		gdal
-Version:	2.3.1
-Release:	3%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Version:	2.3.2
+Release:	1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -871,6 +871,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Oct  1 2018 Volker Fröhlich <volker27@gmx.at> - 2.3.2-1
+- New upstream release
+
 * Mon Aug 27 2018 José Abílio Matos <jamatos@fc.up.pt> - 2.3.1-3
 - rebuild for armadillo soname bump (take 2)
 
