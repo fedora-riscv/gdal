@@ -780,9 +780,7 @@ popd
 %endif #%%{run_tests}
 
 
-%post libs -p /sbin/ldconfig
-
-%postun libs -p /sbin/ldconfig
+%ldconfig_scriptlets libs
 
 
 %files
