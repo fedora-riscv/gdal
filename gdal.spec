@@ -64,7 +64,7 @@
 
 Name:		gdal
 Version:	2.3.2
-Release:	2%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	3%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -902,6 +902,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Jan 25 2019 Marek Kasik <mkasik@redhat.com> - 2.3.2-3
+- Rebuild for poppler-0.73.0
+
 * Thu Oct 04 2018 Pavel Raiskup <praiskup@redhat.com> - 2.3.2-2
 - Python 3 is the default Python now
 
