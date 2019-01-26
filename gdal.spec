@@ -64,7 +64,7 @@
 
 Name:		gdal
 Version:	2.3.2
-Release:	3%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	4%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 Group:		System Environment/Libraries
 License:	MIT
@@ -95,6 +95,8 @@ Patch9:		%{name}-2.3.0-zlib.patch
 
 # https://github.com/OSGeo/gdal/pull/876
 Patch10:	%{name}-2.3.1-perl-build.patch
+
+Patch11:	%{name}-2.3.2-poppler-0.73.0.patch
 
 
 BuildRequires:	gcc gcc-c++
@@ -356,6 +358,7 @@ rm -rf frmts/gtiff/libgeotiff \
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
 %patch10 -p1 -b .perl-build~
+%patch11 -p1 -b .poppler-0.73.0
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -902,6 +905,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat Jan 26 2019 Marek Kasik <mkasik@redhat.com> - 2.3.2-4
+- Additional fixes for the rebuild
+
 * Fri Jan 25 2019 Marek Kasik <mkasik@redhat.com> - 2.3.2-3
 - Rebuild for poppler-0.73.0
 
