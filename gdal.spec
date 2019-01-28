@@ -66,7 +66,6 @@ Name:		gdal
 Version:	2.3.2
 Release:	4%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
-Group:		System Environment/Libraries
 License:	MIT
 URL:		http://www.gdal.org
 # Source0:   http://download.osgeo.org/gdal/%%{version}/gdal-%%{version}.tar.xz
@@ -231,7 +230,6 @@ GDAL/OGR is the most widely used geospatial data access library.
 
 %package devel
 Summary:	Development files for the GDAL file format library
-Group:	Development/Libraries
 
 # Old rpm didn't figure out
 %if 0%{?rhel} < 6
@@ -247,7 +245,6 @@ This package contains development files for GDAL.
 
 %package libs
 Summary:	GDAL file format library
-Group:		System Environment/Libraries
 # https://trac.osgeo.org/gdal/ticket/3978#comment:5
 Obsoletes:	%{name}-ruby < 1.11.0-1
 
@@ -257,7 +254,6 @@ This package contains the GDAL file format library.
 
 %package java
 Summary:	Java modules for the GDAL file format library
-Group:		Development/Libraries
 Requires:	jpackage-utils
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 
@@ -267,7 +263,6 @@ The GDAL Java modules provide support to handle multiple GIS file formats.
 
 %package javadoc
 Summary:	Javadocs for %{name}
-Group:		Documentation
 Requires:	jpackage-utils
 BuildArch:	noarch
 
@@ -277,7 +272,6 @@ This package contains the API documentation for %{name}.
 
 %package perl
 Summary:	Perl modules for the GDAL file format library
-Group:		Development/Libraries
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 Requires:	perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
@@ -292,7 +286,6 @@ Provides: %{name}-python = %{version}-%{release}
 Provides: %{name}-python%{?_isa} = %{version}-%{release}
 Obsoletes: %{name}-python < %{version}-%{release}
 Summary:	Python modules for the GDAL file format library
-Group:		Development/Libraries
 Requires:	numpy
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 
@@ -306,7 +299,6 @@ The package also includes a couple of useful utilities in Python.
 %package -n python3-gdal
 %{?python_provide:%python_provide python3-gdal}
 Summary:	Python modules for the GDAL file format library
-Group:		Development/Libraries
 Requires:	python3-numpy
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 Obsoletes:	gdal-python3 < 2.3.1
@@ -330,7 +322,6 @@ manipulating GDAL file format library
 
 %package doc
 Summary:	Documentation for GDAL
-Group:		Documentation
 BuildArch:	noarch
 
 %description doc
