@@ -50,7 +50,7 @@
 %global spatialite "--with-spatialite"
 %endif
 
-%bcond_without python2
+%bcond_with python2
 %bcond_without python3
 
 # No ppc64 build for spatialite in EL6
@@ -64,7 +64,7 @@
 
 Name:		gdal
 Version:	2.3.2
-Release:	6%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	7%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 License:	MIT
 URL:		http://www.gdal.org
@@ -883,6 +883,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Feb 05 2019 Miro Hrončok <mhroncok@redhat.com> - 2.3.2-7
+- Drop Python 2 subpackage for mass Python 2 packages removal
+
 * Mon Feb 04 2019 Pavel Raiskup <praiskup@redhat.com> - 2.3.2-6
 - modernize java packaging (PR#9)
 
