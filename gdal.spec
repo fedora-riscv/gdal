@@ -615,7 +615,7 @@ install -pm 644 %{SOURCE2} %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
 sed -i 's|<version></version>|<version>%{version}</version>|' %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
 
 # Create depmap fragment
-%add_maven_depmap JPP-%{name}.pom %{name}.jar
+%add_artifact JPP-%{name}.pom %{name}.jar
 
 # 775 on the .so?
 # copy JNI libraries and links, non versioned link needed by JNI
