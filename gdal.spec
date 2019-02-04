@@ -64,7 +64,7 @@
 
 Name:		gdal
 Version:	2.3.2
-Release:	5%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	6%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 License:	MIT
 URL:		http://www.gdal.org
