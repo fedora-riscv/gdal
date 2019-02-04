@@ -20,7 +20,7 @@
 # He also suggest to use --with-static-proj4 to actually link to proj, instead of dlopen()ing it.
 
 # Major digit of the proj so version
-%global proj_somaj 12
+%global proj_somaj 13
 
 # Tests can be of a different version
 %global testversion 2.3.2
@@ -114,7 +114,7 @@ BuildRequires:	fontconfig-devel
 # No freexl in EL5
 BuildRequires:	freexl-devel
 BuildRequires:	g2clib-static
-BuildRequires:	geos-devel
+BuildRequires:	geos-devel >= 3.7.1
 BuildRequires:	ghostscript
 BuildRequires:	hdf-devel
 BuildRequires:	hdf-static
@@ -160,7 +160,7 @@ BuildRequires:	%{_bindir}/pkg-config
 BuildRequires:	poppler-devel
 %endif
 BuildRequires:	libpq-devel
-BuildRequires:	proj-devel
+BuildRequires:	proj-devel >= 5.2.0
 %if %{with python2}
 BuildRequires:	python2-devel
 BuildRequires:	python2-numpy
@@ -896,6 +896,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Feb 04 2019 Devrim Gündüz <devrim@gunduzorg> - 2.3.2-6
+- Rebuild for new GeOS and Proj
+
 * Thu Jan 31 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2.3.2-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
 
