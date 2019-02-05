@@ -301,7 +301,7 @@ Summary:	Python modules for the GDAL file format library
 Requires:	python3-numpy
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 Obsoletes:	gdal-python3 < 2.3.1
-Provides:	gdal-python3
+Provides:	gdal-python3 = %version-%release
 
 %description -n python3-gdal
 The GDAL Python 3 modules provide support to handle multiple GIS file formats.
@@ -342,8 +342,8 @@ rm -rf frmts/gtiff/libgeotiff \
     frmts/gtiff/libtiff
 #rm -r frmts/grib/degrib/g2clib
 
-#%patch1 -p1 -b .g2clib~
-#%patch2 -p1 -b .jni~
+#%%patch1 -p1 -b .g2clib~
+#%%patch2 -p1 -b .jni~
 %patch3 -p1 -b .completion~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
@@ -738,26 +738,26 @@ done
 
 
 pushd %{name}autotest-%{testversion}
-  # Export test enviroment
-  export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python_sitearch}
-  #TODO: Nötig?
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}
-#  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%%{buildroot}%%{_libdir}:$java_inc
+	# Export test enviroment
+	export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python_sitearch}
+	#TODO: Nötig?
+	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}
+	# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%%{buildroot}%%{_libdir}:$java_inc
 
-  export GDAL_DATA=%{buildroot}%{_datadir}/%{name}/
+	export GDAL_DATA=%{buildroot}%{_datadir}/%{name}/
 
-  # Enable these tests on demand
-  #export GDAL_RUN_SLOW_TESTS=1
-  #export GDAL_DOWNLOAD_TEST_DATA=1
+	# Enable these tests on demand
+	#export GDAL_RUN_SLOW_TESTS=1
+	#export GDAL_DOWNLOAD_TEST_DATA=1
 
-  # Remove some test cases that would require special preparation
-  rm -rf ogr/ogr_pg.py        # No database available
-  rm -rf ogr/ogr_mysql.py     # No database available
-  rm -rf osr/osr_esri.py      # ESRI datum absent
-  rm -rf osr/osr_erm.py       # File from ECW absent
+	# Remove some test cases that would require special preparation
+	rm -rf ogr/ogr_pg.py # No database available
+	rm -rf ogr/ogr_mysql.py # No database available
+	rm -rf osr/osr_esri.py # ESRI datum absent
+	rm -rf osr/osr_erm.py # File from ECW absent
 
-  # Run tests but force normal exit in the end
-  ./run_all.py || true
+	# Run tests but force normal exit in the end
+	./run_all.py || true
 popd
 %endif #%%{run_tests}
 
@@ -1494,7 +1494,7 @@ popd
 - Added jnis
 - Patches updated with proper version info
 - Added suggestions from Ralph Apel <r.apel@r-apel.de>
-        + Versionless symlink for gdal.jar
-        + Maven2 pom
-        + JPP-style depmap
-        + Use -f XX.files for ruby and python
+	+ Versionless symlink for gdal.jar
+	+ Maven2 pom
+	+ JPP-style depmap
+	+ Use -f XX.files for ruby and python
