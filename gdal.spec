@@ -73,7 +73,6 @@ URL:		http://www.gdal.org
 
 Source0:	%{name}-%{version}-fedora.tar.xz
 Source1:	http://download.osgeo.org/%{name}/%{testversion}/%{name}autotest-%{testversion}.tar.gz
-Source2:	%{name}.pom
 
 # Cleaner script for the tarball
 Source3:	%{name}-cleaner.sh
@@ -122,7 +121,7 @@ BuildRequires:	hdf5-devel
 BuildRequires:	java-devel >= 1:1.6.0
 BuildRequires:	jasper-devel
 BuildRequires:	jpackage-utils
-# add_maven_depmap macro moved into this package in F27, it seems like
+# For 'mvn_artifact' and 'mvn_install'
 BuildRequires:	javapackages-local
 BuildRequires:	json-c-devel
 BuildRequires:	libgeotiff-devel
@@ -515,8 +514,10 @@ popd
 # Make Java module and documentation
 pushd swig/java
   make
-  ./make_doc.sh
+  ant maven
 popd
+
+%mvn_artifact swig/java/build/maven/gdal-%version.pom swig/java/build/maven/gdal-%version.jar
 
 # Make Python modules
 pushd swig/python
@@ -601,21 +602,8 @@ rm %buildroot%_mandir/man1/{pct2rgb,rgb2pct}.1
 find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
 find %{buildroot}%{perl_vendorarch} -name "*.pm" -exec chmod 644 '{}' \;
 
-#TODO: JAR files that require JNI shared objects MUST be installed in %%{_libdir}/%%{name}. The JNI shared objects themselves must also be installed in %%{_libdir}/%%{name}.
-#Java programs that wish to make calls into native libraries do so via the Java Native Interface (JNI). A Java package uses JNI if it contains a .so
-#If the JNI-using code calls System.loadLibrary you'll have to patch it to use System.load, passing it the full path to the dynamic shared object. If the package installs a wrapper script you'll need to manually add %%{_libdir}/%%{name}/<jar filename> to CLASSPATH. If you are depending on a JNI-using JAR file, you'll need to add it manually -- build-classpath will not find it.
-touch -r NEWS swig/java/gdal.jar
-mkdir -p %{buildroot}%{_javadir}
-cp -p swig/java/gdal.jar  \
-    %{buildroot}%{_javadir}/%{name}.jar
-
-# Install Maven pom and update version number
-install -dm 755 %{buildroot}%{_mavenpomdir}
-install -pm 644 %{SOURCE2} %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
-sed -i 's|<version></version>|<version>%{version}</version>|' %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
-
-# Create depmap fragment
-%add_artifact JPP-%{name}.pom %{name}.jar
+# install Java plugin
+%mvn_install -J swig/java/java
 
 # 775 on the .so?
 # copy JNI libraries and links, non versioned link needed by JNI
@@ -834,10 +822,9 @@ popd
 # Can I even have a separate Java package anymore?
 %files java -f .mfiles
 %doc swig/java/apps
-%{_jnidir}/%{name}/
+%{_jnidir}/%{name}/libgdalalljni.so*
 
-%files javadoc
-%{_javadocdir}/%{name}
+%files javadoc -f .mfiles-javadoc
 
 %files perl
 %doc swig/perl/README
@@ -896,6 +883,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Feb 04 2019 Pavel Raiskup <praiskup@redhat.com> - 2.3.2-6
+- modernize java packaging (PR#9)
+
 * Mon Feb 04 2019 Devrim Gündüz <devrim@gunduzorg> - 2.3.2-6
 - Rebuild for new GeOS and Proj
 
