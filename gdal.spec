@@ -64,7 +64,7 @@
 
 Name:		gdal
 Version:	2.3.2
-Release:	11%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	12%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 License:	MIT
 URL:		http://www.gdal.org
@@ -883,6 +883,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Sep 4 2019 Devrim Gündüz <devrim@gunduzorg> - 2.3.2-12
+- Rebuild for new Proj
+
 * Mon Aug 19 2019 Miro Hrončok <mhroncok@redhat.com> - 2.3.2-11
 - Rebuilt for Python 3.8
 
