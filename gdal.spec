@@ -20,10 +20,10 @@
 # He also suggest to use --with-static-proj4 to actually link to proj, instead of dlopen()ing it.
 
 # Major digit of the proj so version
-%global proj_somaj 15
+%global proj_somaj 13
 
 # Tests can be of a different version
-%global testversion 3.0.1
+%global testversion 2.3.2
 %global run_tests 0
 
 %global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
@@ -63,7 +63,7 @@
 %endif
 
 Name:		gdal
-Version:	3.0.1
+Version:	2.3.2
 Release:	11%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 License:	MIT
@@ -72,7 +72,7 @@ URL:		http://www.gdal.org
 # See PROVENANCE.TXT-fedora and the cleaner script for details!
 
 Source0:	%{name}-%{version}-fedora.tar.xz
-Source1:	http://download.osgeo.org/%{name}/%{testversion}/%{name}autotest-%{testversion}.zip
+Source1:	http://download.osgeo.org/%{name}/%{testversion}/%{name}autotest-%{testversion}.tar.gz
 
 # Cleaner script for the tarball
 Source3:	%{name}-cleaner.sh
@@ -89,10 +89,10 @@ Patch3:		%{name}-completion.patch
 # Fedora uses Alternatives for Java
 Patch8:		%{name}-1.9.0-java.patch
 
-Patch9:		%{name}-3.0.1-zlib.patch
+Patch9:		%{name}-2.3.0-zlib.patch
 
 # https://github.com/OSGeo/gdal/pull/876
-Patch10:	%{name}-3.0.1-perl-build.patch
+Patch10:	%{name}-2.3.1-perl-build.patch
 
 Patch11:	%{name}-2.3.2-poppler-0.73.0.patch
 
@@ -159,7 +159,7 @@ BuildRequires:	%{_bindir}/pkg-config
 BuildRequires:	poppler-devel
 %endif
 BuildRequires:	libpq-devel
-BuildRequires:	proj-devel >= 6.2.0
+BuildRequires:	proj-devel >= 5.2.0
 %if %{with python2}
 BuildRequires:	python2-devel
 BuildRequires:	python2-numpy
@@ -346,9 +346,9 @@ rm -rf frmts/gtiff/libgeotiff \
 #%%patch2 -p1 -b .jni~
 %patch3 -p1 -b .completion~
 %patch8 -p1 -b .java~
-%patch9 -p0 -b .zlib~
-%patch10 -p0 -b .perl-build~
-#%patch11 -p1 -b .poppler-0.73.0
+%patch9 -p1 -b .zlib~
+%patch10 -p1 -b .perl-build~
+%patch11 -p1 -b .poppler-0.73.0
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -492,29 +492,28 @@ sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 # fitsdataset.cpp:37:10: fatal error: fitsio.h: No such file or directory
 #  #include <fitsio.h>
 
-%{__make} GDALmake.opt
 POPPLER_OPTS="POPPLER_0_20_OR_LATER=yes POPPLER_0_23_OR_LATER=yes POPPLER_BASE_STREAM_HAS_TWO_ARGS=yes"
 %if 0%{?fedora} > 26 || 0%{?rhel} > 7
 POPPLER_OPTS="$POPPLER_OPTS POPPLER_0_58_OR_LATER=yes"
 %endif
 
-%{__make} %{?_smp_mflags} $POPPLER_OPTS
+make %{?_smp_mflags} $POPPLER_OPTS
 
-%{__make} man
-%{__make} docs
+make man
+make docs
 
 # Build some utilities, as requested in BZ #1271906
 pushd ogr/ogrsf_frmts/s57/
-  %{__make} all
+  make all
 popd
 
 pushd frmts/iso8211/
-  %{__make} all
+  make all
 popd
 
 # Make Java module and documentation
 pushd swig/java
-  %{__make}
+  make
   ant maven
 popd
 
@@ -559,7 +558,7 @@ for docdir in %{docdirs}; do
 	sed -i -e '/rfoot\[/d' -e '/lfoot\[/d' doxygen.sty
 	sed -i -e '/small/d' -e '/large/d' refman.tex
 	sed -i -e 's|pdflatex|pdflatex -interaction nonstopmode |g' Makefile
-	%{__make} refman.pdf || true
+	make refman.pdf || true
       popd
     %endif
   popd
