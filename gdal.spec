@@ -17,11 +17,6 @@
 # Sadly noarch doesn't work in EL 5, see
 # http://fedoraproject.org/wiki/EPEL/GuidelinesAndPolicies
 
-# He also suggest to use --with-static-proj4 to actually link to proj, instead of dlopen()ing it.
-
-# Major digit of the proj so version
-%global proj_somaj 15
-
 # Tests can be of a different version
 %global testversion 2.3.2
 %global run_tests 0
@@ -64,7 +59,7 @@
 
 Name:		gdal
 Version:	2.3.2
-Release:	13%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	14%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 License:	MIT
 URL:		http://www.gdal.org
@@ -193,13 +188,6 @@ BuildRequires:	libtirpc-devel
 
 # Run time dependency for gpsbabel driver
 Requires:	gpsbabel
-
-# proj DL-opened in ogrct.cpp, see also fix in %%prep
-%if 0%{?__isa_bits} == 64
-Requires:	libproj.so.%{proj_somaj}()(64bit)
-%else
-Requires:	libproj.so.%{proj_somaj}
-%endif
 
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 
@@ -390,10 +378,6 @@ sed -i 's|-L\$with_libtiff\/lib -ltiff|-ltiff|g' configure
 sed -i 's|-lgeotiff -L$with_geotiff $LIBS|-lgeotiff $LIBS|g' configure
 sed -i 's|-L\$with_geotiff\/lib -lgeotiff $LIBS|-lgeotiff $LIBS|g' configure
 
-# libproj is dlopened; upstream sources point to .so, which is usually not present
-# http://trac.osgeo.org/gdal/ticket/3602
-sed -i 's|libproj.so|libproj.so.%{proj_somaj}|g' ogr/ogrct.cpp
-
 %if %{with python3} || %{with python2}
 # Fix Python samples to depend on correct interpreter
 mkdir -p swig/python3/samples
@@ -466,16 +450,17 @@ export CPPFLAGS="$CPPFLAGS -I%{_includedir}/libgeotiff -I%{_includedir}/tirpc"
 	--with-libtiff=external	\
 	--with-libz		\
 	--without-mdb		\
+	--without-msg		\
 	%{mysql}		\
 	--with-netcdf		\
 	--with-odbc		\
 	--with-ogdi		\
-	--without-msg		\
 	--with-openjpeg		\
 	--with-pcraster		\
 	--with-pg		\
 	--with-png		\
 	%{poppler}		\
+	--with-proj             \
 	%{spatialite}		\
 	--with-sqlite3		\
 	--with-threads		\
@@ -883,6 +868,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Sep 17 2019 Elliott Sales de Andrade <quantum.analyst@gmail.com> - 2.3.2-14
+- Fix linkage against Proj
+
 * Mon Sep 16 2019 Sandro Mani <manisandro@gmail.com> - 2.3.2-13
 - Bump proj_somaj for proj 6
 
