@@ -20,7 +20,7 @@
 # He also suggest to use --with-static-proj4 to actually link to proj, instead of dlopen()ing it.
 
 # Major digit of the proj so version
-%global proj_somaj 13
+%global proj_somaj 15
 
 # Tests can be of a different version
 %global testversion 2.3.2
@@ -64,7 +64,7 @@
 
 Name:		gdal
 Version:	2.3.2
-Release:	12%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	13%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 License:	MIT
 URL:		http://www.gdal.org
@@ -883,6 +883,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Sep 16 2019 Sandro Mani <manisandro@gmail.com> - 2.3.2-13
+- Bump proj_somaj for proj 6
+
 * Wed Sep 4 2019 Devrim Gündüz <devrim@gunduzorg> - 2.3.2-12
 - Rebuild for new Proj
 
