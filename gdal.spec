@@ -328,10 +328,10 @@ popd
 
 #%%patch1 -p1 -b .g2clib~
 #%%patch2 -p1 -b .jni~
-%patch3 -p1 -b .completion~
-%patch8 -p1 -b .java~
-%patch9 -p1 -b .zlib~
-%patch10 -p1 -b .perl-build~
+%patch3 -p0 -b .completion~
+%patch8 -p0 -b .java~
+%patch9 -p0 -b .zlib~
+%patch10 -p0 -b .perl-build~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
