@@ -330,7 +330,7 @@ popd
 #%%patch2 -p1 -b .jni~
 %patch3 -p0 -b .completion~
 %patch8 -p0 -b .java~
-%patch9 -p0 -b .zlib~
+#%patch9 -p0 -b .zlib~
 %patch10 -p0 -b .perl-build~
 
 # Copy in PROVENANCE.TXT-fedora
