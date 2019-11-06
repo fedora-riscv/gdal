@@ -494,11 +494,11 @@ export SHLIB_LINK="$SHLIB_LINK"
 popd
 
 # Build some utilities, as requested in BZ #1271906
-pushd ogr/ogrsf_frmts/s57/
+pushd gdal/ogr/ogrsf_frmts/s57/
   make all
 popd
 
-pushd frmts/iso8211/
+pushd gdal/frmts/iso8211/
   make all
 popd
 
@@ -630,7 +630,7 @@ done
 
 pushd gdal
 # Install formats documentation
-for dir in gdal_frmts ogrsf_frmts; do
+for dir in gdal/frmts gdal/ogr/ogrsf_frmts gdal/ogr; do
   mkdir -p $dir
   find frmts -name "*.html" -exec install -p -m 644 '{}' $dir \;
 done
@@ -800,7 +800,7 @@ popd
 
 
 %files libs
-%doc LICENSE.TXT NEWS PROVENANCE.TXT COMMITTERS PROVENANCE.TXT-fedora
+%doc gdal/LICENSE.TXT gdal/NEWS gdal/PROVENANCE.TXT gdal/COMMITTERS
 %{_libdir}/libgdal.so.20
 %{_libdir}/libgdal.so.20.*
 %{_datadir}/%{name}
