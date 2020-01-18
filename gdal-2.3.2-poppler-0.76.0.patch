@@ -1,0 +1,106 @@
+diff -up ./frmts/pdf/pdfdataset.cpp.poppler-0.76.0 ./frmts/pdf/pdfdataset.cpp
+--- ./frmts/pdf/pdfdataset.cpp.poppler-0.76.0	2020-01-18 12:42:15.887861696 -0500
++++ ./frmts/pdf/pdfdataset.cpp	2020-01-18 12:48:22.515663567 -0500
+@@ -212,7 +212,7 @@ class GDALPDFOutputDev : public SplashOu
+         virtual void drawChar(GfxState *state, double x, double y,
+                               double dx, double dy,
+                               double originX, double originY,
+-                              CharCode code, int nBytes, Unicode *u, int uLen) override
++                              CharCode code, int nBytes, const Unicode *u, int uLen) override
+         {
+             if (bEnableText)
+                 SplashOutputDev::drawChar(state, x, y, dx, dy,
+@@ -283,7 +283,7 @@ class GDALPDFOutputDev : public SplashOu
+ 
+         virtual void drawImage(GfxState *state, Object *ref, Stream *str,
+                                int width, int height, GfxImageColorMap *colorMap,
+-                               bool interpolate, int *maskColors, bool inlineImg) override
++                               bool interpolate, const int *maskColors, bool inlineImg) override
+         {
+             if (bEnableBitmap)
+                 SplashOutputDev::drawImage(state, ref, str,
+@@ -4071,7 +4071,7 @@ GDALDataset *PDFDataset::Open( GDALOpenI
+         CPLMutexHolderD(&hGlobalParamsMutex);
+         /* poppler global variable */
+         if (globalParams == nullptr)
+-            globalParams = new GlobalParams();
++            globalParams.reset(new GlobalParams());
+ 
+         globalParams->setPrintCommands(CPLTestBool(
+             CPLGetConfigOption("GDAL_PDF_PRINT_COMMANDS", "FALSE")));
+diff -up ./frmts/pdf/pdfio.cpp.poppler-0.76.0 ./frmts/pdf/pdfio.cpp
+--- ./frmts/pdf/pdfio.cpp.poppler-0.76.0	2020-01-18 11:38:59.373535988 -0500
++++ ./frmts/pdf/pdfio.cpp	2020-01-18 11:38:59.375536039 -0500
+@@ -175,7 +175,7 @@ getStart_ret_type VSIPDFFileStream::getS
+ /*                             getKind()                                */
+ /************************************************************************/
+ 
+-StreamKind VSIPDFFileStream::getKind()
++StreamKind VSIPDFFileStream::getKind() const
+ {
+     return strFile;
+ }
+diff -up ./frmts/pdf/pdfio.h.poppler-0.76.0 ./frmts/pdf/pdfio.h
+--- ./frmts/pdf/pdfio.h.poppler-0.76.0	2020-01-18 11:38:59.373535988 -0500
++++ ./frmts/pdf/pdfio.h	2020-01-18 11:38:59.375536039 -0500
+@@ -81,7 +81,7 @@ class VSIPDFFileStream: public BaseStrea
+         virtual void       setPos(setPos_offset_type pos, int dir = 0) override;
+         virtual void       moveStart(moveStart_delta_type delta) override;
+ 
+-        virtual StreamKind getKind() override;
++        virtual StreamKind getKind() const override;
+         virtual GooString *getFileName() override;
+ 
+         virtual int        getChar() override;
+diff -up ./frmts/pdf/pdfobject.cpp.poppler-0.76.0 ./frmts/pdf/pdfobject.cpp
+--- ./frmts/pdf/pdfobject.cpp.poppler-0.76.0	2020-01-18 13:11:46.693450692 -0500
++++ ./frmts/pdf/pdfobject.cpp	2020-01-18 13:25:51.256924278 -0500
+@@ -1190,7 +1190,7 @@ GDALPDFObject* GDALPDFDictionaryPoppler:
+         return oIter->second;
+ 
+ #ifdef POPPLER_0_58_OR_LATER
+-    Object o = m_poDict->lookupNF(((char*)pszKey));
++    auto&& o(m_poDict->lookupNF(((char*)pszKey)));
+     if (!o.isNull())
+     {
+         int nRefNum = 0;
+@@ -1210,7 +1210,7 @@ GDALPDFObject* GDALPDFDictionaryPoppler:
+         }
+         else
+         {
+-            GDALPDFObjectPoppler* poObj = new GDALPDFObjectPoppler(new Object(std::move(o)), TRUE);
++            GDALPDFObjectPoppler* poObj = new GDALPDFObjectPoppler(new Object(o.copy()), TRUE);
+             poObj->SetRefNumAndGen(nRefNum, nRefGen);
+             m_map[pszKey] = poObj;
+             return poObj;
+@@ -1324,7 +1324,7 @@ GDALPDFObject* GDALPDFArrayPoppler::Get(
+         return m_v[nIndex];
+ 
+ #ifdef POPPLER_0_58_OR_LATER
+-    Object o = m_poArray->getNF(nIndex);
++    auto&& o(m_poArray->getNF(nIndex));
+     if( !o.isNull() )
+     {
+         int nRefNum = 0;
+@@ -1344,7 +1344,7 @@ GDALPDFObject* GDALPDFArrayPoppler::Get(
+         }
+         else
+         {
+-            GDALPDFObjectPoppler* poObj = new GDALPDFObjectPoppler(new Object(std::move(o)), TRUE);
++            GDALPDFObjectPoppler* poObj = new GDALPDFObjectPoppler(new Object(o.copy()), TRUE);
+             poObj->SetRefNumAndGen(nRefNum, nRefGen);
+             m_v[nIndex] = poObj;
+             return poObj;
+diff -up ./frmts/pdf/pdfsdk_headers.h.poppler-0.76.0 ./frmts/pdf/pdfsdk_headers.h
+--- ./frmts/pdf/pdfsdk_headers.h.poppler-0.76.0	2020-01-18 11:38:59.373535988 -0500
++++ ./frmts/pdf/pdfsdk_headers.h	2020-01-18 11:38:59.375536039 -0500
+@@ -50,7 +50,8 @@
+ #pragma warning( disable : 4244 ) /* conversion from 'const int' to 'Guchar', possible loss of data */
+ #endif
+ 
+-#include <goo/GooList.h>
++// GooList.h removed in poppler 0.76
++//#include <goo/GooList.h>
+ 
+ /* begin of poppler xpdf includes */
+ #include <poppler/Object.h>

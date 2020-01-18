@@ -91,6 +91,9 @@ Patch10:	%{name}-2.3.1-perl-build.patch
 
 Patch11:	%{name}-2.3.2-poppler-0.73.0.patch
 
+# Remove goo/GooList.h for new poppler
+# https://github.com/OSGeo/gdal/commit/8958528f9b5737581afa7249b0e16f2ff89d727e
+Patch12:    %{name}-2.3.2-poppler-0.76.0.patch
 
 BuildRequires:	gcc gcc-c++
 BuildRequires:	ant
@@ -337,6 +340,7 @@ rm -rf frmts/gtiff/libgeotiff \
 %patch9 -p1 -b .zlib~
 %patch10 -p1 -b .perl-build~
 %patch11 -p1 -b .poppler-0.73.0
+%patch12 -p1 -b .poppler-0.76.0
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -744,7 +748,8 @@ pushd %{name}autotest-%{testversion}
 	# Run tests but force normal exit in the end
 	./run_all.py || true
 popd
-%endif #%%{run_tests}
+%endif
+#%%{run_tests}
 
 
 %ldconfig_scriptlets libs
@@ -868,6 +873,10 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat Jan 18 2020 Rich Mattes <richmattes@gmail.com> - 2.3.2-15
+- Patch out include that was removed in newer poppler
+- Remove comment following an endif in the specfile
+
 * Sat Jan 18 2020 Mamoru TASAKA <mtasaka@fedoraproject.org> - 2.3.2-15
 - F-32: rebuild against new poppler
 
