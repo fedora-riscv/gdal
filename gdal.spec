@@ -59,7 +59,7 @@
 
 Name:		gdal
 Version:	2.3.2
-Release:	15%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:	16%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:	GIS file format library
 License:	MIT
 URL:		http://www.gdal.org
@@ -873,6 +873,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Jan 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 2.3.2-16
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
 * Sat Jan 18 2020 Rich Mattes <richmattes@gmail.com> - 2.3.2-15
 - Patch out include that was removed in newer poppler
 - Remove comment following an endif in the specfile
