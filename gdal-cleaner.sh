@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION="2.3.2"
+VERSION="3.0.4"
 
 tar xvf gdal-"${VERSION}".tar.xz
 

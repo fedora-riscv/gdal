@@ -1,0 +1,24 @@
+diff -rupN --no-dereference gdal-3.0.4-fedora/frmts/dods/GNUmakefile gdal-3.0.4-fedora-new/frmts/dods/GNUmakefile
+--- gdal-3.0.4-fedora/frmts/dods/GNUmakefile	2020-01-28 11:13:11.000000000 +0100
++++ gdal-3.0.4-fedora-new/frmts/dods/GNUmakefile	2020-02-06 00:23:36.543285168 +0100
+@@ -4,7 +4,7 @@ include ../../GDALmake.opt
+ 
+ OBJ	=	dodsdataset2.o
+ 
+-CPPFLAGS	:=	 $(CPPFLAGS) $(DODS_INC)
++CPPFLAGS	:=	 $(CPPFLAGS) $(DODS_INC) -I/usr/include/tirpc
+ 
+ default:	$(OBJ:.o=.$(OBJ_EXT))
+ 
+diff -rupN --no-dereference gdal-3.0.4-fedora/ogr/ogrsf_frmts/dods/GNUmakefile gdal-3.0.4-fedora-new/ogr/ogrsf_frmts/dods/GNUmakefile
+--- gdal-3.0.4-fedora/ogr/ogrsf_frmts/dods/GNUmakefile	2020-01-28 11:13:11.000000000 +0100
++++ gdal-3.0.4-fedora-new/ogr/ogrsf_frmts/dods/GNUmakefile	2020-02-06 00:23:36.543285168 +0100
+@@ -5,7 +5,7 @@ include ../../../GDALmake.opt
+ OBJ	=	ogrdodsdriver.o ogrdodsdatasource.o ogrdodslayer.o \
+ 		ogrdodssequencelayer.o ogrdodsfielddefn.o ogrdodsgrid.o
+ 
+-CPPFLAGS	:=	-I..  $(CPPFLAGS) $(DODS_INC) -DDO_NOT_USE_DEBUG_BOOL
++CPPFLAGS	:=	-I..  $(CPPFLAGS) $(DODS_INC) -DDO_NOT_USE_DEBUG_BOOL -I/usr/include/tirpc
+ 
+ default:	$(O_OBJ:.o=.$(OBJ_EXT))
+ 

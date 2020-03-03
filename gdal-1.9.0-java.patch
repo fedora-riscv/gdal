@@ -1,7 +1,6 @@
-Index: gdal-2.2.3-fedora/swig/java/java.opt
-===================================================================
---- gdal-2.2.3-fedora.orig/swig/java/java.opt
-+++ gdal-2.2.3-fedora/swig/java/java.opt
+diff -rupN --no-dereference gdal-3.0.4-fedora/swig/java/java.opt gdal-3.0.4-fedora-new/swig/java/java.opt
+--- gdal-3.0.4-fedora/swig/java/java.opt	2020-01-28 11:13:12.000000000 +0100
++++ gdal-3.0.4-fedora-new/swig/java/java.opt	2020-02-06 00:23:36.321286290 +0100
 @@ -7,6 +7,6 @@ JAVADOC=$(JAVA_HOME)/bin/javadoc
  JAVAC=$(JAVA_HOME)/bin/javac
  JAVA=$(JAVA_HOME)/bin/java
