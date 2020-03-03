@@ -46,7 +46,7 @@
 
 Name:          gdal
 Version:       3.0.4
-Release:       1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       2%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -69,6 +69,8 @@ Patch2:        %{name}-1.9.0-java.patch
 Patch3:        gdal_tirpcinc.patch
 # Use libtool to create libiso8211.a, otherwise broken static lib is created since object files are compiled through libtool
 Patch4:        gdal_iso8211.patch
+# Fix makefiles installing libtool wrappers instead of actual executables
+Patch5:        gdal_installapps.patch
 
 BuildRequires: gcc
 BuildRequires: gcc-c++
@@ -684,6 +686,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Mar 03 2020 Sandro Mani <manisandro@gmail.com> - 3.0.4-2
+- Fix libtool wrappers installed for gdal utilities instead of actual binaries
+
 * Wed Feb 05 2020 Sandro Mani <manisandro@gmail.com> - 3.0.4-1
 - Update to 3.0.4
 
