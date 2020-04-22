@@ -1,3 +1,7 @@
+# Temporarily disable annobin, as it is broken.
+%undefine _annotated_build
+
+
 #TODO: Create script to make clean tarball
 #TODO: msg needs to have PublicDecompWT.zip from EUMETSAT, which is not free;
 #      Building without msg therefore
@@ -688,6 +692,7 @@ popd
 %changelog
 * Tue Apr 21 2020 Björn Esser <besser82@fedoraproject.org> - 3.0.4-3
 - Rebuild (json-c)
+- Temporarily disable annobin, as it is broken
 
 * Tue Mar 03 2020 Sandro Mani <manisandro@gmail.com> - 3.0.4-2
 - Fix libtool wrappers installed for gdal utilities instead of actual binaries
