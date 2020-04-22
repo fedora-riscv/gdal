@@ -1,7 +1,3 @@
-# Temporarily disable annobin, as it is broken.
-%undefine _annotated_build
-
-
 #TODO: Create script to make clean tarball
 #TODO: msg needs to have PublicDecompWT.zip from EUMETSAT, which is not free;
 #      Building without msg therefore
@@ -50,7 +46,7 @@
 
 Name:          gdal
 Version:       3.0.4
-Release:       3%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       4%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -690,6 +686,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Apr 22 2020 Björn Esser <besser82@fedoraproject.org> - 3.0.4-4
+- Re-enable annobin
+
 * Tue Apr 21 2020 Björn Esser <besser82@fedoraproject.org> - 3.0.4-3
 - Rebuild (json-c)
 - Temporarily disable annobin, as it is broken
