@@ -46,7 +46,7 @@
 
 Name:          gdal
 Version:       3.0.4
-Release:       4%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       5%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -97,11 +97,17 @@ BuildRequires: ghostscript
 BuildRequires: hdf-devel
 BuildRequires: hdf-static
 BuildRequires: hdf5-devel
+# No complete java yet in EL8
+%if 0%{?rhel} < 8
 BuildRequires: java-devel >= 1:1.6.0
+%endif
 BuildRequires: jasper-devel
 BuildRequires: jpackage-utils
+# No complete java yet in EL8
+%if 0%{?rhel} < 8
 # For 'mvn_artifact' and 'mvn_install'
 BuildRequires: javapackages-local
+%endif
 BuildRequires: json-c-devel
 BuildRequires: libgeotiff-devel
 # No libgta in EL5
@@ -155,11 +161,12 @@ BuildRequires: xz-devel
 BuildRequires: zlib-devel
 BuildRequires: libtirpc-devel
 
+%if 0%{?rhel} < 8
 BuildRequires: /usr/bin/epstopdf
 BuildRequires: /usr/bin/latex
 BuildRequires: /usr/bin/dvips
 BuildRequires: tex(newunicodechar.sty)
-
+%endif
 
 # Run time dependency for gpsbabel driver
 Requires:      gpsbabel
@@ -203,6 +210,8 @@ Provides:      bundled(degrib) = 2.14
 This package contains the GDAL file format library.
 
 
+# No complete java yet in EL8
+%if 0%{?rhel} < 8
 %package java
 Summary:        Java modules for the GDAL file format library
 Requires:       jpackage-utils
@@ -219,6 +228,7 @@ BuildArch:      noarch
 
 %description javadoc
 This package contains the API documentation for %{name}.
+%endif
 
 
 %package perl
@@ -341,7 +351,9 @@ autoreconf -ifv
 	--with-hdf4                 \
 	--with-hdf5                 \
 	--with-jasper               \
+%if 0%{?rhel} < 8
 	--with-java                 \
+%endif
 	--with-jpeg                 \
 	--with-libjson-c            \
 	--without-jpeg12            \
@@ -376,12 +388,15 @@ make docs
 make -C ogr/ogrsf_frmts/s57 all
 make -C frmts/iso8211 all
 
+# No complete java yet in EL8
+%if 0%{?rhel} < 8
 # Make Java module and documentation
 pushd swig/java
   make
   ant maven
 popd
 %mvn_artifact swig/java/build/maven/gdal-%version.pom swig/java/build/maven/gdal-%version.jar
+%endif
 
 # Make Python modules
 pushd swig/python
@@ -446,6 +461,8 @@ rm %buildroot%_mandir/man1/{pct2rgb,rgb2pct}.1
 find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
 find %{buildroot}%{perl_vendorarch} -name "*.pm" -exec chmod 644 '{}' \;
 
+# No complete java yet in EL8
+%if 0%{?rhel} < 8
 # install Java plugin
 %mvn_install -J swig/java/java
 
@@ -460,6 +477,7 @@ chrpath --delete %{buildroot}%{_jnidir}/%{name}/*jni.so*
 # Install Java API documentation in the designated place
 mkdir -p %{buildroot}%{_javadocdir}/%{name}
 cp -pr swig/java/java/org %{buildroot}%{_javadocdir}/%{name}
+%endif
 
 # Install refmans
 for docdir in %{docdirs}; do
@@ -535,12 +553,14 @@ done
 rm %{buildroot}%{_datadir}/%{name}/LICENSE.TXT
 
 
+# No complete java yet in EL8
+%if 0%{?rhel} < 8
 %check
 %if %{run_tests}
 for i in -I/usr/lib/jvm/java/include{,/linux}; do
     java_inc="$java_inc $i"
 done
-
+%endif
 
 pushd %{name}autotest-%{testversion}
 	# Export test enviroment
@@ -625,12 +645,15 @@ popd
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/%{name}.pc
 
+# No complete java yet in EL8
+%if 0%{?rhel} < 8
 # Can I even have a separate Java package anymore?
 %files java -f .mfiles
 %doc swig/java/apps
 %{_jnidir}/%{name}/libgdalalljni.so*
 
 %files javadoc -f .mfiles-javadoc
+%endif
 
 %files perl
 %doc swig/perl/README
@@ -686,6 +709,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat May 09 2020 Markus Neteler <neteler@mundialis.de> - 3.0.4-5
+* disabled JAVA and LaTeX support for EPEL8, due to (yet) missing dependencies
+
 * Wed Apr 22 2020 Björn Esser <besser82@fedoraproject.org> - 3.0.4-4
 - Re-enable annobin
 
