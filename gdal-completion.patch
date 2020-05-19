@@ -1,6 +1,7 @@
---- gdal/scripts/GNUmakefile.old	2019-10-29 13:02:12.524895548 +0000
-+++ gdal/scripts/GNUmakefile	2019-10-29 13:02:50.251244028 +0000
-@@ -5,6 +5,6 @@
+diff -rupN --no-dereference gdal-3.0.4-fedora/scripts/GNUmakefile gdal-3.0.4-fedora-new/scripts/GNUmakefile
+--- gdal-3.0.4-fedora/scripts/GNUmakefile	2020-01-28 11:13:13.000000000 +0100
++++ gdal-3.0.4-fedora-new/scripts/GNUmakefile	2020-02-06 00:23:36.089287463 +0100
+@@ -5,6 +5,6 @@ completion:
  
  install:
  	if test "x`pkg-config --version 2>/dev/null`" != "x" -a "x`pkg-config --variable=compatdir bash-completion`" != "x"; then \
