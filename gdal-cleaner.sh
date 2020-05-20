@@ -1,7 +1,7 @@
 #!/bin/bash
-VERSION="3.0.4"
+VERSION="3.1.0"
 
-tar xvf gdal-"${VERSION}".tar.xz
+tar xvf gdal-"${VERSION}".tar.gz
 
 mv gdal-"${VERSION}"{,-fedora} && pushd gdal-"${VERSION}"-fedora
 

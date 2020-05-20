@@ -9,8 +9,8 @@
 #TODO: Consider doxy patch from Suse, setting EXTRACT_LOCAL_CLASSES  = NO
 
 # Tests can be of a different version
-%global testversion 3.0.4
-%global run_tests 0
+%global testversion 3.1.0
+%global run_tests 1
 
 %global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
 
@@ -45,8 +45,8 @@
 %endif
 
 Name:          gdal
-Version:       3.0.4
-Release:       5%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Version:       3.1.0
+Release:       1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -61,16 +61,18 @@ Source3:       %{name}-cleaner.sh
 
 Source4:       PROVENANCE.TXT-fedora
 
-# Fix bash-completion install dir
-Patch1:        %{name}-completion.patch
 # Fedora uses Alternatives for Java
 Patch2:        %{name}-1.9.0-java.patch
 # Ensure rpc/types.h is found by dods driver (indirectly required by libdap/XDRUtils.h)
 Patch3:        gdal_tirpcinc.patch
 # Use libtool to create libiso8211.a, otherwise broken static lib is created since object files are compiled through libtool
 Patch4:        gdal_iso8211.patch
+# Don't pass -W to sphinx, it causes it to error out on warnings
+Patch5:        gdal_sphinx-warnings.patch
 # Fix makefiles installing libtool wrappers instead of actual executables
-Patch5:        gdal_installapps.patch
+Patch6:        gdal_installapps.patch
+# Don't refer to PDF manual which is not built
+Patch7:        gdal_nopdf.patch
 
 BuildRequires: gcc
 BuildRequires: gcc-c++
@@ -161,12 +163,9 @@ BuildRequires: xz-devel
 BuildRequires: zlib-devel
 BuildRequires: libtirpc-devel
 
-%if 0%{?rhel} < 8
-BuildRequires: /usr/bin/epstopdf
-BuildRequires: /usr/bin/latex
-BuildRequires: /usr/bin/dvips
-BuildRequires: tex(newunicodechar.sty)
-%endif
+BuildRequires: python3-sphinx
+BuildRequires: python3-sphinx_rtd_theme
+BuildRequires: python3-breathe
 
 # Run time dependency for gpsbabel driver
 Requires:      gpsbabel
@@ -326,6 +325,9 @@ chmod 644 apps/gnmanalyse.cpp apps/gnmmanage.cpp
 # Fix mandir
 sed -i "s|^mandir=.*|mandir='\${prefix}/share/man'|" configure.ac
 
+# Delete .doxygen_up_to_date, otherwise doxygen isn't run
+rm -f doc/.doxygen_up_to_date
+
 
 %build
 # For future reference:
@@ -335,9 +337,9 @@ autoreconf -ifv
 
 %configure \
 	--with-autoload=%{_libdir}/%{name}plugins \
-	--datadir=%{_datadir}/%{name}/ \
 	--includedir=%{_includedir}/%{name}/ \
 	--prefix=%{_prefix}         \
+	--with-bash-completion      \
 	--with-armadillo            \
 	--with-curl                 \
 	--with-cfitsio              \
@@ -381,15 +383,18 @@ autoreconf -ifv
 	--with-libkml
 
 %make_build
-make man
-make docs
 
 # Build some utilities, as requested in BZ #1271906
 make -C ogr/ogrsf_frmts/s57 all
 make -C frmts/iso8211 all
 
+# Documentation
+make man
+make docs
+
 # No complete java yet in EL8
 %if 0%{?rhel} < 8
+
 # Make Java module and documentation
 pushd swig/java
   make
@@ -410,25 +415,6 @@ pushd swig/perl
   %make_build
 popd
 
-# --------- Documentation ----------
-
-# No useful documentation in swig
-%global docdirs apps doc doc/br doc/ru ogr ogr/ogrsf_frmts frmts/gxf frmts/iso8211 frmts/pcidsk frmts/sdts frmts/vrt ogr/ogrsf_frmts/dgn/
-for docdir in %{docdirs}; do
-  pushd $docdir
-    if [ ! -f Doxyfile ]; then
-      doxygen -g
-    else
-      doxygen -u
-    fi
-    if [ $docdir == "doc/ru" ]; then
-      sed -i -e 's|^OUTPUT_LANGUAGE|OUTPUT_LANGUAGE = Russian\n#OUTPUT_LANGUAGE |' Doxyfile
-    fi
-    rm -rf html
-    doxygen
-  popd
-done
-
 
 %install
 pushd swig/python
@@ -440,16 +426,20 @@ popd
 
 %make_install install-man
 
+# Drop gdal.pdf symlink, as we don't build the pdf documentation
+rm doc/build/html/gdal.pdf
+
 install -pm 755 ogr/ogrsf_frmts/s57/s57dump %{buildroot}%{_bindir}
 install -pm 755 frmts/iso8211/8211createfromxml %{buildroot}%{_bindir}
 install -pm 755 frmts/iso8211/8211dump %{buildroot}%{_bindir}
 install -pm 755 frmts/iso8211/8211view %{buildroot}%{_bindir}
+# Rename for %%files doc below
+mv frmts/iso8211/html frmts/iso8211/iso8211_html
 
 # Directory for auto-loading plugins
 mkdir -p %{buildroot}%{_libdir}/%{name}plugins
 
 #TODO: Don't do that?
-find %{buildroot}%{perl_vendorarch} -name "*.dox" -exec rm -rf '{}' \;
 rm %{buildroot}%{perl_archlib}/perllocal.pod
 
 %if %{without python} && %{without python3}
@@ -478,21 +468,6 @@ chrpath --delete %{buildroot}%{_jnidir}/%{name}/*jni.so*
 mkdir -p %{buildroot}%{_javadocdir}/%{name}
 cp -pr swig/java/java/org %{buildroot}%{_javadocdir}/%{name}
 %endif
-
-# Install refmans
-for docdir in %{docdirs}; do
-  pushd $docdir
-    path=%{_builddir}/%{name}-%{version}-fedora/refman
-    mkdir -p $path/html/$docdir
-    cp -r html $path/html/$docdir
-  popd
-done
-
-# Install formats documentation
-for dir in gdal_frmts ogrsf_frmts; do
-  mkdir -p $dir
-  find frmts -name "*.html" -exec install -p -m 644 '{}' $dir \;
-done
 
 #TODO: Header date lost during installation
 # Install multilib cpl_config.h bz#430894
@@ -546,7 +521,7 @@ chmod 755 %{buildroot}%{_bindir}/%{name}-config
 #jni-libs and libgdal are also built static (*.a)
 #.exists and .packlist stem from Perl
 for junk in {*.a,*.la,*.bs,.exists,.packlist} ; do
-  find %{buildroot} -name "$junk" -exec rm -rf '{}' \;
+  find %{buildroot} -name "$junk" -delete
 done
 
 # Don't duplicate license files
@@ -592,7 +567,6 @@ popd
 
 
 %files
-%{bashcompletiondir}/*
 %{_bindir}/gdallocationinfo
 %{_bindir}/gdal_contour
 %{_bindir}/gdal_rasterize
@@ -610,12 +584,16 @@ popd
 %{_bindir}/gdalsrsinfo
 %{_bindir}/gdaltransform
 %{_bindir}/nearblack
+%{_bindir}/gdal_viewshed
+%{_bindir}/gdalmdiminfo
+%{_bindir}/gdalmdimtranslate
 %{_bindir}/ogr*
 %{_bindir}/8211*
 %{_bindir}/s57*
 %{_bindir}/testepsg
 %{_bindir}/gnmanalyse
 %{_bindir}/gnmmanage
+%{_datadir}/bash-completion/completions/*
 %{_mandir}/man1/gdal*.1*
 %exclude %{_mandir}/man1/gdal-config.1*
 %exclude %{_mandir}/man1/gdal2tiles.1*
@@ -630,8 +608,8 @@ popd
 
 %files libs
 %doc LICENSE.TXT NEWS PROVENANCE.TXT COMMITTERS PROVENANCE.TXT-fedora
-%{_libdir}/libgdal.so.26
-%{_libdir}/libgdal.so.26.*
+%{_libdir}/libgdal.so.27
+%{_libdir}/libgdal.so.27.*
 %{_datadir}/%{name}
 #TODO: Possibly remove files like .dxf, .dgn, ...
 %dir %{_libdir}/%{name}plugins
@@ -698,7 +676,7 @@ popd
 %endif
 
 %files doc
-%doc gdal_frmts ogrsf_frmts refman
+%doc doc/build/html frmts/iso8211/iso8211_html
 
 #TODO: jvm
 #Should be managed by the Alternatives system and not via ldconfig
@@ -709,6 +687,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue May 12 2020 Sandro Mani <manisandro@gmail.com> - 3.1.0-1
+- Update to 3.1.0
+
 * Sat May 09 2020 Markus Neteler <neteler@mundialis.de> - 3.0.4-5
 * disabled JAVA and LaTeX support for EPEL8, due to (yet) missing dependencies
 

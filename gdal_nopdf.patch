@@ -1,0 +1,12 @@
+diff -rupN gdal-3.1.0-fedora/doc/source/index.rst gdal-3.1.0-fedora-new/doc/source/index.rst
+--- gdal-3.1.0-fedora/doc/source/index.rst	2020-05-04 11:18:27.000000000 +0200
++++ gdal-3.1.0-fedora-new/doc/source/index.rst	2020-05-20 18:56:54.508740758 +0200
+@@ -9,8 +9,6 @@ GDAL
+ 
+ .. include:: ./about_no_title.rst
+ 
+-This documentation is also available as a `PDF file <gdal.pdf>`_.
+-
+ .. toctree::
+     :maxdepth: 2
+ 
