@@ -46,7 +46,7 @@
 
 Name:          gdal
 Version:       3.1.0
-Release:       4%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       5%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -687,6 +687,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat Jun 27 2020 Jitka Plesnikova <jplesnik@redhat.com> - 3.1.0-5
+- Perl 5.32 re-rebuild updated packages
+
 * Fri Jun 26 2020 Orion Poplawski <orion@nwra.com> - 3.1.0-4
 - Rebuild for hdf5 1.10.6
 
