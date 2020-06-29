@@ -154,6 +154,7 @@ BuildRequires: python2-numpy
 %if %{with python3}
 BuildRequires: python3-devel
 BuildRequires: python3-numpy
+BuildRequires: python3-setuptools
 %endif
 BuildRequires: sqlite-devel
 BuildRequires: swig
