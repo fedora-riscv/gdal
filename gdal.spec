@@ -9,7 +9,7 @@
 #TODO: Consider doxy patch from Suse, setting EXTRACT_LOCAL_CLASSES  = NO
 
 # Tests can be of a different version
-%global testversion 3.1.0
+%global testversion 3.1.1
 %global run_tests 1
 
 %global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
