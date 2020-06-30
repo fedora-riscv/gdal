@@ -1,5 +1,13 @@
 #!/bin/bash
-VERSION="3.1.0"
+
+if [ $# -lt 1 ]; then
+	echo "Usage: $0 version"
+	exit 1
+fi
+
+VERSION="$1"
+
+wget https://github.com/OSGeo/gdal/releases/download/v$VERSION/gdal-$VERSION.tar.gz
 
 tar xvf gdal-"${VERSION}".tar.gz
 
