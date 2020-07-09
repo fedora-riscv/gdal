@@ -9,7 +9,7 @@
 #TODO: Consider doxy patch from Suse, setting EXTRACT_LOCAL_CLASSES  = NO
 
 # Tests can be of a different version
-%global testversion 3.1.1
+%global testversion 3.1.2
 %global run_tests 1
 
 %global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
@@ -45,7 +45,7 @@
 %endif
 
 Name:          gdal
-Version:       3.1.1
+Version:       3.1.2
 Release:       1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
@@ -68,7 +68,8 @@ Patch3:        gdal_tirpcinc.patch
 # Use libtool to create libiso8211.a, otherwise broken static lib is created since object files are compiled through libtool
 Patch4:        gdal_iso8211.patch
 # Don't pass -W to sphinx, it causes it to error out on warnings
-Patch5:        gdal_sphinx-warnings.patch
+# Don't do parallel build, currently fails with "Sphinx parallel build error: NotImplementedError"
+Patch5:        gdal_sphinx.patch
 # Fix makefiles installing libtool wrappers instead of actual executables
 Patch6:        gdal_installapps.patch
 # Don't refer to PDF manual which is not built
@@ -688,6 +689,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Jul 07 2020 Sandro Mani <manisandro@gmail.com> - 3.1.2-1
+- Update to 3.1.2
+
 * Tue Jun 30 2020 Sandro Mani <manisandro@gmail.com> - 3.1.1-1
 - Update to 3.1.1
 

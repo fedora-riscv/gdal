@@ -1,6 +1,6 @@
-diff -rupN --no-dereference gdal-3.1.1-fedora/frmts/iso8211/GNUmakefile gdal-3.1.1-fedora-new/frmts/iso8211/GNUmakefile
---- gdal-3.1.1-fedora/frmts/iso8211/GNUmakefile	2020-06-22 10:25:55.000000000 +0200
-+++ gdal-3.1.1-fedora-new/frmts/iso8211/GNUmakefile	2020-06-30 11:52:00.482548548 +0200
+diff -rupN --no-dereference gdal-3.1.2-fedora/frmts/iso8211/GNUmakefile gdal-3.1.2-fedora-new/frmts/iso8211/GNUmakefile
+--- gdal-3.1.2-fedora/frmts/iso8211/GNUmakefile	2020-07-07 13:43:38.000000000 +0200
++++ gdal-3.1.2-fedora-new/frmts/iso8211/GNUmakefile	2020-07-07 15:17:33.178888816 +0200
 @@ -23,8 +23,7 @@ dist-clean:	clean
  	rm -rf $(DISTDIR)
  
