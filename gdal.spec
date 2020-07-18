@@ -94,7 +94,6 @@ BuildRequires: expat-devel
 BuildRequires: fontconfig-devel
 # No freexl in EL5
 BuildRequires: freexl-devel
-BuildRequires: g2clib-static
 BuildRequires: geos-devel >= 3.7.1
 BuildRequires: ghostscript
 BuildRequires: hdf-devel
