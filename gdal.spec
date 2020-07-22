@@ -74,6 +74,8 @@ Patch5:        gdal_sphinx.patch
 Patch6:        gdal_installapps.patch
 # Don't refer to PDF manual which is not built
 Patch7:        gdal_nopdf.patch
+# Adapt to jasper 2.0.17
+Patch8:        gdal_jasper.patch
 
 BuildRequires: gcc
 BuildRequires: gcc-c++
