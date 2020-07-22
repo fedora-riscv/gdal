@@ -46,7 +46,7 @@
 
 Name:          gdal
 Version:       3.1.2
-Release:       4%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       5%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -540,7 +540,7 @@ done
 
 pushd %{name}autotest-%{testversion}
 	# Export test enviroment
-	export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python_sitearch}
+	export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python2_sitearch}
 	#TODO: Nötig?
 	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}
 	# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%%{buildroot}%%{_libdir}:$java_inc
@@ -688,6 +688,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Jul 22 09:48:50 GMT 2020 Sandro Mani <manisandro@gmail.com> - 3.1.2-5
+- Rebuild (poppler)
+
 * Thu Jul 16 2020 Jiri Vanek <jvanek@redhat.com> - 3.1.2-4
 - Rebuilt for JDK-11, see https://fedoraproject.org/wiki/Changes/Java11
 
