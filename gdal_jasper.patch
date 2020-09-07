@@ -1,31 +1,21 @@
-diff -rupN gdal-3.1.2-fedora/frmts/jpeg2000/jpeg2000dataset.cpp gdal-3.1.2-fedora-new/frmts/jpeg2000/jpeg2000dataset.cpp
---- gdal-3.1.2-fedora/frmts/jpeg2000/jpeg2000dataset.cpp	2020-07-07 13:46:27.000000000 +0200
-+++ gdal-3.1.2-fedora-new/frmts/jpeg2000/jpeg2000dataset.cpp	2020-07-22 12:26:50.419482813 +0200
-@@ -595,7 +595,7 @@ GDALDataset *JPEG2000Dataset::Open( GDAL
+diff -rupN --no-dereference gdal-3.1.3-fedora/frmts/jpeg2000/jpeg2000_vsil_io.cpp gdal-3.1.3-fedora-new/frmts/jpeg2000/jpeg2000_vsil_io.cpp
+--- gdal-3.1.3-fedora/frmts/jpeg2000/jpeg2000_vsil_io.cpp	2020-09-01 10:39:25.000000000 +0200
++++ gdal-3.1.3-fedora-new/frmts/jpeg2000/jpeg2000_vsil_io.cpp	2020-09-07 14:41:33.957532225 +0200
+@@ -96,7 +96,7 @@ typedef struct {
  
- {
-     int         iFormat;
--    char        *pszFormatName = nullptr;
-+    const char        *pszFormatName = nullptr;
+ // PRIjas_seqent macro is defined since Jasper 2.0.17
  
-     if (!Identify(poOpenInfo))
-         return nullptr;
-diff -rupN gdal-3.1.2-fedora/frmts/jpeg2000/jpeg2000_vsil_io.cpp gdal-3.1.2-fedora-new/frmts/jpeg2000/jpeg2000_vsil_io.cpp
---- gdal-3.1.2-fedora/frmts/jpeg2000/jpeg2000_vsil_io.cpp	2020-07-07 13:46:27.000000000 +0200
-+++ gdal-3.1.2-fedora-new/frmts/jpeg2000/jpeg2000_vsil_io.cpp	2020-07-22 13:29:02.017426423 +0200
-@@ -94,13 +94,13 @@ typedef struct {
- * File stream object.
- \******************************************************************************/
- 
--static int JPEG2000_VSIL_read(jas_stream_obj_t *obj, char *buf, int cnt)
-+static int JPEG2000_VSIL_read(jas_stream_obj_t *obj, char *buf, unsigned int cnt)
- {
-     jas_stream_VSIFL_t *fileobj = JAS_CAST(jas_stream_VSIFL_t *, obj);
+-#ifndef PRIjas_seqent
++#if 0
+ static int JPEG2000_VSIL_read(jas_stream_obj_t *obj, char *buf, int cnt)
+ #else
+ static int JPEG2000_VSIL_read(jas_stream_obj_t *obj, char *buf, unsigned cnt)
+@@ -106,7 +106,7 @@ static int JPEG2000_VSIL_read(jas_stream
      return static_cast<int>(VSIFReadL(buf, 1, cnt, fileobj->fp));
  }
  
--static int JPEG2000_VSIL_write(jas_stream_obj_t *obj, char *buf, int cnt)
-+static int JPEG2000_VSIL_write(jas_stream_obj_t *obj, char *buf, unsigned int cnt)
- {
-     jas_stream_VSIFL_t *fileobj = JAS_CAST(jas_stream_VSIFL_t *, obj);
-     return static_cast<int>(VSIFWriteL(buf, 1, cnt, fileobj->fp));
+-#ifndef PRIjas_seqent
++#if 0
+ static int JPEG2000_VSIL_write(jas_stream_obj_t *obj, char *buf, int cnt)
+ #else
+ static int JPEG2000_VSIL_write(jas_stream_obj_t *obj, char *buf, unsigned int cnt)

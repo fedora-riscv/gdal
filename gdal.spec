@@ -9,7 +9,7 @@
 #TODO: Consider doxy patch from Suse, setting EXTRACT_LOCAL_CLASSES  = NO
 
 # Tests can be of a different version
-%global testversion 3.1.2
+%global testversion 3.1.3
 %global run_tests 1
 
 %global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
@@ -45,8 +45,8 @@
 %endif
 
 Name:          gdal
-Version:       3.1.2
-Release:       6%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Version:       3.1.3
+Release:       1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -76,6 +76,7 @@ Patch6:        gdal_installapps.patch
 Patch7:        gdal_nopdf.patch
 # Adapt to jasper 2.0.17
 Patch8:        gdal_jasper.patch
+
 
 BuildRequires: gcc
 BuildRequires: gcc-c++
@@ -690,6 +691,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Sep 07 2020 Sandro Mani <manisandro@gmail.com> - 3.1.3-1
+- Update to 3.1.3
+
 * Mon Jul 27 2020 Fedora Release Engineering <releng@fedoraproject.org> - 3.1.2-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
 
