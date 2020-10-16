@@ -46,7 +46,7 @@
 
 Name:          gdal
 Version:       3.1.3
-Release:       1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       2%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -74,7 +74,8 @@ Patch5:        gdal_sphinx.patch
 Patch6:        gdal_installapps.patch
 # Don't refer to PDF manual which is not built
 Patch7:        gdal_nopdf.patch
-# Adapt to jasper 2.0.17
+# Adapt to jasper 2.0.21
+# See https://github.com/OSGeo/gdal/commit/9ef8e16e27c5fc4c491debe50bf2b7f3e94ed334
 Patch8:        gdal_jasper.patch
 
 
@@ -691,6 +692,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Oct 16 21:25:24 CEST 2020 Sandro Mani <manisandro@gmail.com> - 3.1.3-2
+- Rebuild (jasper)
+
 * Mon Sep 07 2020 Sandro Mani <manisandro@gmail.com> - 3.1.3-1
 - Update to 3.1.3
 

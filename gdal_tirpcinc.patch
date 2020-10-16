@@ -1,6 +1,6 @@
 diff -rupN --no-dereference gdal-3.1.3-fedora/frmts/dods/GNUmakefile gdal-3.1.3-fedora-new/frmts/dods/GNUmakefile
 --- gdal-3.1.3-fedora/frmts/dods/GNUmakefile	2020-09-01 10:36:30.000000000 +0200
-+++ gdal-3.1.3-fedora-new/frmts/dods/GNUmakefile	2020-09-07 14:41:32.127565845 +0200
++++ gdal-3.1.3-fedora-new/frmts/dods/GNUmakefile	2020-10-16 21:26:31.068885127 +0200
 @@ -4,7 +4,7 @@ include ../../GDALmake.opt
  
  OBJ	=	dodsdataset2.o
@@ -12,7 +12,7 @@ diff -rupN --no-dereference gdal-3.1.3-fedora/frmts/dods/GNUmakefile gdal-3.1.3-
  
 diff -rupN --no-dereference gdal-3.1.3-fedora/ogr/ogrsf_frmts/dods/GNUmakefile gdal-3.1.3-fedora-new/ogr/ogrsf_frmts/dods/GNUmakefile
 --- gdal-3.1.3-fedora/ogr/ogrsf_frmts/dods/GNUmakefile	2020-09-01 10:36:31.000000000 +0200
-+++ gdal-3.1.3-fedora-new/ogr/ogrsf_frmts/dods/GNUmakefile	2020-09-07 14:41:32.127565845 +0200
++++ gdal-3.1.3-fedora-new/ogr/ogrsf_frmts/dods/GNUmakefile	2020-10-16 21:26:31.068885127 +0200
 @@ -5,7 +5,7 @@ include ../../../GDALmake.opt
  OBJ	=	ogrdodsdriver.o ogrdodsdatasource.o ogrdodslayer.o \
  		ogrdodssequencelayer.o ogrdodsfielddefn.o ogrdodsgrid.o

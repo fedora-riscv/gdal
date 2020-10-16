@@ -1,6 +1,6 @@
 diff -rupN --no-dereference gdal-3.1.3-fedora/doc/source/index.rst gdal-3.1.3-fedora-new/doc/source/index.rst
 --- gdal-3.1.3-fedora/doc/source/index.rst	2020-09-01 10:36:31.000000000 +0200
-+++ gdal-3.1.3-fedora-new/doc/source/index.rst	2020-09-07 14:41:33.605538696 +0200
++++ gdal-3.1.3-fedora-new/doc/source/index.rst	2020-10-16 21:26:31.871883992 +0200
 @@ -9,8 +9,6 @@ GDAL
  
  .. include:: ./about_no_title.rst
