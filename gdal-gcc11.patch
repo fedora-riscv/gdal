@@ -1,7 +1,6 @@
-diff --git a/ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp b/ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp
-index b500df8..4c51316 100644
---- a/ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp
-+++ b/ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp
+diff -rupN --no-dereference gdal-3.1.4-fedora/ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp gdal-3.1.4-fedora-new/ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp
+--- gdal-3.1.4-fedora/ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp	2020-10-20 11:50:59.000000000 +0200
++++ gdal-3.1.4-fedora-new/ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp	2020-11-02 11:56:49.997342382 +0100
 @@ -38,6 +38,7 @@
  #include <iostream>
  #include <memory>
