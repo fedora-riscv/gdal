@@ -1,6 +1,6 @@
-diff -rupN --no-dereference gdal-3.1.4-fedora/doc/Makefile gdal-3.1.4-fedora-new/doc/Makefile
---- gdal-3.1.4-fedora/doc/Makefile	2020-10-20 11:47:08.000000000 +0200
-+++ gdal-3.1.4-fedora-new/doc/Makefile	2020-11-02 11:56:49.173328561 +0100
+diff -rupN --no-dereference gdal-3.2.0-fedora/doc/Makefile gdal-3.2.0-fedora-new/doc/Makefile
+--- gdal-3.2.0-fedora/doc/Makefile	2020-10-26 14:05:39.000000000 +0100
++++ gdal-3.2.0-fedora-new/doc/Makefile	2020-11-12 00:13:52.828881024 +0100
 @@ -2,7 +2,7 @@
  #
  

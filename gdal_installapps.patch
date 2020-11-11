@@ -1,6 +1,6 @@
-diff -rupN --no-dereference gdal-3.1.4-fedora/apps/GNUmakefile gdal-3.1.4-fedora-new/apps/GNUmakefile
---- gdal-3.1.4-fedora/apps/GNUmakefile	2020-10-20 11:47:09.000000000 +0200
-+++ gdal-3.1.4-fedora-new/apps/GNUmakefile	2020-11-02 11:56:49.446333140 +0100
+diff -rupN --no-dereference gdal-3.2.0-fedora/apps/GNUmakefile gdal-3.2.0-fedora-new/apps/GNUmakefile
+--- gdal-3.2.0-fedora/apps/GNUmakefile	2020-10-26 14:05:39.000000000 +0100
++++ gdal-3.2.0-fedora-new/apps/GNUmakefile	2020-11-12 00:13:53.083881000 +0100
 @@ -233,6 +233,7 @@ gdal-config-inst:	gdal-config.in ../GDAL
  
  install: default

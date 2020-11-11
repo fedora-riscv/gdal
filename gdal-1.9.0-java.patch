@@ -1,6 +1,6 @@
-diff -rupN --no-dereference gdal-3.1.4-fedora/swig/java/java.opt gdal-3.1.4-fedora-new/swig/java/java.opt
---- gdal-3.1.4-fedora/swig/java/java.opt	2020-10-20 11:47:08.000000000 +0200
-+++ gdal-3.1.4-fedora-new/swig/java/java.opt	2020-11-02 11:56:48.341314610 +0100
+diff -rupN --no-dereference gdal-3.2.0-fedora/swig/java/java.opt gdal-3.2.0-fedora-new/swig/java/java.opt
+--- gdal-3.2.0-fedora/swig/java/java.opt	2020-10-26 14:05:40.000000000 +0100
++++ gdal-3.2.0-fedora-new/swig/java/java.opt	2020-11-12 00:13:52.048881098 +0100
 @@ -7,6 +7,6 @@ JAVADOC=$(JAVA_HOME)/bin/javadoc
  JAVAC=$(JAVA_HOME)/bin/javac
  JAVA=$(JAVA_HOME)/bin/java

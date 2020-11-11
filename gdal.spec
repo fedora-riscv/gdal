@@ -9,7 +9,7 @@
 #TODO: Consider doxy patch from Suse, setting EXTRACT_LOCAL_CLASSES  = NO
 
 # Tests can be of a different version
-%global testversion 3.1.4
+%global testversion 3.2.0
 %global run_tests 1
 
 %global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
@@ -45,7 +45,7 @@
 %endif
 
 Name:          gdal
-Version:       3.1.4
+Version:       3.2.0
 Release:       1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
@@ -573,6 +573,7 @@ popd
 %files
 %{_bindir}/gdallocationinfo
 %{_bindir}/gdal_contour
+%{_bindir}/gdal_create
 %{_bindir}/gdal_rasterize
 %{_bindir}/gdal_translate
 %{_bindir}/gdaladdo
@@ -584,7 +585,6 @@ popd
 %{_bindir}/gdal_grid
 %{_bindir}/gdalenhance
 %{_bindir}/gdalmanage
-%{_bindir}/gdalserver
 %{_bindir}/gdalsrsinfo
 %{_bindir}/gdaltransform
 %{_bindir}/nearblack
@@ -612,8 +612,8 @@ popd
 
 %files libs
 %doc LICENSE.TXT NEWS PROVENANCE.TXT COMMITTERS PROVENANCE.TXT-fedora
-%{_libdir}/libgdal.so.27
-%{_libdir}/libgdal.so.27.*
+%{_libdir}/libgdal.so.28
+%{_libdir}/libgdal.so.28.*
 %{_datadir}/%{name}
 #TODO: Possibly remove files like .dxf, .dgn, ...
 %dir %{_libdir}/%{name}plugins
@@ -646,11 +646,8 @@ popd
 %files -n python2-gdal
 %doc swig/python/README.rst
 %doc swig/python/samples
-%{python2_sitearch}/osgeo
-%{python2_sitearch}/GDAL-%{version}-py*.egg-info
-%{python2_sitearch}/osr.py*
-%{python2_sitearch}/ogr.py*
-%{python2_sitearch}/gdal*.py*
+%{python2_sitearch}/osgeo/
+%{python2_sitearch}/GDAL-%{version}-py*.egg-info/
 %endif
 
 %if %{with python3}
@@ -658,13 +655,7 @@ popd
 %doc swig/python/README.rst
 %doc swig/python/samples
 %{python3_sitearch}/osgeo
-%{python3_sitearch}/GDAL-%{version}-py*.egg-info
-%{python3_sitearch}/osr.py
-%{python3_sitearch}/__pycache__/osr.*.py*
-%{python3_sitearch}/ogr.py
-%{python3_sitearch}/__pycache__/ogr.*.py*
-%{python3_sitearch}/gdal*.py
-%{python3_sitearch}/__pycache__/gdal*.*.py*
+%{python3_sitearch}/GDAL-%{version}-py*.egg-info/
 %endif
 
 %if %{with python2} || %{with python3}
@@ -691,6 +682,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Nov 05 2020 Sandro Mani <manisandro@gmail.com> - 3.2.0-1
+- Update to 3.2.0
+
 * Mon Nov 02 2020 Sandro Mani <manisandro@gmail.com> - 3.1.4-1
 - Update to 3.1.4
 
