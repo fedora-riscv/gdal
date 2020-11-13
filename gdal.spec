@@ -1,4 +1,3 @@
-#TODO: Create script to make clean tarball
 #TODO: msg needs to have PublicDecompWT.zip from EUMETSAT, which is not free;
 #      Building without msg therefore
 #TODO: e00compr bundled?
@@ -84,18 +83,15 @@ BuildRequires: libtool
 BuildRequires: automake
 BuildRequires: autoconf
 BuildRequires: ant
-# No armadillo in EL5
 BuildRequires: armadillo-devel
 BuildRequires: bash-completion
 BuildRequires: cfitsio-devel
-# No CharLS in EL5
 #BuildRequires: CharLS-devel
 BuildRequires: chrpath
 BuildRequires: curl-devel
 BuildRequires: doxygen
 BuildRequires: expat-devel
 BuildRequires: fontconfig-devel
-# No freexl in EL5
 BuildRequires: freexl-devel
 BuildRequires: geos-devel >= 3.7.1
 BuildRequires: ghostscript
@@ -115,12 +111,10 @@ BuildRequires: javapackages-local
 %endif
 BuildRequires: json-c-devel
 BuildRequires: libgeotiff-devel
-# No libgta in EL5
 BuildRequires: libgta-devel
 
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-# No libkml in EL
 BuildRequires: libkml-devel
 
 %if %{with_spatialite}
@@ -128,7 +122,6 @@ BuildRequires: libspatialite-devel
 %endif
 
 BuildRequires: libtiff-devel
-# No libwebp in EL 5 and 6
 BuildRequires: libwebp-devel
 BuildRequires: libtool
 BuildRequires: giflib-devel
@@ -183,7 +176,6 @@ Requires:      %{name}-libs%{?_isa} = %{version}-%{release}
   %global cpuarch 64
 %endif
 
-#TODO: Description on the lib?
 %description
 Geospatial Data Abstraction Library (GDAL/OGR) is a cross platform
 C++ translator library for raster and vector geospatial data formats.
@@ -242,6 +234,7 @@ Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $versi
 %description perl
 The GDAL Perl modules provide support to handle multiple GIS file formats.
 
+
 %if %{with python2}
 %package -n python2-gdal
 %{?python_provide:%python_provide python2-gdal}
@@ -291,6 +284,7 @@ BuildArch:      noarch
 %description doc
 This package contains documentation for GDAL.
 
+
 # We don't want to provide private Python extension libs
 %if %{with python2} && %{with python3}
 %global __provides_exclude_from ^(%{python2_sitearch}|%{python3_sitearch})/.*\.so$
@@ -299,7 +293,6 @@ This package contains documentation for GDAL.
 %elif %{with_python3}
 %global __provides_exclude_from ^%{python3_sitearch}/.*\.so$
 %endif
-
 
 
 %prep
@@ -317,20 +310,11 @@ rm -rf frmts/gtiff/libtiff
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
 
-# Sanitize permissions
-chmod 644 apps/gnmanalyse.cpp apps/gnmmanage.cpp
-
 # Adjust check for LibDAP version
 # http://trac.osgeo.org/gdal/ticket/4545
 %if %cpuarch == 64
   sed -i 's|with_dods_root/lib|with_dods_root/lib64|' configure.ac
 %endif
-
-# Fix mandir
-sed -i "s|^mandir=.*|mandir='\${prefix}/share/man'|" configure.ac
-
-# Delete .doxygen_up_to_date, otherwise doxygen isn't run
-rm -f doc/.doxygen_up_to_date
 
 
 %build
@@ -611,11 +595,11 @@ popd
 
 
 %files libs
-%doc LICENSE.TXT NEWS PROVENANCE.TXT COMMITTERS PROVENANCE.TXT-fedora
+%license LICENSE.TXT
+%doc NEWS PROVENANCE.TXT COMMITTERS PROVENANCE.TXT-fedora
 %{_libdir}/libgdal.so.28
 %{_libdir}/libgdal.so.28.*
 %{_datadir}/%{name}
-#TODO: Possibly remove files like .dxf, .dgn, ...
 %dir %{_libdir}/%{name}plugins
 
 %files devel
