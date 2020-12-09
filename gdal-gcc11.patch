@@ -9,3 +9,24 @@ diff -rupN --no-dereference gdal-3.2.0-fedora/ogr/ogrsf_frmts/cad/libopencad/dwg
  
  #if ((defined(__sun__) || defined(__FreeBSD__)) && __GNUC__ == 4 && __GNUC_MINOR__ == 8) || defined(__ANDROID__)
  // gcc 4.8 on Solaris 11.3 or FreeBSD 11 doesn't have std::string
+--- gdal-3.2.0-fedora.orig/ogr/ogrsf_frmts/cad/libopencad/cadobjects.cpp	2020-10-26 14:09:10.000000000 +0100
++++ gdal-3.2.0-fedora/ogr/ogrsf_frmts/cad/libopencad/cadobjects.cpp	2020-12-09 13:25:53.532821589 +0100
+@@ -33,6 +33,7 @@
+ 
+ #include <math.h>
+ #include <algorithm>
++#include <limits>
+ 
+ //------------------------------------------------------------------------------
+ // CADVector
+diff -ruN gdal-3.2.0-fedora.orig/third_party/LercLib/Lerc2.h gdal-3.2.0-fedora/third_party/LercLib/Lerc2.h
+--- gdal-3.2.0-fedora.orig/third_party/LercLib/Lerc2.h	2020-10-26 14:09:38.000000000 +0100
++++ gdal-3.2.0-fedora/third_party/LercLib/Lerc2.h	2020-12-09 13:16:21.573217232 +0100
+@@ -29,6 +29,7 @@
+ #include <cmath>
+ #include <string>
+ #include <typeinfo>
++#include <limits>
+ #include "Defines.h"
+ #include "BitMask.h"
+ #include "BitStuffer2.h"
