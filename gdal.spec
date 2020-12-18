@@ -163,6 +163,7 @@ BuildRequires: libtirpc-devel
 BuildRequires: python3-sphinx
 BuildRequires: python3-sphinx_rtd_theme
 BuildRequires: python3-breathe
+BuildRequires: make
 
 # Run time dependency for gpsbabel driver
 Requires:      gpsbabel
