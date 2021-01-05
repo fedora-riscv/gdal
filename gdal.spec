@@ -8,7 +8,7 @@
 #TODO: Consider doxy patch from Suse, setting EXTRACT_LOCAL_CLASSES  = NO
 
 # Tests can be of a different version
-%global testversion 3.2.0
+%global testversion 3.2.1
 %global run_tests 1
 
 %global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
@@ -44,7 +44,7 @@
 %endif
 
 Name:          gdal
-Version:       3.2.0
+Version:       3.2.1
 Release:       1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
@@ -667,6 +667,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Jan 04 2021 Sandro Mani <manisandro@gmail.coM> - 3.2.1-1
+- Update to 3.2.1
+
 * Thu Nov 05 2020 Sandro Mani <manisandro@gmail.com> - 3.2.0-1
 - Update to 3.2.0
 
