@@ -25,7 +25,7 @@ diff -rupN --no-dereference gdal-3.0.4-fedora/frmts/jpeg2000/jpeg2000_vsil_io.cp
  }
  
 -static int JPEG2000_VSIL_write(jas_stream_obj_t *obj, char *buf, int cnt)
-+static int JPEG2000_VSIL_write(jas_stream_obj_t *obj, char *buf, unsigned int cnt)
++static int JPEG2000_VSIL_write(jas_stream_obj_t *obj, const char *buf, unsigned int cnt)
  {
      jas_stream_VSIFL_t *fileobj = JAS_CAST(jas_stream_VSIFL_t *, obj);
      return static_cast<int>(VSIFWriteL(buf, 1, cnt, fileobj->fp));
