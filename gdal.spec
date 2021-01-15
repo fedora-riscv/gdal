@@ -71,6 +71,8 @@ Patch3:        gdal_tirpcinc.patch
 Patch4:        gdal_iso8211.patch
 # Fix makefiles installing libtool wrappers instead of actual executables
 Patch5:        gdal_installapps.patch
+# Fix build against 2.0.22
+Patch6:        gdal_jasper.patch
 
 BuildRequires: gcc
 BuildRequires: gcc-c++
