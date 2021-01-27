@@ -75,6 +75,8 @@ Patch6:        gdal_installapps.patch
 Patch7:        gdal_nopdf.patch
 # Fix issues caught by gcc-11
 Patch8:        %{name}-gcc11.patch
+# Drop -diag-disable compile flag
+Patch9:        gdal_no-diag-disable.patch
 
 
 BuildRequires: gcc
