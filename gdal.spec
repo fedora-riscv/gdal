@@ -153,6 +153,8 @@ BuildRequires: python2-numpy
 BuildRequires: python3-devel
 BuildRequires: python3-numpy
 BuildRequires: python3-setuptools
+BuildRequires: python3dist(pytest) >= 3.6
+BuildRequires: python3dist(lxml) >= 4.5.1
 %endif
 BuildRequires: sqlite-devel
 BuildRequires: swig
@@ -529,8 +531,6 @@ done
 %endif
 
 pushd %{name}autotest-%{testversion}
-	# Export test enviroment
-	export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python2_sitearch}
 	#TODO: Nötig?
 	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}
 	# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%%{buildroot}%%{_libdir}:$java_inc
@@ -541,14 +541,7 @@ pushd %{name}autotest-%{testversion}
 	#export GDAL_RUN_SLOW_TESTS=1
 	#export GDAL_DOWNLOAD_TEST_DATA=1
 
-	# Remove some test cases that would require special preparation
-	rm -rf ogr/ogr_pg.py # No database available
-	rm -rf ogr/ogr_mysql.py # No database available
-	rm -rf osr/osr_esri.py # ESRI datum absent
-	rm -rf osr/osr_erm.py # File from ECW absent
-
-	# Run tests but force normal exit in the end
-	./run_all.py || true
+	%{pytest}
 popd
 %endif
 #%%{run_tests}
