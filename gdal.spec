@@ -45,7 +45,7 @@
 
 Name:          gdal
 Version:       3.2.1
-Release:       6%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       7%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -687,6 +687,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sat Feb 13 2021 Sandro Mani <manisandro@gmail.com> - 3.2.1-7
+- Rebuild (geos)
+
 * Mon Feb 08 2021 Pavel Raiskup <praiskup@redhat.com> - 3.2.1-6
 - rebuild for libpq ABI fix rhbz#1908268
 
