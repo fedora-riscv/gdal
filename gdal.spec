@@ -45,7 +45,7 @@
 
 Name:          gdal
 Version:       3.2.1
-Release:       8%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       9%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -79,6 +79,10 @@ Patch8:        %{name}-gcc11.patch
 Patch9:        gdal_no-diag-disable.patch
 # Increase some testing tolerances for new Proj.
 Patch10:       gdalautotest-increase-tolerances.patch
+# Fix GEOS and SFCGAL checks:
+# https://github.com/OSGeo/gdal/pull/3476
+Patch11:       0001-configure-Also-save-LDFLAGS-when-checking-compilabil.patch
+Patch12:       0002-configure-Ensure-with-geos-sfcgal-fail-if-unavailabl.patch
 
 
 BuildRequires: gcc
@@ -687,6 +691,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Feb 23 2021 Elliott Sales de Andrade <quantum.analyst@gmail.com> - 3.2.1-9
+- Fix compile against GEOS on s390x
+
 * Sat Feb 13 2021 Sandro Mani <manisandro@gmail.com> - 3.2.1-8
 - Rebuild (geos)
 
