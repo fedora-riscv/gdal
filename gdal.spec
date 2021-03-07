@@ -45,7 +45,7 @@
 
 Name:          gdal
 Version:       3.2.1
-Release:       9%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       10%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -691,6 +691,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sun Mar 07 2021 Sandro Mani <manisandro@gmail.com> - 3.2.1-10
+- Rebuild (proj)
+
 * Tue Feb 23 2021 Elliott Sales de Andrade <quantum.analyst@gmail.com> - 3.2.1-9
 - Fix compile against GEOS on s390x
 
