@@ -570,7 +570,11 @@ pushd %{name}autotest-%{testversion}
 	# - `test_osr_ct_options_area_of_interest` returns the wrong value, but
 	#   it's skipped on macOS by upstream for mysteriously failing as well,
 	#   so do the same here.
+
+# FIXME: Tests hang on these arches
+%ifnarch i686 armv7hl
 	%{pytest} -k 'not test_fits_vector and not test_http and not test_jp2openjpeg_45 and not multithreaded_download and not multithreaded_upload and not test_vsis3_no_sign_request and not test_eedai_GOOGLE_APPLICATION_CREDENTIALS and not test_osr_erm_1 and not test_ers_4 and not test_ers_8 and not test_ers_10 and not test_jpeg2000_8 and not test_jpeg2000_11 and not test_osr_ct_options_area_of_interest' || :
+%endif
 popd
 %endif
 #%%{run_tests}
