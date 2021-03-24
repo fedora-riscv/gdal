@@ -1,18 +1,6 @@
-From b795a67c570e021ea5e092c878c02996ed67f732 Mon Sep 17 00:00:00 2001
-From: Elliott Sales de Andrade <quantum.analyst@gmail.com>
-Date: Mon, 22 Feb 2021 20:29:40 -0500
-Subject: [PATCH 2/2] configure: Ensure --with-geos/sfcgal fail if unavailable.
-
-Signed-off-by: Elliott Sales de Andrade <quantum.analyst@gmail.com>
----
- gdal/m4/geos.m4   | 19 +++++++++++++++++--
- gdal/m4/sfcgal.m4 | 18 ++++++++++++++++--
- 2 files changed, 33 insertions(+), 4 deletions(-)
-
-diff --git gdal/m4/geos.m4 gdal/m4/geos.m4
-index dc31e7466d..1c68503974 100644
---- gdal/m4/geos.m4
-+++ gdal/m4/geos.m4
+diff -rupN --no-dereference gdal-3.2.2-fedora/m4/geos.m4 gdal-3.2.2-fedora-new/m4/geos.m4
+--- gdal-3.2.2-fedora/m4/geos.m4	2021-03-24 13:44:42.101428816 +0100
++++ gdal-3.2.2-fedora-new/m4/geos.m4	2021-03-24 13:44:42.103428816 +0100
 @@ -59,7 +59,9 @@ AC_DEFUN([GEOS_INIT],[
    elif test x"$with_geos" = x"yes" -o x"$with_geos" = x"" ; then
  
@@ -53,10 +41,9 @@ index dc31e7466d..1c68503974 100644
    fi
  ])
  
-diff --git gdal/m4/sfcgal.m4 gdal/m4/sfcgal.m4
-index 993b7521d6..2384f0f0dc 100644
---- gdal/m4/sfcgal.m4
-+++ gdal/m4/sfcgal.m4
+diff -rupN --no-dereference gdal-3.2.2-fedora/m4/sfcgal.m4 gdal-3.2.2-fedora-new/m4/sfcgal.m4
+--- gdal-3.2.2-fedora/m4/sfcgal.m4	2021-03-24 13:44:42.101428816 +0100
++++ gdal-3.2.2-fedora-new/m4/sfcgal.m4	2021-03-24 13:44:42.103428816 +0100
 @@ -58,7 +58,9 @@ AC_DEFUN([SFCGAL_INIT],[
    elif test x"$with_sfcgal" = x"yes" -o x"$with_sfcgal" = x"" ; then
  
@@ -95,6 +82,3 @@ index 993b7521d6..2384f0f0dc 100644
 +
    fi
  ])
--- 
-2.29.2
-

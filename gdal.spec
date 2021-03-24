@@ -8,7 +8,7 @@
 #TODO: Consider doxy patch from Suse, setting EXTRACT_LOCAL_CLASSES  = NO
 
 # Tests can be of a different version
-%global testversion 3.2.1
+%global testversion 3.2.2
 %global run_tests 1
 
 %global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
@@ -44,8 +44,8 @@
 %endif
 
 Name:          gdal
-Version:       3.2.1
-Release:       10%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Version:       3.2.2
+Release:       1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -77,12 +77,10 @@ Patch7:        gdal_nopdf.patch
 Patch8:        %{name}-gcc11.patch
 # Drop -diag-disable compile flag
 Patch9:        gdal_no-diag-disable.patch
-# Increase some testing tolerances for new Proj.
-Patch10:       gdalautotest-increase-tolerances.patch
 # Fix GEOS and SFCGAL checks:
 # https://github.com/OSGeo/gdal/pull/3476
-Patch11:       0001-configure-Also-save-LDFLAGS-when-checking-compilabil.patch
-Patch12:       0002-configure-Ensure-with-geos-sfcgal-fail-if-unavailabl.patch
+Patch10:       0001-configure-Also-save-LDFLAGS-when-checking-compilabil.patch
+Patch11:       0002-configure-Ensure-with-geos-sfcgal-fail-if-unavailabl.patch
 
 
 BuildRequires: gcc
@@ -546,10 +544,7 @@ done
 %endif
 
 pushd %{name}autotest-%{testversion}
-	#TODO: Nötig?
 	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}
-	# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%%{buildroot}%%{_libdir}:$java_inc
-
 	export GDAL_DATA=%{buildroot}%{_datadir}/%{name}/
 
 	# Enable these tests on demand
@@ -557,7 +552,7 @@ pushd %{name}autotest-%{testversion}
 	#export GDAL_DOWNLOAD_TEST_DATA=1
 
 	# Some tests are currently skipped:
-	# - FIXME: `test_fits_vector` because it's crashing.
+	# - `test_fits_vector` because it's crashing.
 	# - `test_http*`, `test_jp2openjpeg_45`, `*multithreaded_download*`,
 	#   `*multithreaded_upload*`, and `test_vsis3_no_sign_request`, which
 	#   try to connect externally.
@@ -570,17 +565,10 @@ pushd %{name}autotest-%{testversion}
 	# - `test_osr_ct_options_area_of_interest` returns the wrong value, but
 	#   it's skipped on macOS by upstream for mysteriously failing as well,
 	#   so do the same here.
-
-# FIXME: Tests hang on these arches
-%ifnarch i686 armv7hl
-	%{pytest} -k 'not test_fits_vector and not test_http and not test_jp2openjpeg_45 and not multithreaded_download and not multithreaded_upload and not test_vsis3_no_sign_request and not test_eedai_GOOGLE_APPLICATION_CREDENTIALS and not test_osr_erm_1 and not test_ers_4 and not test_ers_8 and not test_ers_10 and not test_jpeg2000_8 and not test_jpeg2000_11 and not test_osr_ct_options_area_of_interest' || :
-%endif
+	# - `test_ndf_1` because it hangs on i686 and armv7hl
+	%{pytest} -k 'not test_fits_vector and not test_http and not test_jp2openjpeg_45 and not multithreaded_download and not multithreaded_upload and not test_vsis3_no_sign_request and not test_eedai_GOOGLE_APPLICATION_CREDENTIALS and not test_osr_erm_1 and not test_ers_4 and not test_ers_8 and not test_ers_10 and not test_jpeg2000_8 and not test_jpeg2000_11 and not test_osr_ct_options_area_of_interest and not test_ndf_1' || :
 popd
 %endif
-#%%{run_tests}
-
-
-%ldconfig_scriptlets libs
 
 
 %files
@@ -695,6 +683,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Mar 24 2021 Sandro Mani <manisandro@gmail.com> - 3.2.2-1
+- Update to 3.2.2
+
 * Sun Mar 07 2021 Sandro Mani <manisandro@gmail.com> - 3.2.1-10
 - Rebuild (proj)
 
