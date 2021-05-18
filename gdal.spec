@@ -46,7 +46,7 @@
 
 Name:          gdal
 Version:       3.0.4
-Release:       5%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       7%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -564,7 +564,7 @@ done
 
 pushd %{name}autotest-%{testversion}
 	# Export test enviroment
-	export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python_sitearch}
+	export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python3_sitearch}
 	#TODO: Nötig?
 	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}
 	# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%%{buildroot}%%{_libdir}:$java_inc
@@ -709,6 +709,12 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue May 18 2021 Sandro Mani <manisandro@gmail.com> - 3.0.4-7
+- Rebuild
+
+* Tue May 18 2021 Sandro Mani <manisandro@gmail.com>
+- Rebuild
+
 * Sat May 09 2020 Markus Neteler <neteler@mundialis.de> - 3.0.4-5
 * disabled JAVA and LaTeX support for EPEL8, due to (yet) missing dependencies
 
