@@ -44,7 +44,7 @@
 
 Name:          gdal
 Version:       3.3.0
-Release:       3%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       4%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -639,6 +639,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri May 21 2021 Jitka Plesnikova <jplesnik@redhat.com> - 3.3.0-4
+- Perl 5.34 rebuild
+
 * Thu May 20 2021 Richard Shaw <hobbes1069@gmail.com> - 3.3.0-3
 - Rebuilding for libgta 1.2.1.
 
