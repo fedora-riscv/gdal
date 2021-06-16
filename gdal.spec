@@ -8,7 +8,7 @@
 #TODO: Consider doxy patch from Suse, setting EXTRACT_LOCAL_CLASSES  = NO
 
 # Tests can be of a different version
-%global testversion 3.3.0
+%global testversion 3.2.2
 %global run_tests 1
 
 %global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
@@ -31,6 +31,7 @@
 %global spatialite "--with-spatialite"
 %endif
 
+%bcond_with python2
 %bcond_without python3
 
 # No ppc64 build for spatialite in EL6
@@ -43,8 +44,8 @@
 %endif
 
 Name:          gdal
-Version:       3.3.0
-Release:       5%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Version:       3.2.2
+Release:       1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -59,8 +60,8 @@ Source3:       %{name}-cleaner.sh
 
 Source4:       PROVENANCE.TXT-fedora
 
-# Java build fixes
-Patch2:        gdal_java.patch
+# Fedora uses Alternatives for Java
+Patch2:        %{name}-1.9.0-java.patch
 # Ensure rpc/types.h is found by dods driver (indirectly required by libdap/XDRUtils.h)
 Patch3:        gdal_tirpcinc.patch
 # Use libtool to create libiso8211.a, otherwise broken static lib is created since object files are compiled through libtool
@@ -76,6 +77,10 @@ Patch7:        gdal_nopdf.patch
 Patch8:        %{name}-gcc11.patch
 # Drop -diag-disable compile flag
 Patch9:        gdal_no-diag-disable.patch
+# Fix GEOS and SFCGAL checks:
+# https://github.com/OSGeo/gdal/pull/3476
+Patch10:       0001-configure-Also-save-LDFLAGS-when-checking-compilabil.patch
+Patch11:       0002-configure-Ensure-with-geos-sfcgal-fail-if-unavailabl.patch
 
 
 BuildRequires: gcc
@@ -144,6 +149,10 @@ BuildRequires: poppler-devel
 %endif
 BuildRequires: libpq-devel
 BuildRequires: proj-devel >= 5.2.0
+%if %{with python2}
+BuildRequires: python2-devel
+BuildRequires: python2-numpy
+%endif
 %if %{with python3}
 BuildRequires: python3-devel
 BuildRequires: python3-numpy
@@ -235,6 +244,23 @@ Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $versi
 The GDAL Perl modules provide support to handle multiple GIS file formats.
 
 
+%if %{with python2}
+%package -n python2-gdal
+%{?python_provide:%python_provide python2-gdal}
+# Remove before F30
+Provides: %{name}-python = %{version}-%{release}
+Provides: %{name}-python%{?_isa} = %{version}-%{release}
+Obsoletes: %{name}-python < %{version}-%{release}
+Summary:        Python modules for the GDAL file format library
+Requires:       numpy
+Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
+
+%description -n python2-gdal
+The GDAL Python modules provide support to handle multiple GIS file formats.
+The package also includes a couple of useful utilities in Python.
+%endif
+
+
 %if %{with python3}
 %package -n python3-gdal
 %{?python_provide:%python_provide python3-gdal}
@@ -249,10 +275,10 @@ The GDAL Python 3 modules provide support to handle multiple GIS file formats.
 %endif
 
 
-%if %{with python3}
+%if %{with python2} || %{with python3}
 %package python-tools
 Summary:        Python tools for the GDAL file format library
-Requires:       python3-gdal
+Requires:       %{?with_python3:python3-gdal}%{?!with_python3:python2-gdal}
 
 %description python-tools
 The GDAL Python package provides number of tools for programming and
@@ -269,7 +295,11 @@ This package contains documentation for GDAL.
 
 
 # We don't want to provide private Python extension libs
-%if %{with_python3}
+%if %{with python2} && %{with python3}
+%global __provides_exclude_from ^(%{python2_sitearch}|%{python3_sitearch})/.*\.so$
+%elif %{with python2}
+%global __provides_exclude_from ^%{python2_sitearch}/.*\.so$
+%elif %{with_python3}
 %global __provides_exclude_from ^%{python3_sitearch}/.*\.so$
 %endif
 
@@ -294,6 +324,15 @@ cp -p %SOURCE4 .
 %if %cpuarch == 64
   sed -i 's|with_dods_root/lib|with_dods_root/lib64|' configure.ac
 %endif
+
+# Tests expect to be next to gdal source directory, but we extract them within
+# it. And putting tests next to the source directory wouldn't account for the
+# version in the directory name, anyway, so we need to correct this.
+sed -i \
+    -e 's!../../gdal/swig/python/samples!../../swig/python/samples!' \
+    %{name}autotest-%{testversion}/gcore/{cog,tiff_write}.py \
+    %{name}autotest-%{testversion}/gdrivers/{gpkg,jp2lura,jp2openjpeg,test_validate_jp2}.py \
+    %{name}autotest-%{testversion}/ogr/ogr_gpkg.py
 
 
 %build
@@ -365,13 +404,14 @@ make docs
 # Make Java module and documentation
 pushd swig/java
   make
-  ANT_OPTS="-Dfile.encoding=utf-8" ant maven
+  ant maven
 popd
 %mvn_artifact swig/java/build/maven/gdal-%version.pom swig/java/build/maven/gdal-%version.jar
 %endif
 
 # Make Python modules
 pushd swig/python
+  %{?with_python2:%py2_build}
   %{?with_python3:%py3_build}
 popd
 
@@ -384,6 +424,7 @@ popd
 
 %install
 pushd swig/python
+  %{?with_python2:%py2_install}
   %{?with_python3:%py3_install}
 popd
 
@@ -393,9 +434,6 @@ popd
 
 # Drop gdal.pdf symlink, as we don't build the pdf documentation
 rm doc/build/html/gdal.pdf
-
-# Drop samples, installed through %%doc
-rm -rf %{python3_sitearch}/osgeo_utils/samples
 
 install -pm 755 ogr/ogrsf_frmts/s57/s57dump %{buildroot}%{_bindir}
 install -pm 755 frmts/iso8211/8211createfromxml %{buildroot}%{_bindir}
@@ -410,7 +448,7 @@ mkdir -p %{buildroot}%{_libdir}/%{name}plugins
 #TODO: Don't do that?
 rm %{buildroot}%{perl_archlib}/perllocal.pod
 
-%if %{without python3}
+%if %{without python} && %{without python3}
 rm %buildroot%_mandir/man1/{pct2rgb,rgb2pct}.1
 %endif
 
@@ -579,8 +617,8 @@ popd
 %files libs
 %license LICENSE.TXT
 %doc NEWS PROVENANCE.TXT COMMITTERS PROVENANCE.TXT-fedora
-%{_libdir}/libgdal.so.29
-%{_libdir}/libgdal.so.29.*
+%{_libdir}/libgdal.so.28
+%{_libdir}/libgdal.so.28.*
 %{_datadir}/%{name}
 %dir %{_libdir}/%{name}plugins
 
@@ -608,14 +646,23 @@ popd
 %{perl_vendorarch}/*
 %{_mandir}/man3/*.3pm*
 
+%if %{with python2}
+%files -n python2-gdal
+%doc swig/python/README.rst
+%doc swig/python/samples
+%{python2_sitearch}/osgeo/
+%{python2_sitearch}/GDAL-%{version}-py*.egg-info/
+%endif
+
 %if %{with python3}
 %files -n python3-gdal
 %doc swig/python/README.rst
-%doc swig/python/gdal-utils/osgeo_utils/samples
+%doc swig/python/samples
+%{python3_sitearch}/osgeo
 %{python3_sitearch}/GDAL-%{version}-py*.egg-info/
-%{python3_sitearch}/osgeo/
-%{python3_sitearch}/osgeo_utils/
+%endif
 
+%if %{with python2} || %{with python3}
 %files python-tools
 %_bindir/*.py
 %{_mandir}/man1/pct2rgb.1*
@@ -639,21 +686,6 @@ popd
 #Or as before, using ldconfig
 
 %changelog
-* Fri May 21 2021 Sandro Mani <manisandro@gmail.com> - 3.3.0-5
-- Rebuild (libgta)
-
-* Fri May 21 2021 Jitka Plesnikova <jplesnik@redhat.com> - 3.3.0-4
-- Perl 5.34 rebuild
-
-* Thu May 20 2021 Richard Shaw <hobbes1069@gmail.com> - 3.3.0-3
-- Rebuilding for libgta 1.2.1.
-
-* Fri May 07 2021 Sandro Mani <manisandro@gmail.com> - 3.3.0-2
-- Rebuild (gdal)
-
-* Mon May 03 2021 Sandro Mani <manisandro@gmail.com> - 3.3.0-1
-- Update to 3.3.0
-
 * Wed Mar 24 2021 Sandro Mani <manisandro@gmail.com> - 3.2.2-1
 - Update to 3.2.2
 

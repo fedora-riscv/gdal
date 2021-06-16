@@ -1,0 +1,84 @@
+diff -rupN --no-dereference gdal-3.2.2-fedora/m4/geos.m4 gdal-3.2.2-fedora-new/m4/geos.m4
+--- gdal-3.2.2-fedora/m4/geos.m4	2021-03-24 13:44:42.101428816 +0100
++++ gdal-3.2.2-fedora-new/m4/geos.m4	2021-03-24 13:44:42.103428816 +0100
+@@ -59,7 +59,9 @@ AC_DEFUN([GEOS_INIT],[
+   elif test x"$with_geos" = x"yes" -o x"$with_geos" = x"" ; then
+ 
+     AC_PATH_PROG(GEOS_CONFIG, geos-config, no)
+-    ac_geos_config_auto=yes
++    if test x"$with_geos" = x"" ; then
++      ac_geos_config_auto=yes
++    fi
+ 
+   else
+ 
+@@ -140,7 +142,14 @@ AC_DEFUN([GEOS_INIT],[
+       )
+ 
+       if test x"$HAVE_GEOS" = "xno"; then
+-          GEOS_CFLAGS=""
++        if test $ac_geos_config_auto = "yes" ; then
++          AC_MSG_WARN([GEOS was found on your system, but the library could not be linked. GEOS support disabled.])
++        else
++          AC_MSG_ERROR([GEOS library could not be linked])
++        fi
++
++        GEOS_CFLAGS=""
++
+       fi
+ 
+       CFLAGS="${ax_save_CFLAGS}"
+@@ -149,6 +158,12 @@ AC_DEFUN([GEOS_INIT],[
+ 
+     fi
+ 
++  else
++
++    if test $ac_geos_config_auto = "no" ; then
++      AC_MSG_ERROR([GEOS support explicitly enabled, but geos-config could not be found])
++    fi
++
+   fi
+ ])
+ 
+diff -rupN --no-dereference gdal-3.2.2-fedora/m4/sfcgal.m4 gdal-3.2.2-fedora-new/m4/sfcgal.m4
+--- gdal-3.2.2-fedora/m4/sfcgal.m4	2021-03-24 13:44:42.101428816 +0100
++++ gdal-3.2.2-fedora-new/m4/sfcgal.m4	2021-03-24 13:44:42.103428816 +0100
+@@ -58,7 +58,9 @@ AC_DEFUN([SFCGAL_INIT],[
+   elif test x"$with_sfcgal" = x"yes" -o x"$with_sfcgal" = x"" ; then
+ 
+     AC_PATH_PROG(SFCGAL_CONFIG, sfcgal-config, no)
+-    ac_sfcgal_config_auto=yes
++    if test x"$with_sfcgal" = x"" ; then
++      ac_sfcgal_config_auto=yes
++    fi
+ 
+   else
+ 
+@@ -140,7 +142,13 @@ AC_DEFUN([SFCGAL_INIT],[
+ 
+ 
+       if test x"$HAVE_SFCGAL" = "xno"; then
+-          SFCGAL_CFLAGS=""
++        if test $ac_sfcgal_config_auto = "yes" ; then
++          AC_MSG_WARN([SFCGAL was found on your system, but the library could not be linked. SFCGAL support disabled.])
++        else
++          AC_MSG_ERROR([SFCGAL library could not be linked])
++        fi
++
++        SFCGAL_CFLAGS=""
+       fi
+ 
+       CFLAGS="${ax_save_CFLAGS}"
+@@ -149,5 +157,11 @@ AC_DEFUN([SFCGAL_INIT],[
+ 
+     fi
+ 
++  else
++
++    if test $ac_sfcgal_config_auto = "no" ; then
++      AC_MSG_ERROR([SFCGAL support explicitly enabled, but sfcgal-config could not be found])
++    fi
++
+   fi
+ ])
