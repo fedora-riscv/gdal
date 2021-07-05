@@ -1,6 +1,6 @@
-diff -rupN --no-dereference gdal-3.3.0-fedora/ogr/ogrsf_frmts/cad/libopencad/cadobjects.cpp gdal-3.3.0-fedora-new/ogr/ogrsf_frmts/cad/libopencad/cadobjects.cpp
---- gdal-3.3.0-fedora/ogr/ogrsf_frmts/cad/libopencad/cadobjects.cpp	2021-04-26 14:31:00.000000000 +0200
-+++ gdal-3.3.0-fedora-new/ogr/ogrsf_frmts/cad/libopencad/cadobjects.cpp	2021-05-03 17:18:20.482677217 +0200
+diff -rupN --no-dereference gdal-3.3.1-fedora/ogr/ogrsf_frmts/cad/libopencad/cadobjects.cpp gdal-3.3.1-fedora-new/ogr/ogrsf_frmts/cad/libopencad/cadobjects.cpp
+--- gdal-3.3.1-fedora/ogr/ogrsf_frmts/cad/libopencad/cadobjects.cpp	2021-06-28 12:59:02.000000000 +0200
++++ gdal-3.3.1-fedora-new/ogr/ogrsf_frmts/cad/libopencad/cadobjects.cpp	2021-07-05 16:04:48.497897722 +0200
 @@ -34,6 +34,7 @@
  #include <limits>
  #include <math.h>
@@ -9,9 +9,9 @@ diff -rupN --no-dereference gdal-3.3.0-fedora/ogr/ogrsf_frmts/cad/libopencad/cad
  
  //------------------------------------------------------------------------------
  // CADVector
-diff -rupN --no-dereference gdal-3.3.0-fedora/ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp gdal-3.3.0-fedora-new/ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp
---- gdal-3.3.0-fedora/ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp	2021-04-26 14:30:59.000000000 +0200
-+++ gdal-3.3.0-fedora-new/ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp	2021-05-03 17:18:20.483677217 +0200
+diff -rupN --no-dereference gdal-3.3.1-fedora/ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp gdal-3.3.1-fedora-new/ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp
+--- gdal-3.3.1-fedora/ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp	2021-06-28 12:59:01.000000000 +0200
++++ gdal-3.3.1-fedora-new/ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp	2021-07-05 16:04:48.497897722 +0200
 @@ -39,6 +39,7 @@
  #include <limits>
  #include <memory>
@@ -20,9 +20,9 @@ diff -rupN --no-dereference gdal-3.3.0-fedora/ogr/ogrsf_frmts/cad/libopencad/dwg
  
  #if ((defined(__sun__) || defined(__FreeBSD__)) && __GNUC__ == 4 && __GNUC_MINOR__ == 8) || defined(__ANDROID__)
  // gcc 4.8 on Solaris 11.3 or FreeBSD 11 doesn't have std::string
-diff -rupN --no-dereference gdal-3.3.0-fedora/third_party/LercLib/Lerc2.h gdal-3.3.0-fedora-new/third_party/LercLib/Lerc2.h
---- gdal-3.3.0-fedora/third_party/LercLib/Lerc2.h	2021-04-26 14:30:17.000000000 +0200
-+++ gdal-3.3.0-fedora-new/third_party/LercLib/Lerc2.h	2021-05-03 17:18:20.483677217 +0200
+diff -rupN --no-dereference gdal-3.3.1-fedora/third_party/LercLib/Lerc2.h gdal-3.3.1-fedora-new/third_party/LercLib/Lerc2.h
+--- gdal-3.3.1-fedora/third_party/LercLib/Lerc2.h	2021-06-28 12:58:18.000000000 +0200
++++ gdal-3.3.1-fedora-new/third_party/LercLib/Lerc2.h	2021-07-05 16:04:48.498897716 +0200
 @@ -30,6 +30,7 @@ Contributors:  Thomas Maurer
  #include <limits>
  #include <string>
