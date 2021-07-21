@@ -44,7 +44,7 @@
 
 Name:          gdal
 Version:       3.3.1
-Release:       2%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       3%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -639,6 +639,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Jul 21 2021 Fedora Release Engineering <releng@fedoraproject.org> - 3.3.1-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
+
 * Sat Jul 10 2021 Björn Esser <besser82@fedoraproject.org> - 3.3.1-2
 - Rebuild for versioned symbols in json-c
 
