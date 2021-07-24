@@ -76,6 +76,8 @@ Patch7:        gdal_nopdf.patch
 Patch8:        %{name}-gcc11.patch
 # Drop -diag-disable compile flag
 Patch9:        gdal_no-diag-disable.patch
+# Fix build with autoconf 2.70
+Patch10:       gdal_autoconf270.patch
 
 
 BuildRequires: gcc
