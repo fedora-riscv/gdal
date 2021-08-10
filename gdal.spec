@@ -44,7 +44,7 @@
 
 Name:          gdal
 Version:       3.3.1
-Release:       4%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       5%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -641,6 +641,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Aug 10 2021 Orion Poplawski <orion@nwra.com> - 3.3.1-5
+- Rebuild for hdf5 1.10.7/netcdf 4.8.0
+
 * Mon Aug 02 2021 Sandro Mani <manisandro@gmail.com> - 3.3.1-4
 - Rebuild (poppler)
 
