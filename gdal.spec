@@ -46,7 +46,7 @@
 
 Name:          gdal
 Version:       3.0.4
-Release:       8%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       9%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -709,6 +709,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Thu Sep 23 2021 Sandro Mani <manisandro@gmail.com> - 3.0.4-9
+- Rebuild (ldap)
+
 * Fri Jun 04 2021 Orion Poplawski <orion@nwra.com> - 3.0.4-8
 - Rebuild for poppler 20.11 (EL 8.4) (bz#1962667)
 
