@@ -8,7 +8,7 @@
 #TODO: Consider doxy patch from Suse, setting EXTRACT_LOCAL_CLASSES  = NO
 
 # Tests can be of a different version
-%global testversion 3.3.3
+%global testversion 3.4.0
 %global run_tests 1
 
 %global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
@@ -43,7 +43,7 @@
 %endif
 
 Name:          gdal
-Version:       3.3.3
+Version:       3.4.0
 Release:       1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
@@ -396,9 +396,6 @@ popd
 # Drop gdal.pdf symlink, as we don't build the pdf documentation
 rm doc/build/html/gdal.pdf
 
-# Drop samples, installed through %%doc
-rm -rf %{python3_sitearch}/osgeo_utils/samples
-
 install -pm 755 ogr/ogrsf_frmts/s57/s57dump %{buildroot}%{_bindir}
 install -pm 755 frmts/iso8211/8211createfromxml %{buildroot}%{_bindir}
 install -pm 755 frmts/iso8211/8211dump %{buildroot}%{_bindir}
@@ -461,7 +458,7 @@ cat > %{buildroot}%{_includedir}/%{name}/cpl_config.h <<EOF
 #endif
 EOF
 #<<<<<<<<<<<<<
-touch -r NEWS port/cpl_config.h
+touch -r NEWS.md port/cpl_config.h
 
 
 # Multilib gdal-config
@@ -485,7 +482,7 @@ x86_64 | ppc64 | ppc64le | ia64 | s390x | sparc64 | alpha | alphaev6 | aarch64 )
 esac
 EOF
 #<<<<<<<<<<<<<
-touch -r NEWS %{buildroot}%{_bindir}/%{name}-config
+touch -r NEWS.md %{buildroot}%{_bindir}/%{name}-config
 chmod 755 %{buildroot}%{_bindir}/%{name}-config
 
 #jni-libs and libgdal are also built static (*.a)
@@ -524,15 +521,14 @@ pushd %{name}autotest-%{testversion}
 	#   internet.
 	# - `test_osr_erm_1`, `test_ers_4`, `test_ers_8`, and `test_ers_10` as
 	#   they use `ecw_cs.wkt` which was removed due to unclear license.
-	# - `test_jpeg2000_8` and `test_jpeg2000_11` as files don't load,
-	#   perhaps due to buggy Jasper library?
-	# - `test_osr_ct_options_area_of_interest` returns the wrong value, but
-	#   it's skipped on macOS by upstream for mysteriously failing as well,
-	#   so do the same here.
-	# - `test_ndf_1` because it hangs on i686 and armv7hl
-# FIXME: Tests hang on i686 and armv7hl
+        # - `test_jpeg2000_8` and `test_jpeg2000_11` as files don't load,
+        #   perhaps due to buggy Jasper library?
+        # - `test_osr_ct_options_area_of_interest` returns the wrong value, but
+        #   it's skipped on macOS by upstream for mysteriously failing as well,
+        #   so do the same here.
+# FIXME: Some Tests hang on i686 and armv7hl
 %ifnarch i686 armv7hl
-	%{pytest} -k 'not test_fits_vector and not test_http and not test_jp2openjpeg_45 and not multithreaded_download and not multithreaded_upload and not test_vsis3_no_sign_request and not test_eedai_GOOGLE_APPLICATION_CREDENTIALS and not test_osr_erm_1 and not test_ers_4 and not test_ers_8 and not test_ers_10 and not test_jpeg2000_8 and not test_jpeg2000_11 and not test_osr_ct_options_area_of_interest and not test_ndf_1' || :
+%{pytest} -v -k 'not test_fits_vector and not test_http and not test_jp2openjpeg_45 and not multithreaded_download and not multithreaded_upload and not test_vsis3_no_sign_request and not test_eedai_GOOGLE_APPLICATION_CREDENTIALS and not test_osr_erm_1 and not test_ers_4 and not test_ers_8 and not test_ers_10 and not test_jpeg2000_8 and not test_jpeg2000_11 and not test_osr_ct_options_area_of_interest' || :
 %endif
 popd
 %endif
@@ -562,7 +558,6 @@ popd
 %{_bindir}/ogr*
 %{_bindir}/8211*
 %{_bindir}/s57*
-%{_bindir}/testepsg
 %{_bindir}/gnmanalyse
 %{_bindir}/gnmmanage
 %{_datadir}/bash-completion/completions/*
@@ -580,9 +575,9 @@ popd
 
 %files libs
 %license LICENSE.TXT
-%doc NEWS PROVENANCE.TXT COMMITTERS PROVENANCE.TXT-fedora
-%{_libdir}/libgdal.so.29
-%{_libdir}/libgdal.so.29.*
+%doc NEWS.md PROVENANCE.TXT COMMITTERS PROVENANCE.TXT-fedora
+%{_libdir}/libgdal.so.30
+%{_libdir}/libgdal.so.30.*
 %{_datadir}/%{name}
 %dir %{_libdir}/%{name}plugins
 
@@ -613,7 +608,6 @@ popd
 %if %{with python3}
 %files -n python3-gdal
 %doc swig/python/README.rst
-%doc swig/python/gdal-utils/osgeo_utils/samples
 %{python3_sitearch}/GDAL-%{version}-py*.egg-info/
 %{python3_sitearch}/osgeo/
 %{python3_sitearch}/osgeo_utils/
@@ -641,6 +635,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Mon Nov 08 2021 Sandro Mani <manisandro@gmail.com> - 3.4.0-1
+- Update to 3.4.0
+
 * Fri Oct 29 2021 Sandro Mani <manisandro@gmail.com> - 3.3.3-1
 - Update to 3.3.3
 

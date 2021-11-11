@@ -1,7 +1,7 @@
-diff -rupN --no-dereference gdal-3.3.3-fedora/configure.ac gdal-3.3.3-fedora-new/configure.ac
---- gdal-3.3.3-fedora/configure.ac	2021-10-25 13:39:46.000000000 +0200
-+++ gdal-3.3.3-fedora-new/configure.ac	2021-10-29 17:41:24.742922086 +0200
-@@ -64,7 +64,7 @@ dnl warning #2304: non-explicit construc
+diff -rupN --no-dereference gdal-3.4.0-fedora/configure.ac gdal-3.4.0-fedora-new/configure.ac
+--- gdal-3.4.0-fedora/configure.ac	2021-11-04 12:55:37.000000000 +0100
++++ gdal-3.4.0-fedora-new/configure.ac	2021-11-09 11:58:38.356296339 +0100
+@@ -73,7 +73,7 @@ dnl warning #2304: non-explicit construc
  dnl warning #3280: declaration hides member
  dnl remark #11074: Inlining inhibited by limit max-size
  dnl remark #11076: To get full report use -qopt-report=4 -qopt-report-phase ipo
