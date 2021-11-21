@@ -44,7 +44,7 @@
 
 Name:          gdal
 Version:       3.4.0
-Release:       1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       2%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -635,6 +635,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sun Nov 21 2021 Orion Poplawski <orion@nwra.com> - 3.4.0-2
+- Rebuild for hdf5 1.12.1
+
 * Mon Nov 08 2021 Sandro Mani <manisandro@gmail.com> - 3.4.0-1
 - Update to 3.4.0
 
