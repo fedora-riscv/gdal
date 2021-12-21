@@ -1,0 +1,11 @@
+diff -rupN --no-dereference gdal-3.4.0-fedora/apps/GNUmakefile gdal-3.4.0-fedora-new/apps/GNUmakefile
+--- gdal-3.4.0-fedora/apps/GNUmakefile	2021-11-04 12:55:37.000000000 +0100
++++ gdal-3.4.0-fedora-new/apps/GNUmakefile	2021-11-09 11:58:37.658282683 +0100
+@@ -232,6 +232,7 @@ gdal-config-inst:	gdal-config.in ../GDAL
+ 
+ install: default
+ 	for f in $(BIN_LIST) ; do $(INSTALL) $$f $(DESTDIR)$(INST_BIN) ; done
++	for f in $(BIN_LIST) ; do $(INSTALL) .libs/$$f $(DESTDIR)$(INST_BIN) ; done
+ 	$(INSTALL_DATA) gdal_utils.h $(DESTDIR)$(INST_INCLUDE)
+ 	$(INSTALL) gdal-config-inst $(DESTDIR)$(INST_BIN)/gdal-config
+ 

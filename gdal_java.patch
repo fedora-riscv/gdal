@@ -1,0 +1,112 @@
+diff -rupN --no-dereference gdal-3.4.0-fedora/swig/java/add_javadoc.c gdal-3.4.0-fedora-new/swig/java/add_javadoc.c
+--- gdal-3.4.0-fedora/swig/java/add_javadoc.c	2021-11-04 12:55:39.000000000 +0100
++++ gdal-3.4.0-fedora-new/swig/java/add_javadoc.c	2021-11-09 11:58:36.600261974 +0100
+@@ -133,22 +133,22 @@ int main(int argc, char* argv[])
+     FILE* fDst;
+     JavaDocInstance* instances = (JavaDocInstance*)calloc(sizeof(JavaDocInstance), 3000);
+     int nInstances = 0;
+-    char szLine[256];
+-    char szClass[256];
++    char szLine[512];
++    char szClass[512];
+     char javadoc[16384];
+     szClass[0] = 0;
+-    while(fgets(szLine, 255, fSrc))
++    while(fgets(szLine, 511, fSrc))
+     {
+         if (strstr(szLine, "/**") == NULL) continue;
+ begin:
+         strcpy(javadoc, szLine);
+-        while(fgets(szLine, 255, fSrc))
++        while(fgets(szLine, 511, fSrc))
+         {
+             strcat(javadoc, szLine);
+             if (strstr(szLine, "*/"))
+                 break;
+         }
+-        while(fgets(szLine, 255, fSrc))
++        while(fgets(szLine, 511, fSrc))
+         {
+             if (szLine[0] == 10)
+                 continue;
+@@ -188,10 +188,10 @@ begin:
+         fDst = fopen(szDstName, "wt");
+         if (fDst == NULL) continue;
+         szClass[0] = 0;
+-        char szPackage[256];
++        char szPackage[512];
+         szPackage[0] = 0;
+ 
+-        while(fgets(szLine, 255, fSrc))
++        while(fgets(szLine, 511, fSrc))
+         {
+             char szMethodName[1024];
+             char* szOriLine = strdup(szLine);
+@@ -224,8 +224,10 @@ begin:
+             if (strstr(szLine, "synchronized "))
+             {
+                 char* c = strstr(szLine, "synchronized ");
++                char rest[512];
++                strcpy(rest, c + 13);
+                 *c = 0;
+-                strcat(szLine, c + 13);
++                strcat(szLine, rest);
+             }
+             if (strstr(szLine, "public") && !strstr(szLine, "native"))
+             {
+@@ -234,7 +236,7 @@ begin:
+                     strcpy(szMethodName, szLine);
+                     do
+                     {
+-                        fgets(szLine, 255, fSrc);
++                        fgets(szLine, 511, fSrc);
+                         strcpy(szMethodName + strlen(szMethodName) - 1, szLine);
+                     } while (!strchr(szMethodName,')'));
+                     strcpy(szLine, szMethodName);
+@@ -261,7 +263,7 @@ begin:
+                             {
+                                 do
+                                 {
+-                                    fgets(szLine, 255, fSrc);
++                                    fgets(szLine, 511, fSrc);
+                                 } while (!strchr(szLine,'}'));
+                             }
+                             break;
+@@ -289,7 +291,7 @@ begin:
+                                         nBrackets --;
+                                     }
+                                 }
+-                                fgets(szLine, 255, fSrc);
++                                fgets(szLine, 511, fSrc);
+                             } while(bFoundOpen == FALSE || nBrackets > 0);
+                         }
+                         else
+diff -rupN --no-dereference gdal-3.4.0-fedora/swig/java/javadoc.java gdal-3.4.0-fedora-new/swig/java/javadoc.java
+--- gdal-3.4.0-fedora/swig/java/javadoc.java	2021-11-04 12:55:40.000000000 +0100
++++ gdal-3.4.0-fedora-new/swig/java/javadoc.java	2021-11-09 11:58:36.602262013 +0100
+@@ -11982,12 +11982,12 @@ public interface osrConstants:public fin
+ public interface osrConstants:public final static int PROJ_ERR_COORD_TRANSFM
+ 
+ /**
+- * Invalid input coordinate. e.g a latitude > 90°.
++ * Invalid input coordinate. e.g a latitude > 90 deg.
+  */
+ public interface osrConstants:public final static int PROJ_ERR_COORD_TRANSFM_INVALID_COORD
+ 
+ /**
+- * Coordinate is outside of the projection domain. e.g approximate mercator with \|longitude - lon_0\| > 90°,
++ * Coordinate is outside of the projection domain. e.g approximate mercator with \|longitude - lon_0\| > 90 deg,
+  * or iterative convergence method failed.
+  */
+ public interface osrConstants:public final static int PROJ_ERR_COORD_TRANSFM_OUTSIDE_PROJECTION_DOMAIN
+diff -rupN --no-dereference gdal-3.4.0-fedora/swig/java/java.opt gdal-3.4.0-fedora-new/swig/java/java.opt
+--- gdal-3.4.0-fedora/swig/java/java.opt	2021-11-04 12:55:38.000000000 +0100
++++ gdal-3.4.0-fedora-new/swig/java/java.opt	2021-11-09 11:58:36.602262013 +0100
+@@ -7,6 +7,6 @@ JAVADOC=$(JAVA_HOME)/bin/javadoc
+ JAVAC=$(JAVA_HOME)/bin/javac
+ JAVA=$(JAVA_HOME)/bin/java
+ JAR=$(JAVA_HOME)/bin/jar
+-JAVA_INCLUDE=-I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
++JAVA_INCLUDE=-I/usr/lib/jvm/java/include/ -I/usr/lib/jvm/java/include/linux
+ 
+ 

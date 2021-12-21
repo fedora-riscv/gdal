@@ -1,0 +1,13 @@
+diff -rupN --no-dereference gdal-3.4.0-fedora/frmts/iso8211/GNUmakefile gdal-3.4.0-fedora-new/frmts/iso8211/GNUmakefile
+--- gdal-3.4.0-fedora/frmts/iso8211/GNUmakefile	2021-11-04 12:55:37.000000000 +0100
++++ gdal-3.4.0-fedora-new/frmts/iso8211/GNUmakefile	2021-11-09 11:58:37.203273779 +0100
+@@ -23,8 +23,7 @@ dist-clean:	clean
+ 	rm -rf $(DISTDIR)
+ 
+ $(ISOLIB):	$(OBJ:.o=.$(OBJ_EXT))
+-	$(AR) r $(ISOLIB) $?
+-	$(RANLIB) $(ISOLIB)
++	$(SHELL) $(top_builddir)/libtool --mode=link gcc -static -o $(ISOLIB) $?
+ 
+ 8211createfromxml$(EXE):	8211createfromxml.$(OBJ_EXT)
+ 	$(LD) $(LDFLAGS) 8211createfromxml.$(OBJ_EXT) $(CONFIG_LIBS) -o 8211createfromxml$(EXE)

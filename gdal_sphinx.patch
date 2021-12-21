@@ -1,0 +1,12 @@
+diff -rupN --no-dereference gdal-3.4.0-fedora/doc/Makefile gdal-3.4.0-fedora-new/doc/Makefile
+--- gdal-3.4.0-fedora/doc/Makefile	2021-11-04 12:55:37.000000000 +0100
++++ gdal-3.4.0-fedora-new/doc/Makefile	2021-11-09 11:58:37.435278319 +0100
+@@ -2,7 +2,7 @@
+ #
+ 
+ # You can set these variables from the command line.
+-SPHINXOPTS    ?= --keep-going -j auto -W
++SPHINXOPTS    ?= --keep-going
+ SPHINXBUILD   = sphinx-build
+ SOURCEDIR     = source
+ BUILDDIR      = build
