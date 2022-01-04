@@ -1,13 +1,11 @@
-diff -rupN --no-dereference gdal-3.4.0-fedora/swig/java/add_javadoc.c gdal-3.4.0-fedora-new/swig/java/add_javadoc.c
---- gdal-3.4.0-fedora/swig/java/add_javadoc.c	2021-11-04 12:55:39.000000000 +0100
-+++ gdal-3.4.0-fedora-new/swig/java/add_javadoc.c	2021-11-09 11:58:36.600261974 +0100
-@@ -133,22 +133,22 @@ int main(int argc, char* argv[])
-     FILE* fDst;
+diff -rupN gdal-3.4.1-fedora/swig/java/add_javadoc.c gdal-3.4.1-fedora-new/swig/java/add_javadoc.c
+--- gdal-3.4.1-fedora/swig/java/add_javadoc.c	2021-12-27 21:25:14.000000000 +0100
++++ gdal-3.4.1-fedora-new/swig/java/add_javadoc.c	2022-01-04 15:09:34.166703455 +0100
+@@ -142,21 +142,21 @@ int main(int argc, char* argv[])
      JavaDocInstance* instances = (JavaDocInstance*)calloc(sizeof(JavaDocInstance), 3000);
      int nInstances = 0;
--    char szLine[256];
+     char szLine[512];
 -    char szClass[256];
-+    char szLine[512];
 +    char szClass[512];
      char javadoc[16384];
      szClass[0] = 0;
@@ -29,9 +27,9 @@ diff -rupN --no-dereference gdal-3.4.0-fedora/swig/java/add_javadoc.c gdal-3.4.0
          {
              if (szLine[0] == 10)
                  continue;
-@@ -188,10 +188,10 @@ begin:
-         fDst = fopen(szDstName, "wt");
-         if (fDst == NULL) continue;
+@@ -209,10 +209,10 @@ begin:
+             continue;
+         }
          szClass[0] = 0;
 -        char szPackage[256];
 +        char szPackage[512];
@@ -42,48 +40,36 @@ diff -rupN --no-dereference gdal-3.4.0-fedora/swig/java/add_javadoc.c gdal-3.4.0
          {
              char szMethodName[1024];
              char* szOriLine = strdup(szLine);
-@@ -224,8 +224,10 @@ begin:
-             if (strstr(szLine, "synchronized "))
-             {
-                 char* c = strstr(szLine, "synchronized ");
-+                char rest[512];
-+                strcpy(rest, c + 13);
-                 *c = 0;
--                strcat(szLine, c + 13);
-+                strcat(szLine, rest);
-             }
-             if (strstr(szLine, "public") && !strstr(szLine, "native"))
-             {
-@@ -234,7 +236,7 @@ begin:
+@@ -255,7 +255,7 @@ begin:
                      strcpy(szMethodName, szLine);
                      do
                      {
--                        fgets(szLine, 255, fSrc);
-+                        fgets(szLine, 511, fSrc);
+-                        ignore_ret(fgets(szLine, 255, fSrc));
++                        ignore_ret(fgets(szLine, 511, fSrc));
                          strcpy(szMethodName + strlen(szMethodName) - 1, szLine);
                      } while (!strchr(szMethodName,')'));
                      strcpy(szLine, szMethodName);
-@@ -261,7 +263,7 @@ begin:
+@@ -282,7 +282,7 @@ begin:
                              {
                                  do
                                  {
--                                    fgets(szLine, 255, fSrc);
-+                                    fgets(szLine, 511, fSrc);
+-                                    ignore_ret(fgets(szLine, 255, fSrc));
++                                    ignore_ret(fgets(szLine, 511, fSrc));
                                  } while (!strchr(szLine,'}'));
                              }
                              break;
-@@ -289,7 +291,7 @@ begin:
+@@ -310,7 +310,7 @@ begin:
                                          nBrackets --;
                                      }
                                  }
--                                fgets(szLine, 255, fSrc);
-+                                fgets(szLine, 511, fSrc);
+-                                ignore_ret(fgets(szLine, 255, fSrc));
++                                ignore_ret(fgets(szLine, 511, fSrc));
                              } while(bFoundOpen == FALSE || nBrackets > 0);
                          }
                          else
-diff -rupN --no-dereference gdal-3.4.0-fedora/swig/java/javadoc.java gdal-3.4.0-fedora-new/swig/java/javadoc.java
---- gdal-3.4.0-fedora/swig/java/javadoc.java	2021-11-04 12:55:40.000000000 +0100
-+++ gdal-3.4.0-fedora-new/swig/java/javadoc.java	2021-11-09 11:58:36.602262013 +0100
+diff -rupN gdal-3.4.1-fedora/swig/java/javadoc.java gdal-3.4.1-fedora-new/swig/java/javadoc.java
+--- gdal-3.4.1-fedora/swig/java/javadoc.java	2021-12-27 21:25:14.000000000 +0100
++++ gdal-3.4.1-fedora-new/swig/java/javadoc.java	2022-01-04 15:07:38.528621112 +0100
 @@ -11982,12 +11982,12 @@ public interface osrConstants:public fin
  public interface osrConstants:public final static int PROJ_ERR_COORD_TRANSFM
  
@@ -99,9 +85,9 @@ diff -rupN --no-dereference gdal-3.4.0-fedora/swig/java/javadoc.java gdal-3.4.0-
   * or iterative convergence method failed.
   */
  public interface osrConstants:public final static int PROJ_ERR_COORD_TRANSFM_OUTSIDE_PROJECTION_DOMAIN
-diff -rupN --no-dereference gdal-3.4.0-fedora/swig/java/java.opt gdal-3.4.0-fedora-new/swig/java/java.opt
---- gdal-3.4.0-fedora/swig/java/java.opt	2021-11-04 12:55:38.000000000 +0100
-+++ gdal-3.4.0-fedora-new/swig/java/java.opt	2021-11-09 11:58:36.602262013 +0100
+diff -rupN gdal-3.4.1-fedora/swig/java/java.opt gdal-3.4.1-fedora-new/swig/java/java.opt
+--- gdal-3.4.1-fedora/swig/java/java.opt	2021-12-27 21:25:12.000000000 +0100
++++ gdal-3.4.1-fedora-new/swig/java/java.opt	2022-01-04 15:07:38.529621181 +0100
 @@ -7,6 +7,6 @@ JAVADOC=$(JAVA_HOME)/bin/javadoc
  JAVAC=$(JAVA_HOME)/bin/javac
  JAVA=$(JAVA_HOME)/bin/java

@@ -8,7 +8,7 @@
 #TODO: Consider doxy patch from Suse, setting EXTRACT_LOCAL_CLASSES  = NO
 
 # Tests can be of a different version
-%global testversion 3.4.0
+%global testversion 3.4.1
 %global run_tests 1
 
 %global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
@@ -43,8 +43,8 @@
 %endif
 
 Name:          gdal
-Version:       3.4.0
-Release:       2%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Version:       3.4.1
+Release:       1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -635,6 +635,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Tue Jan 04 2022 Sandro Mani <manisandro@gmail.com> - 3.4.1-1
+- Update to 3.4.1
+
 * Sun Nov 21 2021 Orion Poplawski <orion@nwra.com> - 3.4.0-2
 - Rebuild for hdf5 1.12.1
 
