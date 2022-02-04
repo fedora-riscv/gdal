@@ -44,7 +44,7 @@
 
 Name:          gdal
 Version:       3.3.2
-Release:       1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       2%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -78,6 +78,9 @@ Patch8:        %{name}-gcc11.patch
 Patch9:        gdal_no-diag-disable.patch
 # Fix build with autoconf 2.70
 Patch10:       gdal_autoconf270.patch
+# Backport patch for CVE-2021-45943
+# https://github.com/OSGeo/gdal/pull/4944
+Patch11:       CVE-2021-45943.patch
 
 
 BuildRequires: gcc
@@ -641,6 +644,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Feb 04 2022 Sandro Mani <manisandro@gmail.com> - 3.3.2-2
+- Backport patch for CVE-2021-45943
+
 * Tue Sep 07 2021 Sandro Mani <manisandro@gmail.com> - 3.3.2-1
 - Update to 3.3.2
 
