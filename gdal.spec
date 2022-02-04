@@ -45,7 +45,7 @@
 
 Name:          gdal
 Version:       3.2.2
-Release:       2%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       3%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -81,6 +81,9 @@ Patch9:        gdal_no-diag-disable.patch
 # https://github.com/OSGeo/gdal/pull/3476
 Patch10:       0001-configure-Also-save-LDFLAGS-when-checking-compilabil.patch
 Patch11:       0002-configure-Ensure-with-geos-sfcgal-fail-if-unavailabl.patch
+# Backport patch for CVE-2021-45943
+# https://github.com/OSGeo/gdal/pull/4944
+Patch12:       CVE-2021-45943.patch
 
 
 BuildRequires: gcc
@@ -686,6 +689,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Feb 04 2022 Sandro Mani <manisandro@gmail.com> - 3.2.2-3
+- Backport patch for CVE-2021-45943
+
 * Wed Jun 16 2021 Björn Esser <besser82@fedoraproject.org> - 3.2.2-2
 - Rebuild (libgta)
 
