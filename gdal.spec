@@ -8,7 +8,7 @@
 #TODO: Consider doxy patch from Suse, setting EXTRACT_LOCAL_CLASSES  = NO
 
 # Tests can be of a different version
-%global testversion 3.3.2
+%global testversion 3.3.3
 %global run_tests 1
 
 %global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
@@ -43,8 +43,8 @@
 %endif
 
 Name:          gdal
-Version:       3.3.2
-Release:       2%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Version:       3.3.3
+Release:       1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -644,6 +644,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Fri Feb 04 2022 Sandro Mani <manisandro@gmail.com> - 3.3.3-1
+- Update to 3.3.3
+
 * Fri Feb 04 2022 Sandro Mani <manisandro@gmail.com> - 3.3.2-2
 - Backport patch for CVE-2021-45943
 
