@@ -44,7 +44,7 @@
 
 Name:          gdal
 Version:       3.4.1
-Release:       4%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       5%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -635,6 +635,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Sun Feb 13 2022 Josef Ridky <jridky@redhat.com> - 3.4.1-5
+- Rebuilt for libjasper.so.6
+
 * Sat Feb 05 2022 Jiri Vanek <jvanek@redhat.com> - 3.4.1-4
 - Rebuilt for java-17-openjdk as system jdk
 
