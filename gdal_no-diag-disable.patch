@@ -1,6 +1,6 @@
-diff -rupN --no-dereference gdal-3.4.1-fedora/configure.ac gdal-3.4.1-fedora-new/configure.ac
---- gdal-3.4.1-fedora/configure.ac	2021-12-27 21:25:11.000000000 +0100
-+++ gdal-3.4.1-fedora-new/configure.ac	2022-01-04 13:58:03.791555699 +0100
+diff -rupN --no-dereference gdal-3.4.2-fedora/configure.ac gdal-3.4.2-fedora-new/configure.ac
+--- gdal-3.4.2-fedora/configure.ac	2022-03-08 11:10:52.000000000 +0100
++++ gdal-3.4.2-fedora-new/configure.ac	2022-03-14 23:50:45.076158683 +0100
 @@ -73,7 +73,7 @@ dnl warning #2304: non-explicit construc
  dnl warning #3280: declaration hides member
  dnl remark #11074: Inlining inhibited by limit max-size
