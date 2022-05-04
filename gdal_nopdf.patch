@@ -1,6 +1,6 @@
-diff -rupN --no-dereference gdal-3.4.2-fedora/doc/source/index.rst gdal-3.4.2-fedora-new/doc/source/index.rst
---- gdal-3.4.2-fedora/doc/source/index.rst	2022-03-08 11:10:53.000000000 +0100
-+++ gdal-3.4.2-fedora-new/doc/source/index.rst	2022-03-14 23:50:44.609159787 +0100
+diff -rupN --no-dereference gdal-3.4.3-fedora/doc/source/index.rst gdal-3.4.3-fedora-new/doc/source/index.rst
+--- gdal-3.4.3-fedora/doc/source/index.rst	2022-04-22 11:02:04.000000000 +0200
++++ gdal-3.4.3-fedora-new/doc/source/index.rst	2022-05-04 16:04:12.215137970 +0200
 @@ -4,8 +4,6 @@ GDAL
  
  .. include:: ./about_no_title.rst

@@ -43,8 +43,8 @@
 %endif
 
 Name:          gdal
-Version:       3.4.2
-Release:       1%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Version:       3.4.3
+Release:       1%{?dist}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -635,6 +635,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed May 04 2022 Sandro Mani <manisandro@gmail.com> - 3.4.3-1
+- Update to 3.4.3
+
 * Mon Mar 14 2022 Sandro Mani <manisandro@gmail.com> - 3.4.2-1
 - Update to 3.4.2
 

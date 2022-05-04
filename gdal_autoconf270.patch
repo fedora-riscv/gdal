@@ -1,6 +1,6 @@
-diff -rupN --no-dereference gdal-3.4.2-fedora/m4/lib-link.m4 gdal-3.4.2-fedora-new/m4/lib-link.m4
---- gdal-3.4.2-fedora/m4/lib-link.m4	2022-03-08 11:12:26.000000000 +0100
-+++ gdal-3.4.2-fedora-new/m4/lib-link.m4	2022-03-14 23:50:45.320158106 +0100
+diff -rupN --no-dereference gdal-3.4.3-fedora/m4/lib-link.m4 gdal-3.4.3-fedora-new/m4/lib-link.m4
+--- gdal-3.4.3-fedora/m4/lib-link.m4	2022-04-22 11:03:37.000000000 +0200
++++ gdal-3.4.3-fedora-new/m4/lib-link.m4	2022-05-04 16:04:12.870079834 +0200
 @@ -108,8 +108,6 @@ dnl   acl_hardcode_direct,
  dnl   acl_hardcode_minus_L.
  AC_DEFUN([AC_LIB_RPATH],
