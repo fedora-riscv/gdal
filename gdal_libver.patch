@@ -1,0 +1,26 @@
+diff -rupN --no-dereference gdal-3.5.0-fedora/cmake/helpers/GdalVersion.cmake gdal-3.5.0-fedora-new/cmake/helpers/GdalVersion.cmake
+--- gdal-3.5.0-fedora/cmake/helpers/GdalVersion.cmake	2022-05-10 16:03:37.000000000 +0200
++++ gdal-3.5.0-fedora-new/cmake/helpers/GdalVersion.cmake	2022-05-16 12:38:04.503450282 +0200
+@@ -59,7 +59,7 @@ add_custom_target(generate_gdal_version_
+                     -P "${PROJECT_SOURCE_DIR}/cmake/helpers/generate_gdal_version_h.cmake"
+                   VERBATIM)
+ 
+-if (WIN32)
++if (WIN32 AND NOT MINGW)
+   set(GDAL_SOVERSION "")
+   set(GDAL_ABI_FULL_VERSION "${GDAL_VERSION_MAJOR}${GDAL_VERSION_MINOR}")
+ else()
+diff -rupN --no-dereference gdal-3.5.0-fedora/gdal.cmake gdal-3.5.0-fedora-new/gdal.cmake
+--- gdal-3.5.0-fedora/gdal.cmake	2022-05-13 16:05:01.000000000 +0200
++++ gdal-3.5.0-fedora-new/gdal.cmake	2022-05-16 12:38:04.503450282 +0200
+@@ -301,6 +301,10 @@ if (MSVC)
+       CACHE STRING "Postfix to add to the GDAL dll name for debug builds")
+   set_target_properties(${GDAL_LIB_TARGET_NAME} PROPERTIES DEBUG_POSTFIX "${GDAL_DEBUG_POSTFIX}")
+ endif ()
++if(MINGW)
++    set_target_properties(${GDAL_LIB_TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_NAME "${GDAL_LIB_OUTPUT_NAME}-${GDAL_SOVERSION}")
++endif(MINGW)
++
+ 
+ if (MSVC AND NOT BUILD_SHARED_LIBS)
+   target_compile_definitions(${GDAL_LIB_TARGET_NAME} PUBLIC CPL_DISABLE_DLL=)

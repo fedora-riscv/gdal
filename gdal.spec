@@ -1,17 +1,14 @@
-#TODO: msg needs to have PublicDecompWT.zip from EUMETSAT, which is not free;
-#      Building without msg therefore
-#TODO: e00compr bundled?
-#TODO: There are tests for bindings -- at least for Perl
-#TODO: Java has a directory with test data and a build target called test
-#      It uses %%{JAVA_RUN}; make test seems to work in the build directory
-#TODO: e00compr source is the same in the package and bundled in GDAL
-#TODO: Consider doxy patch from Suse, setting EXTRACT_LOCAL_CLASSES  = NO
-
-# Tests can be of a different version
-%global testversion 3.4.3
 %global run_tests 1
 
 %global bashcompletiondir %(pkg-config --variable=compatdir bash-completion)
+
+# We have multilib triage
+%if "%{_lib}" == "lib"
+  %global cpuarch 32
+%else
+  %global cpuarch 64
+%endif
+
 
 %if 0%{?bootstrap}
 %global with_mysql 0
@@ -32,151 +29,176 @@
 %endif
 
 %bcond_without python3
+# No complete java yet in EL8
+%if 0%{?rhel} >= 8
+%bcond_with java
+%else
+%bcond_without java
+%endif
 
-# No ppc64 build for spatialite in EL6
-# https://bugzilla.redhat.com/show_bug.cgi?id=663938
-%if 0%{?rhel} == 6
-%ifnarch ppc64
-%global with_spatialite 0
-%global spatialite --without-spatialite
-%endif
-%endif
+#global pre rc4
+
 
 Name:          gdal
-Version:       3.4.3
-Release:       1%{?dist}
+Version:       3.5.0
+Release:       1%{?pre:%pre}%{?dist}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
 # Source0:   http://download.osgeo.org/gdal/%%{version}/gdal-%%{version}.tar.xz
 # See PROVENANCE.TXT-fedora and the cleaner script for details!
 
-Source0:       %{name}-%{version}-fedora.tar.xz
-Source1:       http://download.osgeo.org/%{name}/%{testversion}/%{name}autotest-%{testversion}.tar.gz
-
-# Cleaner script for the tarball
-Source3:       %{name}-cleaner.sh
-
+Source0:       %{name}-%{version}%{?pre:%pre}-fedora.tar.xz
+Source1:       http://download.osgeo.org/%{name}/%{version}/%{name}autotest-%{version}%{?pre:%pre}.tar.gz
+# Multilib compatible cpl-config.h header
+Source2:       cpl-config.h
+# Multilib compatible gdal-config script
+Source3:       gdal-config
 Source4:       PROVENANCE.TXT-fedora
 
-# Java build fixes
-Patch2:        gdal_java.patch
-# Ensure rpc/types.h is found by dods driver (indirectly required by libdap/XDRUtils.h)
-Patch3:        gdal_tirpcinc.patch
-# Use libtool to create libiso8211.a, otherwise broken static lib is created since object files are compiled through libtool
-Patch4:        gdal_iso8211.patch
-# Don't pass -W to sphinx, it causes it to error out on warnings
-# Don't do parallel build, currently fails with "Sphinx parallel build error: NotImplementedError"
-Patch5:        gdal_sphinx.patch
-# Fix makefiles installing libtool wrappers instead of actual executables
-Patch6:        gdal_installapps.patch
-# Don't refer to PDF manual which is not built
-Patch7:        gdal_nopdf.patch
-# Fix issues caught by gcc-11
-Patch8:        %{name}-gcc11.patch
-# Drop -diag-disable compile flag
-Patch9:        gdal_no-diag-disable.patch
-# Fix build with autoconf 2.70
-Patch10:       gdal_autoconf270.patch
+# Cleaner script for the tarball
+Source5:       %{name}-cleaner.sh
+
+# Add some utils to the default install target
+Patch0:        gdal_utils.patch
+Patch1:        gdal_libver.patch
 
 
-BuildRequires: gcc
+BuildRequires: cmake
 BuildRequires: gcc-c++
-BuildRequires: libtool
-BuildRequires: automake
-BuildRequires: autoconf
-BuildRequires: ant
+
 BuildRequires: armadillo-devel
-BuildRequires: bash-completion
 BuildRequires: cfitsio-devel
-#BuildRequires: CharLS-devel
-BuildRequires: chrpath
+BuildRequires: CharLS-devel
 BuildRequires: curl-devel
-BuildRequires: doxygen
 BuildRequires: expat-devel
-BuildRequires: fontconfig-devel
 BuildRequires: freexl-devel
-BuildRequires: geos-devel >= 3.7.1
-BuildRequires: ghostscript
+BuildRequires: geos-devel
+BuildRequires: giflib-devel
 BuildRequires: hdf-devel
-BuildRequires: hdf-static
 BuildRequires: hdf5-devel
-# No complete java yet in EL8
-%if 0%{?rhel} < 8
-BuildRequires: java-devel >= 1:1.6.0
-%endif
-BuildRequires: jasper-devel
-BuildRequires: jpackage-utils
-# No complete java yet in EL8
-%if 0%{?rhel} < 8
-# For 'mvn_artifact' and 'mvn_install'
-BuildRequires: javapackages-local
-%endif
 BuildRequires: json-c-devel
+BuildRequires: libdap-devel
 BuildRequires: libgeotiff-devel
 BuildRequires: libgta-devel
-
 BuildRequires: libjpeg-devel
-BuildRequires: libpng-devel
 BuildRequires: libkml-devel
-
+BuildRequires: liblerc-devel
+BuildRequires: libpng-devel
+BuildRequires: libpq-devel
+BuildRequires: librx-devel
 %if %{with_spatialite}
 BuildRequires: libspatialite-devel
 %endif
-
 BuildRequires: libtiff-devel
+BuildRequires: libtirpc-devel
 BuildRequires: libwebp-devel
-BuildRequires: libtool
-BuildRequires: giflib-devel
-BuildRequires: netcdf-devel
-BuildRequires: libdap-devel
-BuildRequires: librx-devel
 %if 0%{?with_mysql}
 BuildRequires: mariadb-connector-c-devel
 %endif
-BuildRequires: pcre-devel
+BuildRequires: netcdf-devel
 BuildRequires: ogdi-devel
-BuildRequires: perl-devel
-BuildRequires: perl-generators
+BuildRequires: openexr-devel
 BuildRequires: openjpeg2-devel
-BuildRequires: perl(ExtUtils::MakeMaker)
-BuildRequires: %{_bindir}/pkg-config
+BuildRequires: pcre2-devel
 %if 0%{?with_poppler}
 BuildRequires: poppler-devel
 %endif
-BuildRequires: libpq-devel
 BuildRequires: proj-devel >= 5.2.0
-%if %{with python3}
-BuildRequires: python3-devel
-BuildRequires: python3-numpy
-BuildRequires: python3-setuptools
-BuildRequires: python3dist(pytest) >= 3.6
-BuildRequires: python3dist(lxml) >= 4.5.1
-%endif
+BuildRequires: qhull-devel
 BuildRequires: sqlite-devel
 BuildRequires: swig
 BuildRequires: unixODBC-devel
 BuildRequires: xerces-c-devel
 BuildRequires: xz-devel
 BuildRequires: zlib-devel
-BuildRequires: libtirpc-devel
 
-BuildRequires: python3-sphinx
-BuildRequires: python3-sphinx_rtd_theme
-BuildRequires: python3-breathe
-BuildRequires: make
+BuildRequires: mingw32-filesystem >= 102
+BuildRequires: mingw32-gcc-c++
+BuildRequires: mingw32-cfitsio
+BuildRequires: mingw32-curl
+BuildRequires: mingw32-expat
+BuildRequires: mingw32-freexl
+BuildRequires: mingw32-geos
+BuildRequires: mingw32-giflib
+BuildRequires: mingw32-libgeotiff
+BuildRequires: mingw32-libgta
+BuildRequires: mingw32-libjpeg-turbo
+BuildRequires: mingw32-libkml
+BuildRequires: mingw32-liblerc
+BuildRequires: mingw32-libpng
+BuildRequires: mingw32-libspatialite
+BuildRequires: mingw32-libtiff
+BuildRequires: mingw32-libwebp
+BuildRequires: mingw32-openexr
+BuildRequires: mingw32-openjpeg2
+BuildRequires: mingw32-pcre
+BuildRequires: mingw32-poppler
+BuildRequires: mingw32-postgresql
+BuildRequires: mingw32-proj
+BuildRequires: mingw32-sqlite
+BuildRequires: mingw32-xerces-c
+BuildRequires: mingw32-xz-libs
+BuildRequires: mingw32-zlib
+
+BuildRequires: mingw64-filesystem >= 102
+BuildRequires: mingw64-gcc-c++
+BuildRequires: mingw64-cfitsio
+BuildRequires: mingw64-curl
+BuildRequires: mingw64-expat
+BuildRequires: mingw64-freexl
+BuildRequires: mingw64-geos
+BuildRequires: mingw64-giflib
+BuildRequires: mingw64-libgeotiff
+BuildRequires: mingw64-libgta
+BuildRequires: mingw64-libjpeg-turbo
+BuildRequires: mingw64-libkml
+BuildRequires: mingw64-liblerc
+BuildRequires: mingw64-libpng
+BuildRequires: mingw64-libspatialite
+BuildRequires: mingw64-libtiff
+BuildRequires: mingw64-libwebp
+BuildRequires: mingw64-openexr
+BuildRequires: mingw64-openjpeg2
+BuildRequires: mingw64-pcre
+BuildRequires: mingw64-poppler
+BuildRequires: mingw64-postgresql
+BuildRequires: mingw64-proj
+BuildRequires: mingw64-sqlite
+BuildRequires: mingw64-xerces-c
+BuildRequires: mingw64-xz-libs
+BuildRequires: mingw64-zlib
+
+# Python
+%if %{with python3}
+BuildRequires: python3-devel
+BuildRequires: python3-numpy
+BuildRequires: python3-setuptools
+BuildRequires: python3dist(pytest) >= 3.6
+BuildRequires: python3dist(lxml) >= 4.5.1
+
+BuildRequires: mingw32-python3
+BuildRequires: mingw32-python3-numpy
+BuildRequires: mingw32-python3-setuptools
+
+BuildRequires: mingw64-python3
+BuildRequires: mingw64-python3-numpy
+BuildRequires: mingw64-python3-setuptools
+%endif
+
+# Java
+%if %{with java}
+# For 'mvn_artifact' and 'mvn_install'
+BuildRequires: ant
+BuildRequires: java-devel >= 1:1.6.0
+BuildRequires: javapackages-local
+BuildRequires: jpackage-utils
+%endif
 
 # Run time dependency for gpsbabel driver
 Requires:      gpsbabel
-
 Requires:      %{name}-libs%{?_isa} = %{version}-%{release}
 
-# We have multilib triage
-%if "%{_lib}" == "lib"
-  %global cpuarch 32
-%else
-  %global cpuarch 64
-%endif
 
 %description
 Geospatial Data Abstraction Library (GDAL/OGR) is a cross platform
@@ -207,8 +229,48 @@ Provides:      bundled(degrib) = 2.14
 This package contains the GDAL file format library.
 
 
+%package -n mingw32-%{name}
+Summary:       MinGW Windows GDAL library
+# GDAL bundles a modified copy of g2clib and degrib
+# See frmts/grib/degrib/README.TXT
+Provides:      bundled(g2lib) = 1.6.0
+Provides:      bundled(degrib) = 2.14
+BuildArch:     noarch
+
+%description -n mingw32-%{name}
+MinGW Windows GDAL library.
+
+
+%package -n mingw32-%{name}-tools
+Summary:       MinGW Windows GDAL library tools
+BuildArch:     noarch
+
+%description -n mingw32-%{name}-tools
+MinGW Windows GDAL library tools.
+
+
+%package -n mingw64-%{name}
+Summary:       MinGW Windows GDAL library
+# GDAL bundles a modified copy of g2clib and degrib
+# See frmts/grib/degrib/README.TXT
+Provides:      bundled(g2lib) = 1.6.0
+Provides:      bundled(degrib) = 2.14
+BuildArch:     noarch
+
+%description -n mingw64-%{name}
+MinGW Windows GDAL library.
+
+
+%package -n mingw64-%{name}-tools
+Summary:       MinGW Windows GDAL library tools
+BuildArch:     noarch
+
+%description -n mingw64-%{name}-tools
+MinGW Windows GDAL library tools.
+
+
 # No complete java yet in EL8
-%if 0%{?rhel} < 8
+%if %{with java}
 %package java
 Summary:        Java modules for the GDAL file format library
 Requires:       jpackage-utils
@@ -228,30 +290,17 @@ This package contains the API documentation for %{name}.
 %endif
 
 
-%package perl
-Summary:        Perl modules for the GDAL file format library
-Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
-Requires:       perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
-
-%description perl
-The GDAL Perl modules provide support to handle multiple GIS file formats.
-
-
 %if %{with python3}
 %package -n python3-gdal
 %{?python_provide:%python_provide python3-gdal}
 Summary:        Python modules for the GDAL file format library
 Requires:       python3-numpy
 Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
-Obsoletes:      gdal-python3 < 2.3.1
-Provides:       gdal-python3 = %version-%release
 
 %description -n python3-gdal
 The GDAL Python 3 modules provide support to handle multiple GIS file formats.
-%endif
 
 
-%if %{with python3}
 %package python-tools
 Summary:        Python tools for the GDAL file format library
 Requires:       python3-gdal
@@ -259,25 +308,32 @@ Requires:       python3-gdal
 %description python-tools
 The GDAL Python package provides number of tools for programming and
 manipulating GDAL file format library
-%endif
 
 
-%package doc
-Summary:        Documentation for GDAL
-BuildArch:      noarch
+%package -n mingw32-python3-%{name}
+Summary:       MinGW Windows Python3 GDAL bindings
 
-%description doc
-This package contains documentation for GDAL.
+%description -n mingw32-python3-%{name}
+MinGW Windows Python3 GDAL bindings.
+
+
+%package -n mingw64-python3-%{name}
+Summary:       MinGW Windows Python3 GDAL bindings
+
+%description -n mingw64-python3-%{name}
+MinGW Windows Python3 GDAL bindings.
 
 
 # We don't want to provide private Python extension libs
-%if %{with_python3}
 %global __provides_exclude_from ^%{python3_sitearch}/.*\.so$
 %endif
 
 
+%{?mingw_debug_package}
+
+
 %prep
-%autosetup -p1 -n %{name}-%{version}-fedora -a 1
+%autosetup -p1 -n %{name}-%{version}-fedora
 
 # Delete bundled libraries
 rm -rf frmts/zlib
@@ -287,323 +343,141 @@ rm -rf frmts/jpeg/libjpeg
 rm -rf frmts/jpeg/libjpeg12
 rm -rf frmts/gtiff/libgeotiff
 rm -rf frmts/gtiff/libtiff
+rm -rf mrf/LERCV1
+rm -rf third_party/LercLib
+
+# Setup autotest directory
+tar xf %{SOURCE1}
+mv %{name}autotest-%{version} autotest
 
 # Copy in PROVENANCE.TXT-fedora
-cp -p %SOURCE4 .
-
-# Adjust check for LibDAP version
-# http://trac.osgeo.org/gdal/ticket/4545
-%if %cpuarch == 64
-  sed -i 's|with_dods_root/lib|with_dods_root/lib64|' configure.ac
-%endif
+cp -a %{SOURCE4} .
 
 
 %build
-# For future reference:
-# epsilon: Stalled review -- https://bugzilla.redhat.com/show_bug.cgi?id=660024
-# Building without pgeo driver, because it drags in Java
-autoreconf -ifv
+%cmake \
+  -DCMAKE_INSTALL_INCLUDEDIR=include/gdal \
+  -DGDAL_JAVA_INSTALL_DIR=%{_jnidir}/%{name} \
+  -DGDAL_USE_JPEG12_INTERNAL=OFF
+%cmake_build
 
-%configure \
-	--with-autoload=%{_libdir}/%{name}plugins \
-	--includedir=%{_includedir}/%{name}/ \
-	--prefix=%{_prefix}         \
-	--with-bash-completion      \
-	--with-armadillo            \
-	--with-curl                 \
-	--with-cfitsio              \
-	--with-dods-root=%{_prefix} \
-	--with-expat                \
-	--with-freexl               \
-	--with-geos                 \
-	--with-geotiff              \
-	--with-gif                  \
-	--with-gta                  \
-	--with-hdf4                 \
-	--with-hdf5                 \
-	--with-jasper               \
-%if 0%{?rhel} < 8
-	--with-java                 \
-%endif
-	--with-jpeg                 \
-	--with-libjson-c            \
-	--without-jpeg12            \
-	--with-liblzma              \
-	--with-libtiff              \
-	--with-libz                 \
-	--without-mdb               \
-	--without-msg               \
-	%{mysql}                    \
-	--with-netcdf               \
-	--with-odbc                 \
-	--with-ogdi                 \
-	--with-openjpeg             \
-	--with-pcraster             \
-	--with-pg                   \
-	--with-png                  \
-	%{poppler}                  \
-	--with-proj                 \
-	%{spatialite}               \
-	--with-sqlite3              \
-	--with-threads              \
-	--with-webp                 \
-	--with-xerces               \
-	--enable-shared             \
-	--with-libkml
-
-%make_build
-
-# Build some utilities, as requested in BZ #1271906
-make -C ogr/ogrsf_frmts/s57 all
-make -C frmts/iso8211 all
-
-# Documentation
-make man
-make docs
-
-# No complete java yet in EL8
-%if 0%{?rhel} < 8
-
-# Make Java module and documentation
-pushd swig/java
-  make
-  ANT_OPTS="-Dfile.encoding=utf-8" ant maven
-popd
-%mvn_artifact swig/java/build/maven/gdal-%version.pom swig/java/build/maven/gdal-%version.jar
-%endif
-
-# Make Python modules
-pushd swig/python
-  %{?with_python3:%py3_build}
-popd
-
-# Make Perl modules
-pushd swig/perl
-  perl Makefile.PL INSTALLDIRS=vendor
-  %make_build
-popd
+%mingw_cmake \
+  -DCMAKE_INSTALL_INCLUDEDIR=include/gdal \
+  -DGDAL_USE_JPEG12_INTERNAL=OFF
+%mingw_make_build
 
 
 %install
-pushd swig/python
-  %{?with_python3:%py3_install}
-popd
+%cmake_install
+%mingw_make_install
 
-%make_install -C swig/perl
+# List of manpages for python scripts
+for file in %{buildroot}%{_bindir}/*.py; do
+  if [ -f %{buildroot}%{_mandir}/man1/`basename ${file/.py/.1*}` ]; then
+    echo "%{_mandir}/man1/`basename ${file/.py/.1*}`" >> gdal_python_manpages.txt
+    echo "%exclude %{_mandir}/man1/`basename ${file/.py/.1*}`" >> gdal_python_manpages_excludes.txt
+  fi
+done
 
-%make_install install-man
-
-# Drop gdal.pdf symlink, as we don't build the pdf documentation
-rm doc/build/html/gdal.pdf
-
-install -pm 755 ogr/ogrsf_frmts/s57/s57dump %{buildroot}%{_bindir}
-install -pm 755 frmts/iso8211/8211createfromxml %{buildroot}%{_bindir}
-install -pm 755 frmts/iso8211/8211dump %{buildroot}%{_bindir}
-install -pm 755 frmts/iso8211/8211view %{buildroot}%{_bindir}
-# Rename for %%files doc below
-mv frmts/iso8211/html frmts/iso8211/iso8211_html
-
-# Directory for auto-loading plugins
-mkdir -p %{buildroot}%{_libdir}/%{name}plugins
-
-#TODO: Don't do that?
-rm %{buildroot}%{perl_archlib}/perllocal.pod
-
-%if %{without python3}
-rm %buildroot%_mandir/man1/{pct2rgb,rgb2pct}.1
-%endif
-
-# Correct permissions
-#TODO and potential ticket: Why are the permissions not correct?
-find %{buildroot}%{perl_vendorarch} -name "*.so" -exec chmod 755 '{}' \;
-find %{buildroot}%{perl_vendorarch} -name "*.pm" -exec chmod 644 '{}' \;
-
-# No complete java yet in EL8
-%if 0%{?rhel} < 8
-# install Java plugin
-%mvn_install -J swig/java/java
-
-# 775 on the .so?
-# copy JNI libraries and links, non versioned link needed by JNI
-# What is linked here?
-mkdir -p %{buildroot}%{_jnidir}/%{name}
-cp -pl swig/java/.libs/*.so*  \
-    %{buildroot}%{_jnidir}/%{name}/
-chrpath --delete %{buildroot}%{_jnidir}/%{name}/*jni.so*
-
-# Install Java API documentation in the designated place
-mkdir -p %{buildroot}%{_javadocdir}/%{name}
-cp -pr swig/java/java/org %{buildroot}%{_javadocdir}/%{name}
-%endif
-
-#TODO: Header date lost during installation
-# Install multilib cpl_config.h bz#430894
-install -p -D -m 644 port/cpl_config.h %{buildroot}%{_includedir}/%{name}/cpl_config-%{cpuarch}.h
-# Create universal multilib cpl_config.h bz#341231
-# The problem is still there in 1.9.
-#TODO: Ticket?
-
-#>>>>>>>>>>>>>
-cat > %{buildroot}%{_includedir}/%{name}/cpl_config.h <<EOF
-#include <bits/wordsize.h>
-
-#if __WORDSIZE == 32
-#include "gdal/cpl_config-32.h"
-#else
-#if __WORDSIZE == 64
-#include "gdal/cpl_config-64.h"
-#else
-#error "Unknown word size"
-#endif
-#endif
-EOF
-#<<<<<<<<<<<<<
-touch -r NEWS.md port/cpl_config.h
-
-
-# Multilib gdal-config
-# Rename the original script to gdal-config-$arch (stores arch-specific information)
-# and create a script to call one or the other -- depending on detected architecture
-# TODO: The extra script will direct you to 64 bit libs on
-# 64 bit systems -- whether you like that or not
+# Multilib
+# - cpl_config.h is arch-dependent (contains various SIZEOF defines)
+# - gdal-config stores arch-specific information
+mv %{buildroot}%{_includedir}/%{name}/cpl_config.h %{buildroot}%{_includedir}/%{name}/cpl_config-%{cpuarch}.h
+cp -a %{SOURCE2} %{buildroot}%{_includedir}/%{name}/cpl_config.h
 mv %{buildroot}%{_bindir}/%{name}-config %{buildroot}%{_bindir}/%{name}-config-%{cpuarch}
-#>>>>>>>>>>>>>
-cat > %{buildroot}%{_bindir}/%{name}-config <<EOF
-#!/bin/bash
+cp -a %{SOURCE3} %{buildroot}%{_bindir}/%{name}-config
 
-ARCH=\$(uname -m)
-case \$ARCH in
-x86_64 | ppc64 | ppc64le | ia64 | s390x | sparc64 | alpha | alphaev6 | aarch64 )
-%{name}-config-64 \${*}
-;;
-*)
-%{name}-config-32 \${*}
-;;
-esac
-EOF
-#<<<<<<<<<<<<<
-touch -r NEWS.md %{buildroot}%{_bindir}/%{name}-config
-chmod 755 %{buildroot}%{_bindir}/%{name}-config
-
-#jni-libs and libgdal are also built static (*.a)
-#.exists and .packlist stem from Perl
-for junk in {*.a,*.la,*.bs,.exists,.packlist} ; do
-  find %{buildroot} -name "$junk" -delete
-done
-
-# Don't duplicate license files
-rm %{buildroot}%{_datadir}/%{name}/LICENSE.TXT
+# Delete data from cross packages
+rm -r %{buildroot}%{mingw32_datadir}
+rm -r %{buildroot}%{mingw64_datadir}
 
 
-# No complete java yet in EL8
-%if 0%{?rhel} < 8
+%mingw_debug_install_post
+
+
+%if 0%{run_tests}
 %check
-%if %{run_tests}
-for i in -I/usr/lib/jvm/java/include{,/linux}; do
-    java_inc="$java_inc $i"
-done
-%endif
-
-pushd %{name}autotest-%{testversion}
-	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}
-	export GDAL_DATA=%{buildroot}%{_datadir}/%{name}/
-
-	# Enable these tests on demand
-	#export GDAL_RUN_SLOW_TESTS=1
-	#export GDAL_DOWNLOAD_TEST_DATA=1
-
-	# Some tests are currently skipped:
-	# - `test_fits_vector` because it's crashing.
-	# - `test_http*`, `test_jp2openjpeg_45`, `*multithreaded_download*`,
-	#   `*multithreaded_upload*`, and `test_vsis3_no_sign_request`, which
-	#   try to connect externally.
-	# - `test_eedai_GOOGLE_APPLICATION_CREDENTIALS` which seems to use the
-	#   internet.
-	# - `test_osr_erm_1`, `test_ers_4`, `test_ers_8`, and `test_ers_10` as
-	#   they use `ecw_cs.wkt` which was removed due to unclear license.
-        # - `test_jpeg2000_8` and `test_jpeg2000_11` as files don't load,
-        #   perhaps due to buggy Jasper library?
-        # - `test_osr_ct_options_area_of_interest` returns the wrong value, but
-        #   it's skipped on macOS by upstream for mysteriously failing as well,
-        #   so do the same here.
-# FIXME: Some Tests hang on i686 and armv7hl
-%ifnarch i686 armv7hl
-%{pytest} -v -k 'not test_fits_vector and not test_http and not test_jp2openjpeg_45 and not multithreaded_download and not multithreaded_upload and not test_vsis3_no_sign_request and not test_eedai_GOOGLE_APPLICATION_CREDENTIALS and not test_osr_erm_1 and not test_ers_4 and not test_ers_8 and not test_ers_10 and not test_jpeg2000_8 and not test_jpeg2000_11 and not test_osr_ct_options_area_of_interest' || :
-%endif
-popd
+%ctest || :
 %endif
 
 
-%files
-%{_bindir}/gdallocationinfo
+%files -f gdal_python_manpages_excludes.txt
+%{_bindir}/8211*
 %{_bindir}/gdal_contour
 %{_bindir}/gdal_create
+%{_bindir}/gdal_grid
 %{_bindir}/gdal_rasterize
 %{_bindir}/gdal_translate
-%{_bindir}/gdaladdo
-%{_bindir}/gdalinfo
-%{_bindir}/gdaldem
-%{_bindir}/gdalbuildvrt
-%{_bindir}/gdaltindex
-%{_bindir}/gdalwarp
-%{_bindir}/gdal_grid
-%{_bindir}/gdalenhance
-%{_bindir}/gdalmanage
-%{_bindir}/gdalsrsinfo
-%{_bindir}/gdaltransform
-%{_bindir}/nearblack
 %{_bindir}/gdal_viewshed
+%{_bindir}/gdaladdo
+%{_bindir}/gdalbuildvrt
+%{_bindir}/gdaldem
+%{_bindir}/gdalenhance
+%{_bindir}/gdalinfo
+%{_bindir}/gdallocationinfo
+%{_bindir}/gdalmanage
 %{_bindir}/gdalmdiminfo
 %{_bindir}/gdalmdimtranslate
-%{_bindir}/ogr*
-%{_bindir}/8211*
-%{_bindir}/s57*
+%{_bindir}/gdalsrsinfo
+%{_bindir}/gdaltindex
+%{_bindir}/gdaltransform
+%{_bindir}/gdalwarp
 %{_bindir}/gnmanalyse
 %{_bindir}/gnmmanage
+%{_bindir}/nearblack
+%{_bindir}/ogr2ogr
+%{_bindir}/ogrinfo
+%{_bindir}/ogrlineref
+%{_bindir}/ogrtindex
+%{_bindir}/s57dump
 %{_datadir}/bash-completion/completions/*
-%{_mandir}/man1/gdal*.1*
+%exclude %{_datadir}/bash-completion/completions/*.py
+%{_mandir}/man1/*
 %exclude %{_mandir}/man1/gdal-config.1*
-%exclude %{_mandir}/man1/gdal2tiles.1*
-%exclude %{_mandir}/man1/gdal_fillnodata.1*
-%exclude %{_mandir}/man1/gdal_merge.1*
-%exclude %{_mandir}/man1/gdal_retile.1*
-%exclude %{_mandir}/man1/gdal_sieve.1*
-%{_mandir}/man1/nearblack.1*
-%{_mandir}/man1/ogr*.1*
-%{_mandir}/man1/gnm*.1.*
-
+# Python manpages excluded in -f gdal_python_manpages_excludes.txt
 
 %files libs
 %license LICENSE.TXT
 %doc NEWS.md PROVENANCE.TXT COMMITTERS PROVENANCE.TXT-fedora
-%{_libdir}/libgdal.so.30
-%{_libdir}/libgdal.so.30.*
-%{_datadir}/%{name}
-%dir %{_libdir}/%{name}plugins
+%{_libdir}/libgdal.so.31
+%{_libdir}/libgdal.so.31.*
+%{_datadir}/%{name}/
+%{_libdir}/gdalplugins/
 
 %files devel
 %{_bindir}/%{name}-config
 %{_bindir}/%{name}-config-%{cpuarch}
-%{_mandir}/man1/gdal-config.1*
-%dir %{_includedir}/%{name}
-%{_includedir}/%{name}/*.h
-%{_libdir}/*.so
+%{_includedir}/%{name}/
+%{_libdir}/lib%{name}.so
+%{_libdir}/cmake/gdal/
 %{_libdir}/pkgconfig/%{name}.pc
+%{_mandir}/man1/gdal-config.1*
 
-# No complete java yet in EL8
-%if 0%{?rhel} < 8
-# Can I even have a separate Java package anymore?
-%files java -f .mfiles
-%doc swig/java/apps
-%{_jnidir}/%{name}/libgdalalljni.so*
+%files -n mingw32-%{name}
+%license LICENSE.TXT
+%{mingw32_bindir}/libgdal-31.dll
+%{mingw32_bindir}/gdal-config
+%{mingw32_libdir}/libgdal.dll.a
+%{mingw32_libdir}/cmake/gdal/
+%{mingw32_libdir}/pkgconfig/gdal.pc
+%{mingw32_libdir}/gdalplugins/
+%{mingw32_includedir}/%{name}/
 
-%files javadoc -f .mfiles-javadoc
-%endif
+%files -n mingw32-%{name}-tools
+%{mingw32_bindir}/*.exe
 
-%files perl
-%doc swig/perl/README
-%{perl_vendorarch}/*
-%{_mandir}/man3/*.3pm*
+%files -n mingw64-%{name}
+%license LICENSE.TXT
+%{mingw64_bindir}/libgdal-31.dll
+%{mingw64_bindir}/gdal-config
+%{mingw64_libdir}/libgdal.dll.a
+%{mingw64_libdir}/cmake/gdal/
+%{mingw64_libdir}/pkgconfig/gdal.pc
+%{mingw64_libdir}/gdalplugins/
+%{mingw64_includedir}/%{name}/
+
+%files -n mingw64-%{name}-tools
+%{mingw64_bindir}/*.exe
 
 %if %{with python3}
 %files -n python3-gdal
@@ -612,29 +486,55 @@ popd
 %{python3_sitearch}/osgeo/
 %{python3_sitearch}/osgeo_utils/
 
-%files python-tools
-%_bindir/*.py
-%{_mandir}/man1/pct2rgb.1*
-%{_mandir}/man1/rgb2pct.1*
-%{_mandir}/man1/gdal2tiles.1*
-%{_mandir}/man1/gdal_fillnodata.1*
-%{_mandir}/man1/gdal_merge.1*
-%{_mandir}/man1/gdal_retile.1*
-%{_mandir}/man1/gdal_sieve.1*
+%files python-tools -f gdal_python_manpages.txt
+%{_bindir}/gdal_calc.py
+%{_bindir}/gdal_edit.py
+%{_bindir}/gdal_fillnodata.py
+%{_bindir}/gdal_merge.py
+%{_bindir}/gdal_pansharpen.py
+%{_bindir}/gdal_polygonize.py
+%{_bindir}/gdal_proximity.py
+%{_bindir}/gdal_retile.py
+%{_bindir}/gdal_sieve.py
+%{_bindir}/gdal2tiles.py
+%{_bindir}/gdal2xyz.py
+%{_bindir}/gdalattachpct.py
+%{_bindir}/gdalcompare.py
+%{_bindir}/gdalmove.py
+%{_bindir}/ogrmerge.py
+%{_bindir}/pct2rgb.py
+%{_bindir}/rgb2pct.py
+%{_datadir}/bash-completion/completions/*.py
+
+%files -n mingw32-python3-%{name}
+%{mingw32_bindir}/*.py
+%{mingw32_python3_sitearch}/GDAL-%{version}-py%{mingw32_python3_version}.egg-info/
+%{mingw32_python3_sitearch}/osgeo/
+%{mingw32_python3_sitearch}/osgeo_utils/
+
+%files -n mingw64-python3-%{name}
+%{mingw64_bindir}/*.py
+%{mingw64_python3_sitearch}/GDAL-%{version}-py%{mingw32_python3_version}.egg-info/
+%{mingw64_python3_sitearch}/osgeo/
+%{mingw64_python3_sitearch}/osgeo_utils/
 %endif
 
-%files doc
-%doc doc/build/html frmts/iso8211/iso8211_html
+%if %{with java}
+%files java
+%{_jnidir}/%{name}/gdal-%{version}-sources.jar
+%{_jnidir}/%{name}/gdal-%{version}.jar
+%{_jnidir}/%{name}/gdal-%{version}.pom
+%{_jnidir}/%{name}/libgdalalljni.so
 
-#TODO: jvm
-#Should be managed by the Alternatives system and not via ldconfig
-#The MDB driver is said to require:
-#Download jackcess-1.2.2.jar, commons-lang-2.4.jar and
-#commons-logging-1.1.1.jar (other versions might work)
-#If you didn't specify --with-jvm-lib-add-rpath at
-#Or as before, using ldconfig
+%files javadoc
+%{_jnidir}/%{name}/gdal-3.5.0-javadoc.jar
+%endif
+
 
 %changelog
+* Fri May 13 2022 Sandro Mani <manisandro@gmail.com> - 3.5.0-1
+- Update to 3.5.0
+
 * Wed May 04 2022 Sandro Mani <manisandro@gmail.com> - 3.4.3-1
 - Update to 3.4.3
 
