@@ -41,7 +41,7 @@
 
 Name:          gdal
 Version:       3.5.0
-Release:       2%{?pre:%pre}%{?dist}
+Release:       3%{?pre:%pre}%{?dist}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -532,6 +532,9 @@ rm -r %{buildroot}%{mingw64_datadir}
 
 
 %changelog
+* Sat May 21 2022 Sandro Mani <manisandro@gmail.com> - 3.5.0-3
+- Fix gdal-config take two
+
 * Fri May 20 2022 Sandro Mani <manisandro@gmail.com> - 3.5.0-2
 - Fix gdal-config
 
