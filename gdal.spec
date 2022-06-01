@@ -46,7 +46,7 @@
 
 Name:          gdal
 Version:       3.0.4
-Release:       10%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
+Release:       11%{?dist}%{?bootstrap:.%{bootstrap}.bootstrap}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -691,6 +691,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Jun 01 2022 Sandro Mani <manisandro@gmail.com> - 3.0.4-11
+- Rebuild (armadillo)
+
 * Mon Oct 04 2021 Sandro Mani <manisandro@gmail.com> - 3.0.4-10
 - Restore java subpackage
 
