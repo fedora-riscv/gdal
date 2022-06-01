@@ -157,8 +157,8 @@ Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 %endif
 
 %if ! (0%{?fedora} || 0%{?rhel} > 5)
-%{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
-%{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
+%{!?python2_sitelib: %global python2_sitelib %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
+%{!?python2_sitearch: %global python2_sitearch %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 %endif
 
 #TODO: Description on the lib?
@@ -248,7 +248,7 @@ BuildArch: noarch
 This package contains HTML and PDF documentation for GDAL.
 
 # We don't want to provide private Python extension libs
-%global __provides_exclude_from ^%{python_sitearch}/.*\.so$
+%global __provides_exclude_from ^%{python2_sitearch}/.*\.so$
 
 %prep
 %setup -q -n %{name}-%{version}-fedora
@@ -669,7 +669,7 @@ done
 
 pushd %{name}autotest-%{testversion}
   # Export test enviroment
-  export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python_sitearch}
+  export PYTHONPATH=$PYTHONPATH:%{buildroot}%{python2_sitearch}
   #TODO: Nötig?
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}
 #  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:%{buildroot}%{_libdir}:$java_inc
@@ -769,11 +769,11 @@ popd
 %{_mandir}/man1/gdal_merge.1*
 %{_mandir}/man1/gdal_retile.1*
 %{_mandir}/man1/gdal_sieve.1*
-%{python_sitearch}/osgeo
-%{python_sitearch}/GDAL-%{version}-py*.egg-info
-%{python_sitearch}/osr.py*
-%{python_sitearch}/ogr.py*
-%{python_sitearch}/gdal*.py*
+%{python2_sitearch}/osgeo
+%{python2_sitearch}/GDAL-%{version}-py*.egg-info
+%{python2_sitearch}/osr.py*
+%{python2_sitearch}/ogr.py*
+%{python2_sitearch}/gdal*.py*
 
 %files doc
 %doc gdal_frmts ogrsf_frmts refman
@@ -787,7 +787,7 @@ popd
 #Or as before, using ldconfig
 
 %changelog
-* Wed Jun 01 2022 Sandro Mani <manisandro@gmail.com>
+* Wed Jun 01 2022 Sandro Mani <manisandro@gmail.com> - 1.11.4-4
 - Rebuild (armadillo)
 
 * Thu Dec 21 2017 Orion Poplawski <orion@cora.nwra.com> - 1.11.4-3
