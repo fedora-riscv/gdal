@@ -40,7 +40,7 @@
 
 Name:      gdal
 Version:   1.11.4
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -787,6 +787,9 @@ popd
 #Or as before, using ldconfig
 
 %changelog
+* Wed Jun 01 2022 Sandro Mani <manisandro@gmail.com>
+- Rebuild (armadillo)
+
 * Thu Dec 21 2017 Orion Poplawski <orion@cora.nwra.com> - 1.11.4-3
 - Rebuild again for new armadillo
 
