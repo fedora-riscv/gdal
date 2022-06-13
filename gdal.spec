@@ -41,7 +41,7 @@
 
 Name:          gdal
 Version:       3.5.0
-Release:       4%{?pre:%pre}%{?dist}
+Release:       5%{?pre:%pre}%{?dist}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -532,6 +532,9 @@ rm -r %{buildroot}%{mingw64_datadir}
 
 
 %changelog
+* Mon Jun 13 2022 Python Maint <python-maint@redhat.com> - 3.5.0-5
+- Rebuilt for Python 3.11
+
 * Mon May 30 2022 Jitka Plesnikova <jplesnik@redhat.com> - 3.5.0-4
 - Perl 5.36 rebuild
 
