@@ -33,15 +33,19 @@
 %if 0%{?rhel} >= 8
 %bcond_with java
 %else
+%ifarch %{java_arches}
 %bcond_without java
+%else
+%bcond_with java
+%endif
 %endif
 
-#global pre rc4
+#global pre rc1
 
 
 Name:          gdal
-Version:       3.5.0
-Release:       5%{?pre:%pre}%{?dist}
+Version:       3.5.1
+Release:       1%{?pre:.%pre}%{?dist}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -61,7 +65,6 @@ Source5:       %{name}-cleaner.sh
 
 # Add some utils to the default install target
 Patch0:        gdal_utils.patch
-Patch1:        gdal_libver.patch
 
 
 BuildRequires: cmake
@@ -527,11 +530,15 @@ rm -r %{buildroot}%{mingw64_datadir}
 %{_jnidir}/%{name}/libgdalalljni.so
 
 %files javadoc
-%{_jnidir}/%{name}/gdal-3.5.0-javadoc.jar
+%{_jnidir}/%{name}/gdal-%{version}-javadoc.jar
 %endif
 
 
 %changelog
+* Wed Jul 06 2022 Sandro Mani <manisandro@gmail.com> - 3.5.1-1
+- Update to 3.5.1
+- Limit -java subpackage to %%java_arches
+
 * Mon Jun 13 2022 Python Maint <python-maint@redhat.com> - 3.5.0-5
 - Rebuilt for Python 3.11
 
