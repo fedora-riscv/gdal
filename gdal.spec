@@ -45,7 +45,7 @@
 
 Name:          gdal
 Version:       3.5.1
-Release:       2%{?pre:.%pre}%{?dist}
+Release:       3%{?pre:.%pre}%{?dist}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -535,6 +535,9 @@ rm -r %{buildroot}%{mingw64_datadir}
 
 
 %changelog
+* Thu Jul 21 2022 Sandro Mani <manisandro@gmail.com> - 3.5.1-3
+- Rebuild (liblerc)
+
 * Thu Jul 21 2022 Fedora Release Engineering <releng@fedoraproject.org> - 3.5.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild
 
