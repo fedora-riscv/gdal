@@ -71,6 +71,10 @@ Source5:       %{name}-cleaner.sh
 
 # Add some utils to the default install target
 Patch0:        gdal_utils.patch
+# Fix build failure
+#   inlining failed in call to ‘always_inline’ ‘open.localalias’
+# See https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/2526 for a similar issue
+Patch1:        gdal-fortify-source.patch
 
 
 BuildRequires: cmake

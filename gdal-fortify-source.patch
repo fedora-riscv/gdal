@@ -1,0 +1,21 @@
+diff -rupN gdal-3.5.3-fedora/port/vsipreload.cpp gdal-3.5.3-fedora-new/port/vsipreload.cpp
+--- gdal-3.5.3-fedora/port/vsipreload.cpp	2022-10-21 16:57:18.000000000 +0200
++++ gdal-3.5.3-fedora-new/port/vsipreload.cpp	2022-11-01 11:11:12.423024266 +0100
+@@ -46,6 +46,17 @@
+ // LD_PRELOAD=./vsipreload.so ls -al /vsicurl/http://download.osgeo.org/gdal/data/sqlite3
+ // LD_PRELOAD=./vsipreload.so find /vsicurl/http://download.osgeo.org/gdal/data/sqlite3
+ 
++
++/*
++ * We need to export open* etc., but _FORTIFY_SOURCE defines conflicting
++ * always_inline versions. Disable _FORTIFY_SOURCE for this file, so we
++ * can define our overrides.
++ */
++#ifdef _FORTIFY_SOURCE
++#undef _FORTIFY_SOURCE
++#endif
++
++
+ #define _GNU_SOURCE 1
+ #define _LARGEFILE64_SOURCE 1
+ #include <stdio.h>
