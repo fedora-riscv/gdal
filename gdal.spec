@@ -34,7 +34,7 @@
 %bcond_with java
 %else
 %ifarch %{java_arches}
-%bcond_with java
+%bcond_without java
 %else
 %bcond_with java
 %endif
