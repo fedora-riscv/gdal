@@ -34,7 +34,7 @@
 %bcond_with java
 %else
 %ifarch %{java_arches}
-%bcond_with java
+%bcond_without java
 %else
 %bcond_with java
 %endif
@@ -51,7 +51,7 @@
 
 Name:          gdal
 Version:       3.5.3
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -563,6 +563,9 @@ cp -a %{SOURCE3} %{buildroot}%{_bindir}/%{name}-config
 
 
 %changelog
+* Thu Nov 03 2022 Sandro Mani <manisandro@gmail.com> - 3.5.3-2
+- Re-enable java
+
 * Tue Nov 01 2022 Sandro Mani <manisandro@gmail.com> - 3.5.3-1
 - Update to 3.5.3
 
