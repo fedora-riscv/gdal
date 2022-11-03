@@ -131,6 +131,7 @@ BuildRequires: mingw32-filesystem >= 102
 BuildRequires: mingw32-gcc-c++
 BuildRequires: mingw32-cfitsio
 BuildRequires: mingw32-curl
+BuildRequires: mingw32-dlfcn
 BuildRequires: mingw32-expat
 BuildRequires: mingw32-freexl
 BuildRequires: mingw32-geos
@@ -159,6 +160,7 @@ BuildRequires: mingw64-filesystem >= 102
 BuildRequires: mingw64-gcc-c++
 BuildRequires: mingw64-cfitsio
 BuildRequires: mingw64-curl
+BuildRequires: mingw64-dlfcn
 BuildRequires: mingw64-expat
 BuildRequires: mingw64-freexl
 BuildRequires: mingw64-geos
