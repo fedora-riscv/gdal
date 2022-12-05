@@ -51,7 +51,7 @@
 
 Name:          gdal
 Version:       3.6.0
-Release:       3%{?pre:.%pre}%{?dist}
+Release:       4%{?pre:.%pre}%{?dist}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
@@ -568,6 +568,9 @@ cp -a %{SOURCE3} %{buildroot}%{_bindir}/%{name}-config
 
 
 %changelog
+* Mon Dec 05 2022 Sandro Mani <manisandro@gmail.com> - 3.6.0-4
+- Rebuild (mingw-xerces-c)
+
 * Mon Dec 05 2022 Sandro Mani <manisandro@gmail.com> - 3.6.0-3
 - Switch to pcre2 for mingw build
 
