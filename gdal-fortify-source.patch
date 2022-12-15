@@ -1,6 +1,6 @@
-diff -rupN --no-dereference gdal-3.6.0-fedora/port/vsipreload.cpp gdal-3.6.0-fedora-new/port/vsipreload.cpp
---- gdal-3.6.0-fedora/port/vsipreload.cpp	2022-11-06 21:09:21.000000000 +0100
-+++ gdal-3.6.0-fedora-new/port/vsipreload.cpp	2022-11-11 18:33:22.896005450 +0100
+diff -rupN --no-dereference gdal-3.6.1-fedora/port/vsipreload.cpp gdal-3.6.1-fedora-new/port/vsipreload.cpp
+--- gdal-3.6.1-fedora/port/vsipreload.cpp	2022-12-14 00:02:36.000000000 +0100
++++ gdal-3.6.1-fedora-new/port/vsipreload.cpp	2022-12-15 20:52:13.229007790 +0100
 @@ -55,6 +55,17 @@
  #undef _FORTIFY_SOURCE
  #endif
