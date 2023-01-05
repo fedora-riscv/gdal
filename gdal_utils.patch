@@ -1,6 +1,6 @@
-diff -rupN --no-dereference gdal-3.6.1-fedora/frmts/iso8211/CMakeLists.txt gdal-3.6.1-fedora-new/frmts/iso8211/CMakeLists.txt
---- gdal-3.6.1-fedora/frmts/iso8211/CMakeLists.txt	2022-12-14 00:02:36.000000000 +0100
-+++ gdal-3.6.1-fedora-new/frmts/iso8211/CMakeLists.txt	2022-12-15 20:52:13.000007785 +0100
+diff -rupN --no-dereference gdal-3.6.2-fedora/frmts/iso8211/CMakeLists.txt gdal-3.6.2-fedora-new/frmts/iso8211/CMakeLists.txt
+--- gdal-3.6.2-fedora/frmts/iso8211/CMakeLists.txt	2023-01-02 15:38:16.000000000 +0100
++++ gdal-3.6.2-fedora-new/frmts/iso8211/CMakeLists.txt	2023-01-05 09:09:34.553926914 +0100
 @@ -15,15 +15,18 @@ gdal_standard_includes(gdal_iso8211)
  
  # Because linking an OBJECT library
@@ -23,9 +23,9 @@ diff -rupN --no-dereference gdal-3.6.1-fedora/frmts/iso8211/CMakeLists.txt gdal-
      target_link_libraries(8211createfromxml PRIVATE $<TARGET_NAME:${GDAL_LIB_TARGET_NAME}> gdal_iso8211)
 +    install(TARGETS 8211createfromxml RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
  endif ()
-diff -rupN --no-dereference gdal-3.6.1-fedora/ogr/ogrsf_frmts/s57/CMakeLists.txt gdal-3.6.1-fedora-new/ogr/ogrsf_frmts/s57/CMakeLists.txt
---- gdal-3.6.1-fedora/ogr/ogrsf_frmts/s57/CMakeLists.txt	2022-12-14 00:02:36.000000000 +0100
-+++ gdal-3.6.1-fedora-new/ogr/ogrsf_frmts/s57/CMakeLists.txt	2022-12-15 20:52:13.000007785 +0100
+diff -rupN --no-dereference gdal-3.6.2-fedora/ogr/ogrsf_frmts/s57/CMakeLists.txt gdal-3.6.2-fedora-new/ogr/ogrsf_frmts/s57/CMakeLists.txt
+--- gdal-3.6.2-fedora/ogr/ogrsf_frmts/s57/CMakeLists.txt	2023-01-02 15:38:17.000000000 +0100
++++ gdal-3.6.2-fedora-new/ogr/ogrsf_frmts/s57/CMakeLists.txt	2023-01-05 09:09:34.554926922 +0100
 @@ -17,8 +17,9 @@ target_include_directories(ogr_S57 PRIVA
  gdal_standard_includes(ogr_S57)
  
