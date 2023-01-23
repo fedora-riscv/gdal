@@ -1,0 +1,21 @@
+From 412b7fe6604141ee371f5a5a628bab1c5304de76 Mon Sep 17 00:00:00 2001
+From: Even Rouault <even.rouault@spatialys.com>
+Date: Tue, 17 Jan 2023 13:39:05 +0100
+Subject: [PATCH] testcopywords.cpp: fix build error with clang 15.0.7
+
+---
+ autotest/cpp/testcopywords.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/autotest/cpp/testcopywords.cpp b/autotest/cpp/testcopywords.cpp
+index a59d9bf91a3..07a0f448c69 100644
+--- a/autotest/cpp/testcopywords.cpp
++++ b/autotest/cpp/testcopywords.cpp
+@@ -30,6 +30,7 @@
+ #include "cpl_conv.h"
+ #include "gdal.h"
+ 
++#include <cstdint>
+ #include <iostream>
+ 
+ GByte *pIn;
