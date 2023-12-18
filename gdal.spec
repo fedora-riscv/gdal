@@ -50,7 +50,7 @@
 
 
 Name:          gdal
-Version:       3.6.4
+Version:       3.7.3
 Release:       1.rv64%{?dist}
 Summary:       GIS file format library
 License:       MIT
@@ -84,6 +84,7 @@ BuildRequires: expat-devel
 BuildRequires: freexl-devel
 BuildRequires: geos-devel
 BuildRequires: giflib-devel
+BuildRequires: gtest-devel
 BuildRequires: hdf-devel
 BuildRequires: hdf5-devel
 BuildRequires: json-c-devel
@@ -95,7 +96,6 @@ BuildRequires: libkml-devel
 BuildRequires: liblerc-devel
 BuildRequires: libpng-devel
 BuildRequires: libpq-devel
-BuildRequires: librx-devel
 %if %{with_spatialite}
 BuildRequires: libspatialite-devel
 %endif
@@ -381,13 +381,16 @@ cp -a %{SOURCE4} .
 %cmake \
   -DCMAKE_INSTALL_INCLUDEDIR=include/gdal \
   -DGDAL_JAVA_INSTALL_DIR=%{_jnidir}/%{name} \
-  -DGDAL_USE_JPEG12_INTERNAL=OFF
+  -DGDAL_USE_JPEG12_INTERNAL=OFF \
+  -DENABLE_DEFLATE64=OFF
 %cmake_build
 
 %if %{with mingw}
 %mingw_cmake \
+  -DBUILD_TESTING=OFF \
   -DCMAKE_INSTALL_INCLUDEDIR=include/gdal \
-  -DGDAL_USE_JPEG12_INTERNAL=OFF
+  -DGDAL_USE_JPEG12_INTERNAL=OFF \
+  -DENABLE_DEFLATE64=OFF
 %mingw_make_build
 %endif
 
@@ -459,6 +462,7 @@ cp -a %{SOURCE3} %{buildroot}%{_bindir}/%{name}-config
 %{_bindir}/ogrlineref
 %{_bindir}/ogrtindex
 %{_bindir}/s57dump
+%{_bindir}/sozip
 %{_datadir}/bash-completion/completions/*
 %exclude %{_datadir}/bash-completion/completions/*.py
 %{_mandir}/man1/*
@@ -468,8 +472,8 @@ cp -a %{SOURCE3} %{buildroot}%{_bindir}/%{name}-config
 %files libs
 %license LICENSE.TXT
 %doc NEWS.md PROVENANCE.TXT COMMITTERS PROVENANCE.TXT-fedora
-%{_libdir}/libgdal.so.32
-%{_libdir}/libgdal.so.32.*
+%{_libdir}/libgdal.so.33
+%{_libdir}/libgdal.so.33.*
 %{_datadir}/%{name}/
 %{_libdir}/gdalplugins/
 
@@ -485,7 +489,7 @@ cp -a %{SOURCE3} %{buildroot}%{_bindir}/%{name}-config
 %if %{with mingw}
 %files -n mingw32-%{name}
 %license LICENSE.TXT
-%{mingw32_bindir}/libgdal-32.dll
+%{mingw32_bindir}/libgdal-33.dll
 %{mingw32_bindir}/gdal-config
 %{mingw32_libdir}/libgdal.dll.a
 %{mingw32_libdir}/cmake/gdal/
@@ -498,7 +502,7 @@ cp -a %{SOURCE3} %{buildroot}%{_bindir}/%{name}-config
 
 %files -n mingw64-%{name}
 %license LICENSE.TXT
-%{mingw64_bindir}/libgdal-32.dll
+%{mingw64_bindir}/libgdal-33.dll
 %{mingw64_bindir}/gdal-config
 %{mingw64_libdir}/libgdal.dll.a
 %{mingw64_libdir}/cmake/gdal/
@@ -566,6 +570,48 @@ cp -a %{SOURCE3} %{buildroot}%{_bindir}/%{name}-config
 
 
 %changelog
+* Mon Dec 18 2023 Guoguo <i@qwq.trade> - 3.7.3-1.rv64
+- Merge upstream to 3.7.3-1
+
+* Fri Nov 03 2023 Sandro Mani <manisandro@gmail.com> - 3.7.3-1
+- Update to 3.7.3
+
+* Wed Sep 13 2023 Sandro Mani <manisandro@gmail.com> - 3.7.2-1
+- Update to 3.7.2
+
+* Sun Sep 03 2023 Sandro Mani <manisandro@gmail.com> - 3.7.1-7
+- Rebuild (proj)
+
+* Tue Aug 15 2023 Sandro Mani <manisandro@gmail.com> - 3.7.1-6
+- Rebuild (libspatialite)
+
+* Mon Aug 14 2023 Sandro Mani <manisandro@gmail.com> - 3.7.1-5
+- Rebuild (mingw-poppler)
+
+* Wed Aug  9 2023 Tom Callaway <spot@fedoraproject.org> - 3.7.1-4
+- rebuild for new qhull
+
+* Mon Aug 07 2023 Marek Kasik <mkasik@redhat.com> - 3.7.1-3
+- Rebuild for poppler 23.08.0
+
+* Wed Jul 19 2023 Fedora Release Engineering <releng@fedoraproject.org> - 3.7.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_39_Mass_Rebuild
+
+* Tue Jul 18 2023 Sandro Mani <manisandro@gmail.com> - 3.7.1-1
+- Update to 3.7.1
+
+* Mon Jul 03 2023 Python Maint <python-maint@redhat.com> - 3.7.0-2
+- Rebuilt for Python 3.12
+
+* Thu May 11 2023 Sandro Mani <manisandro@gmail.com> - 3.7.0-1
+- Update to 3.7.0
+
+* Tue May 09 2023 Markus Neteler <neteler@mundialis.de> - 3.6.4-3
+- SPDX migration
+
+* Tue May 02 2023 Sandro Mani <manisandro@gmail.com> - 3.6.4-2
+- Drop unused librx BR
+
 * Sat Jul 08 2023 Liu Yang <Yang.Liu.sn@gmail.com> - 3.6.4-1.rv64
 - Merge upstream to 3.6.4-1
 
@@ -1493,7 +1539,7 @@ cp -a %{SOURCE3} %{buildroot}%{_bindir}/%{name}-config
 - Added jnis
 - Patches updated with proper version info
 - Added suggestions from Ralph Apel <r.apel@r-apel.de>
-	+ Versionless symlink for gdal.jar
-	+ Maven2 pom
-	+ JPP-style depmap
-	+ Use -f XX.files for ruby and python
+  + Versionless symlink for gdal.jar
+  + Maven2 pom
+  + JPP-style depmap
+  + Use -f XX.files for ruby and python
