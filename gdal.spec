@@ -51,7 +51,7 @@
 
 Name:          gdal
 Version:       3.7.3
-Release:       1.rv64%{?dist}
+Release:       1.rvrebuild0%{?dist}
 Summary:       GIS file format library
 License:       MIT
 URL:           http://www.gdal.org
